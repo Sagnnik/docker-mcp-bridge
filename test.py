@@ -11,6 +11,9 @@ from prompts import SYSTEM_MESSAGES, LLM_TOOL_SCHEMAS
 
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+ARXIV_STORAGE_PATH = os.getenv("ARXIV_STORAGE_PATH")
+if not OPENAI_API_KEY:
+    raise RuntimeError("OPENAI_API_KEY is not set. Please set it in your environment.")
 OPENAI_API_URL = "https://api.openai.com/v1/chat/completions"
 
 def extract_text_from_content(content_items: List[Dict]) -> str:
@@ -31,15 +34,17 @@ def tool_schema_conversion(mcp_tools: List[Dict[str, Any]], mode: str='default')
     - code: LLM creates custom tool
     """    
     tools: List[Dict[str, Any]] = []
-
+    not_expose = {"mcp-add", "mcp-remove", "mcp-config-set"}
     dynamic_tools = {'mcp-find'}
     code_mode_tools = {'code-mode', 'mcp-exec'}
     exposed_tools = dynamic_tools | code_mode_tools
 
     def is_custom(name:str):
-        return name.startswith("code-mode-") and name not in {"code-mode"}
+        return name.startswith("code-mode-")
     
     def should_expose(name:str):
+        if name in not_expose:
+            return False
         if mode == 'default':
             if name in exposed_tools:
                 return False
@@ -60,7 +65,7 @@ def tool_schema_conversion(mcp_tools: List[Dict[str, Any]], mode: str='default')
                 return True
             return False
         else:
-            return ValueError(f"Unknown Mode: {mode}")
+            raise ValueError(f"Unknown Mode: {mode}")
         
 
     for t in mcp_tools:
@@ -167,8 +172,9 @@ async def gpt_with_mcp(user_message: str, max_iterations: int=10, mode: str="def
             response.raise_for_status()
             data = response.json()
 
-            assistant_message = data['choices'][0]['message']
-            finish_reason = data['choices'][0]['finish_reason']
+            choice = data.get('choices', [{}])[0]
+            assistant_message = choice.get('message') or choice.get('message', {})
+            finish_reason = choice.get('finish_reason') or data.get('choices', [{}])[0].get('finish_reason')
             messages.append(assistant_message)
 
             if finish_reason == 'stop':
@@ -203,7 +209,7 @@ async def gpt_with_mcp(user_message: str, max_iterations: int=10, mode: str="def
                                     activate=True
                                 if mode == 'code':
                                     activate=False
-                                await mcp.add_mcp_servers(client, servers[0], activate)
+                                await mcp.add_mcp_servers(client, servers[0]['name'], activate)
                                 tools_changed = True
                             
                             result_text = json.dumps({"servers": servers})
@@ -257,8 +263,9 @@ async def gpt_with_mcp(user_message: str, max_iterations: int=10, mode: str="def
                         print(f"Tool result preview: {result_text[:200]}...")
 
                         messages.append({
-                            "role": "tool",
                             "tool_call_id": tool_call_id,
+                            "role": "tool",
+                            "name": tool_name,
                             "content": result_text
                         })
 
@@ -284,7 +291,7 @@ async def gpt_with_mcp(user_message: str, max_iterations: int=10, mode: str="def
             # Unexpected finish reason
             print(f"Unexpected finish_reason: {finish_reason}")
             break
-            
+
         return {
             "content": "Maximum iterations reached without completion",
             "messages": messages,
@@ -310,7 +317,11 @@ if __name__ == "__main__":
         """Test with dynamic server discovery and addition"""
         print("\n=== Testing Dynamic Mode ===\n")
         answer = await gpt_with_mcp(
-            user_message="I need to search for information about Python programming. Find and add an appropriate MCP server, then search for Python tutorials. Ideally user wikipedia-mcp",
+            user_message="""fetch recent arXiv papers about recursive transformers, tree-based attention architectures, and hierarchical sequence models using the arxiv-mcp server. Then use that tool to retrieve the top 5 relevant papers for each topic, extract their abstracts, and produce a combined expert-level summary explaining:
+1. what recursive transformers are,
+2. how they compare to standard Transformers, and
+3. current research directions.
+Return only the final consolidated summary.""",
             max_iterations=10,
             mode="dynamic"
         )
@@ -323,15 +334,19 @@ if __name__ == "__main__":
         """Test with code-mode for custom tools"""
         print("\n=== Testing Code Mode ===\n")
         answer = await gpt_with_mcp(
-            user_message="Create a custom tool that fetches information about multiple topics from wikipedia-mcp and combines them into a summary. Then search for deep learning and give me the final summary",
+            user_message="""Create a custom tool that fetches recent arXiv papers about recursive transformers, tree-based attention architectures, and hierarchical sequence models using the arxiv-mcp server. Then use that tool to retrieve the top 5 relevant papers for each topic, extract their abstracts, and produce a combined expert-level summary explaining:
+1. what recursive transformers are,
+2. how they compare to standard Transformers, and
+3. current research directions.
+Return only the final consolidated summary.""",
             max_iterations=10,
             mode="code",
-            initial_servers=["wikipedia-mcp"]
+            initial_servers=None
         )
         print("\n==== Answer ====\n")
         print(answer['content'])
         print(f"\nActive servers: {answer['active_servers']}")
 
     # asyncio.run(test_default_mode())
-    # asyncio.run(test_dynamic_mode())
-    asyncio.run(test_code_mode())
+    asyncio.run(test_dynamic_mode())
+    # asyncio.run(test_code_mode())

@@ -151,6 +151,14 @@ class MCPGatewayClient:
         except Exception as e:
             print(f"Error finding MCP servers: {e}")
             return []
+        
+    async def add_mcp_configs(self, client:httpx.AsyncClient, server:str, key:str, value:Any):
+        
+        try: 
+            result = await self.call_tool(client=client, name="mcp-config-set", arguments={"server":server, "key":key, "value": value})
+            return result
+        except Exception as e:
+            print(f"Error setting configs using mcp-config-set: {str(e)}")
 
     async def add_mcp_servers(self, client: httpx.AsyncClient, server_name:str, activate:bool=True):
         if not self.dynamic_tools_enabled:

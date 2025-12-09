@@ -28,21 +28,22 @@ async def dynamic_mcp_test():
     async with httpx.AsyncClient(timeout=300) as client:
         await mcp.initialize(client)
         await mcp.list_tools(client)
-        servers = await mcp.find_mcp_servers(client=client, query="wikipedia-mcp")
+        servers = await mcp.find_mcp_servers(client=client, query="arxiv")
         server_name = servers[0]['name']
         print("\n=== SERVERS ===")
         print(servers)
         
-        add_mcp_result = await mcp.add_mcp_servers(client=client, server_name=server_name)
+        add_mcp_result = await mcp.add_mcp_servers(client=client, server_name=server_name, activate=True)
         
         await asyncio.sleep(2)
         print("\n=== ADD MCP ===")
         print(add_mcp_result)
+        exit(0)
 
         tools = await mcp.list_tools(client)
         print("\n===Printing initial tools output===\n")
         print(tools)
-        exit(0)
+        
 
         create_result = await mcp.create_dynamic_code_tool(
             client=client,
