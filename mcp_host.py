@@ -152,11 +152,13 @@ class MCPGatewayClient:
             print(f"Error finding MCP servers: {e}")
             return []
         
-    async def add_mcp_configs(self, client:httpx.AsyncClient, server:str, key:str, value:Any):
-        
+    async def add_mcp_configs(self, client:httpx.AsyncClient, server:str, keys:List[str], values:List[Any]):
         try: 
-            result = await self.call_tool(client=client, name="mcp-config-set", arguments={"server":server, "key":key, "value": value})
-            return result
+            results = []
+            for i, key in enumerate(keys):
+                result = await self.call_tool(client=client, name="mcp-config-set", arguments={"server":server, "key":key, "value": values[i]})
+                results.append(result)
+            return results
         except Exception as e:
             print(f"Error setting configs using mcp-config-set: {str(e)}")
 

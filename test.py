@@ -24,6 +24,81 @@ def extract_text_from_content(content_items: List[Dict]) -> str:
             text_parts.append(item['text'])
     return "\n".join(text_parts) if text_parts else json.dumps(content_items)
 
+def convert_config_schema_to_openai_tools(config_schema, server, keys, values):
+    """
+    Converts MCP config_schema (list of schema objects) into a list of
+    OpenAI tool definitions (function tools).
+
+    Example MCP schema:
+    [
+        {
+            "name": "arxiv-mcp-server",
+            "description": "...",
+            "properties": {
+                "storage_path": {"type": "string", "description": "Directory ..."}
+            },
+            "required": ["storage_path"],
+            "type": "object"
+        }
+    ]
+
+    Output:
+    [
+        {
+            "type": "function",
+            "function": {
+                "name": "mcp_config_set_arxiv_mcp_server",
+                "description": "Configure arxiv-mcp-server",
+                "parameters": {
+                    "type": "object",
+                    "properties": {...},
+                    "required": [...]
+                }
+            }
+        }
+    ]
+    """
+
+    tools = []
+
+    for schema in config_schema or []:
+        server_name = schema.get("name")
+        description = schema.get("description", f"Configure {server_name}")
+        props = schema.get("properties", {})
+        required = schema.get("required", [])
+
+        # Build OpenAI tool name
+        tool_name = f"mcp_config_set_{server_name.replace('-', '_')}"
+
+        # Convert MCP property types into JSON Schema types for OpenAI
+        parameters = {
+            "type": "object",
+            "properties": {},
+            "required": required
+        }
+
+        for key, prop in props.items():
+            prop_type = prop.get("type", "string")
+            parameters["properties"][key] = {
+                "type": prop_type,
+                "description": prop.get("description", "")
+            }
+
+        # Final OpenAI tool definition
+        tool = {
+            "type": "function",
+            "function": {
+                "name": tool_name,
+                "description": description,
+                "parameters": parameters
+            }
+        }
+
+        tools.append(tool)
+
+    return tools
+
+
 def tool_schema_conversion(mcp_tools: List[Dict[str, Any]], mode: str='default'):
     """
     Convert MCP tool definitions to OpenAI function tools
@@ -34,8 +109,7 @@ def tool_schema_conversion(mcp_tools: List[Dict[str, Any]], mode: str='default')
     - code: LLM creates custom tool
     """    
     tools: List[Dict[str, Any]] = []
-    not_expose = {"mcp-add", "mcp-remove", "mcp-config-set"}
-    dynamic_tools = {'mcp-find'}
+    dynamic_tools = {"mcp-find", "mcp-add", "mcp-remove", "mcp-config-set"}
     code_mode_tools = {'code-mode', 'mcp-exec'}
     exposed_tools = dynamic_tools | code_mode_tools
 
@@ -43,8 +117,6 @@ def tool_schema_conversion(mcp_tools: List[Dict[str, Any]], mode: str='default')
         return name.startswith("code-mode-")
     
     def should_expose(name:str):
-        if name in not_expose:
-            return False
         if mode == 'default':
             if name in exposed_tools:
                 return False
@@ -198,21 +270,44 @@ async def gpt_with_mcp(user_message: str, max_iterations: int=10, mode: str="def
                     print(f"Calling tool: {tool_name} with args: {tool_args}")
 
                     try:
-                        # Handle mcp-find - automatically add the first server found
+                        # Handle mcp-find
+                        # - if it return only one server auto add it
+                        # - if it return multiple server another round of tool call for LLM to decide the server to add
+                        # - if the server needs configs call the mcp-config-set
                         if tool_name == "mcp-find":
+                            additional_info_text = ""
                             servers = await mcp.find_mcp_servers(client, tool_args.get('query'))
-                            
-                            # Auto-add the first server found
-                            if servers and len(servers) > 0:
+                            if len(servers) == 1:
+                                # Can auto-add the only server found
+                                #- before adding check for config schema
+                                #- if config schema is available convert it and ask LLM to call mcp-config-set
+                                selected_server = servers[0]
                                 print(f"Auto-adding first server: {servers[0]}")
+                                if 'config_schema' in selected_server:
+                                    print(selected_server['config_schema'][0]["description"])
+                                    config_server_name = selected_server['config_schema'][0]['name']
+                                    config_keys = selected_server['config_schema'][0]['properties'].keys()
+                                    print(f"The properties required are: {config_keys}")
+                                    config_values = []
+                                    for key in config_keys:
+                                        config_values.append(input(f"Enter {key}") or "")
+                                    mcp.add_mcp_configs(client=client, server=config_server_name, keys=config_keys, values=config_values)
+
                                 if mode == 'dynamic':
                                     activate=True
                                 if mode == 'code':
                                     activate=False
+                                
                                 await mcp.add_mcp_servers(client, servers[0]['name'], activate)
                                 tools_changed = True
+                            if len(servers) > 1:
+                                # Need to let user select the server for now
+                                # Print all the mcp server info and let user select from them
+                                pass
+                            else: 
+                                additional_info_text = "No related MCP server found"
                             
-                            result_text = json.dumps({"servers": servers})
+                            result_text = additional_info_text + json.dumps({"servers": servers})
                             
                         # Handle code-mode - create a custom tool code-mode-{name}
                         elif tool_name == "code-mode":
@@ -273,8 +368,9 @@ async def gpt_with_mcp(user_message: str, max_iterations: int=10, mode: str="def
                         error_msg = f"Error calling tool {tool_name}: {str(e)}"
                         print(error_msg)
                         messages.append({
-                            "role": "tool",
                             "tool_call_id": tool_call_id,
+                            "role": "tool",
+                            "name": tool_name,
                             "content": error_msg
                         })
 

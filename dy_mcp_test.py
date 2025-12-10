@@ -1,4 +1,5 @@
 from mcp_host import MCPGatewayClient
+from configs_secrets import hil_configs, handle_secrets_interactive
 import httpx
 import asyncio
 import json
@@ -22,22 +23,79 @@ return JSON.stringify({
     fib_20: fib(20)
 }, null, 2);
 """
-
 async def dynamic_mcp_test():
     mcp = MCPGatewayClient()
     async with httpx.AsyncClient(timeout=300) as client:
+        # Initialize
         await mcp.initialize(client)
         await mcp.list_tools(client)
-        servers = await mcp.find_mcp_servers(client=client, query="arxiv")
-        server_name = servers[0]['name']
-        print("\n=== SERVERS ===")
-        print(servers)
+
+        # Find Servers
+        query = input("Enter search query for MCP servers: ").strip() or "github"
+        servers = await mcp.find_mcp_servers(client=client, query=query)
+
+        print("\n=== Servers Found ===\n")
+        if not servers:
+            print("No relevant MCP server found!")
+            return
         
-        add_mcp_result = await mcp.add_mcp_servers(client=client, server_name=server_name, activate=True)
+        final_server = None
+        if len(servers) == 1:
+            final_server = servers[0]
+            print(f"Found 1 server: {final_server['name']}")
+            print(f"Description: {final_server.get('description', 'N/A')}")
+        else:
+            for i, server in enumerate(servers):
+                has_config = '✓ config' if 'config_schema' in server else ''
+                has_secrets = '✓ secrets' if 'required_secrets' in server else ''
+                badges = ' '.join([has_config, has_secrets]).strip()
+                
+                print(f"{i+1}. {server['name']} {f'({badges})' if badges else ''}")
+                print(f"   {server.get('description', 'No description')[:100]}...")
+            
+            server_index = int(input("\nEnter the server number: ")) - 1
+            if server_index not in range(len(servers)):
+                raise ValueError("Invalid server selection")
+            final_server = servers[server_index]
         
+        final_server_name = final_server['name']
+        print(f"\n✓ Selected server: {final_server_name}")
+
+        # Handle config schema
+        if 'config_schema' in final_server:
+            config_server, config_keys, config_values = hil_configs(final_server)
+            await mcp.add_mcp_configs(
+                client=client, 
+                server=config_server, 
+                keys=config_keys, 
+                values=config_values
+            )
+            print("✓ Configuration completed")
+        
+        # Handle required secrets
+        if 'required_secrets' in final_server:
+            secrets_configured = handle_secrets_interactive(final_server)
+            
+            if not secrets_configured:
+                print("\n⚠️  Warning: Proceeding without proper secret configuration")
+                proceed = input("Continue adding server? (y/n): ").strip().lower()
+                if proceed != 'y':
+                    print("Aborted.")
+                    return
+        
+        # Add the MCP server
+        print(f"\nAdding server '{final_server_name}'...")
+        add_mcp_result = await mcp.add_mcp_servers(
+            client=client, 
+            server_name=final_server_name, 
+            activate=True
+        )
         await asyncio.sleep(2)
-        print("\n=== ADD MCP ===")
-        print(add_mcp_result)
+
+        print("\n=== Add Server Result ===")
+        print(json.dumps(add_mcp_result, indent=2))
+        
+        print(f"\n✓ Server '{final_server_name}' successfully added and activated!")
         exit(0)
 
         tools = await mcp.list_tools(client)
@@ -49,7 +107,7 @@ async def dynamic_mcp_test():
             client=client,
             code='',
             name="wiki-test",
-            servers=[server_name],
+            servers=[final_server_name],
             timeout=30
         )   # This creates a text (.md) result of tool descriptions available in the mcp server as a reference for the LLM
         print("\n=== Create Tool Result ===")
