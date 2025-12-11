@@ -7,7 +7,7 @@ from typing import Optional, List, Dict, Any
 from dotenv import load_dotenv
 from utils import parse_sse_json
 from mcp_host import MCPGatewayClient
-from prompts import SYSTEM_MESSAGES, LLM_TOOL_SCHEMAS
+from prompts import MCP_BRIDGE_MESSAGES, LLM_TOOL_SCHEMAS
 
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -209,7 +209,7 @@ async def gpt_with_mcp(user_message: str, max_iterations: int=10, mode: str="def
         messages = [
             {
                 "role": "system",
-                "content": SYSTEM_MESSAGES.get(mode)
+                "content": MCP_BRIDGE_MESSAGES.get(mode)
             },
             {
                 "role": "user",

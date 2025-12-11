@@ -1,4 +1,4 @@
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 import json
 
 def parse_sse_json(response_text: str) -> Optional[Dict[str, Any]]:
@@ -19,3 +19,11 @@ def parse_sse_json(response_text: str) -> Optional[Dict[str, Any]]:
                 print("Could not parse JSON from SSE data:", data)
                 return None
     return None
+
+def extract_text_from_content(content_items: List[Dict]) -> str:
+    """Extract text from MCP content items"""
+    text_parts = []
+    for item in content_items:
+        if item.get('type') == "text" and 'text' in item:
+            text_parts.append(item['text'])
+    return "\n".join(text_parts) if text_parts else json.dumps(content_items)

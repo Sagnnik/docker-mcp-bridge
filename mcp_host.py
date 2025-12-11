@@ -1,10 +1,50 @@
 import httpx
 import json
+import asyncio
 from typing import Optional, List, Dict, Any
-from utils import parse_sse_json
+from utils import parse_sse_json, extract_text_from_content
+from provider import LLMProviderFactory
+from prompts import MCP_BRIDGE_MESSAGES
+from configs_secrets import hil_configs, handle_secrets_interactive
 
 MCP_PROTOCOL_VERSION = "2024-11-05"
 MCP_URL = "http://localhost:8811/mcp"
+
+def handle_mcp_find(servers):
+    """
+    Handle mcp-find
+    - if it returns only one server auto add it
+    - if it returns multiple servers another let the user choose it
+    - let user input configs and secrets interactively using cli
+    """
+    additional_info = ""
+    print("\n=== Servers Found ===\n")
+    if not servers:
+        print("No relevant MCP server found!")
+        additional_info = "No relevant MCP server found!"
+        return
+    final_server = None
+    if len(servers) == 1:
+        print(f"Found 1 server: {final_server['name']}")
+        print(f"Description: {final_server.get('description', 'N/A')}")
+    else:
+        for i, server in enumerate(servers):
+            has_config = '✓ config' if 'config_schema' in server else ''
+            has_secrets = '✓ secrets' if 'required_secrets' in server else ''
+            badges = ' '.join([has_config, has_secrets]).strip()
+
+            print(f"{i+1}. {server['name']} {f'({badges})' if badges else ''}")
+            print(f"   {server.get('description', 'No description')[:100]}...")
+
+        server_index = int(input("\nEnter the server number: ")) - 1
+        if server_index not in range(len(servers)):
+            raise ValueError("Invalid server selection")
+        final_server = servers[server_index]
+
+    final_server_name = final_server['name']
+    print(f"\n✓ Selected server: {final_server_name}")
+        
+    return final_server, additional_info
 
 class MCPGatewayClient:
     def __init__(self):
@@ -251,3 +291,212 @@ class MCPGatewayClient:
             return result
         except Exception as e:
             raise RuntimeError(f"Error executing dynamic code tool {tool_name}: {e}")
+        
+    async def chat_with_llm(
+            self,
+            provider_name: str, 
+            user_message: str,
+            model:str,
+            initial_servers: List[str],
+            mode:str = "dynamic",
+            system_message: Optional[str]="",
+            max_iterations: int=5,
+            enable_dynamic_tools: bool=True,
+            enable_code_mode: bool = False
+    ):
+        provider = LLMProviderFactory.get_provider(provider_name)
+
+        async with httpx.AsyncClient(timeout=300) as client:
+            # Initialize
+            await self.initialize(client)
+
+            # Load with initial servers requested
+            if initial_servers:
+                for server in initial_servers:
+                    print(f"Adding initial server: {server}")
+                    await self.add_mcp_servers(client)
+
+            mcp_tools = await self.list_tools(client)
+            messages = [
+                {
+                    "role": "system",
+                    "content": system_message+MCP_BRIDGE_MESSAGES.get(mode)
+                },
+                {
+                    "role": "user",
+                    "content": user_message
+                }
+            ]
+
+            for iteration in range(max_iterations):
+                response, assistant_message, finish_reason = await provider.chat(
+                    messages=messages,
+                    model=model,
+                    tools=mcp_tools,
+                    mode=mode
+                )
+
+                messages.append(assistant_message)
+                
+                if finish_reason == 'stop':
+                    return {
+                        "content": assistant_message.get('content'),
+                        "active_servers": self.active_servers,
+                        "available_tools": list(self.available_tools.keys()),
+                        "full_response": response
+                    }
+                
+                if finish_reason == "tool_calls" and assistant_message.get('tool_calls'):
+                    tool_calls = assistant_message['tool_calls']
+                    print(f"\n==== Iteration {iteration+1}/{max_iterations} ==== Processing {len(tool_calls)} tool calls ====\n")
+                    tools_changed = False
+
+                    for tc in tool_calls:
+                        tool_name = tc['function']['name']
+                        tool_args = json.loads(tc['function']['arguments'])
+                        tool_call_id = tc['id']
+
+                        print(f"Calling tool: {tool_name} with args: {tool_args}")
+
+                        try:
+                            if tool_name == "mcp-find":
+                                servers = await self.find_mcp_servers(client, tool_args.get('query'))
+                                final_server, additional_info = handle_mcp_find(servers)
+
+                                # Handle config schema
+                                if 'config_schema' in final_server:
+                                    config_server, config_keys, config_values = hil_configs(final_server)
+                                    await self.add_mcp_configs(
+                                        client=client, 
+                                        server=config_server, 
+                                        keys=config_keys, 
+                                        values=config_values
+                                    )
+                                    print("✓ Configuration completed")
+
+                                # Handle required secrets
+                                if 'required_secrets' in final_server:
+                                    secrets_configured = handle_secrets_interactive(final_server)
+                                    
+                                    if not secrets_configured:
+                                        print("\n⚠️  Warning: Proceeding without proper secret configuration")
+                                        proceed = input("Continue adding server? (y/n): ").strip().lower()
+                                        if proceed != 'y':
+                                            print("Aborted.")
+                                            exit(0)
+
+                                # Add the MCP server
+                                if mode in ['dynamic', 'default']:
+                                    activate=True
+                                elif mode == 'code':
+                                    activate=False
+                                final_server_name = final_server['name']
+                                print(f"\nAdding server '{final_server_name}'...")
+                                add_mcp_result = await self.add_mcp_servers(
+                                    client=client, 
+                                    server_name=final_server_name, 
+                                    activate=activate
+                                )
+                                await asyncio.sleep(1)
+                                stringified_add_mcp_result = json.dumps(add_mcp_result)
+
+                                print("\n=== Add Server Result ===")
+                                print(json.dumps(add_mcp_result, indent=2))
+                                if stringified_add_mcp_result.startswith("Successfully"):
+                                    add_status = "success"
+                                elif stringified_add_mcp_result.startswith("Error"):
+                                    add_status = "failed"
+                                
+                                print(f"\n✓ Server '{final_server_name}' successfully added and activated!")
+                                tools_changed = True
+
+                                result_text = additional_info + json.dumps(
+                                    {
+                                        "server": final_server, 
+                                        "status": add_status,
+                                        "message": stringified_add_mcp_result
+                                    }
+                                )
+                            
+                            # Handle code-mode - create a custom tool code-mode-{name}
+                            elif tool_name == "code-mode":
+                                result = await self.create_dynamic_code_tool(
+                                    client,
+                                    code='',
+                                    name=tool_args.get('name'),
+                                    servers=tool_args.get('servers'),
+                                    timeout=tool_args.get('timeout', 30)
+                                )
+
+                                tools_changed = True
+                                result_text = json.dumps(result)
+
+                            # Handle mcp-exec - Runs the generated script
+                            elif tool_name == "mcp-exec":
+                                exec_tool_name = tool_args.get('name')
+                                exec_arguments = tool_args.get('arguments', {})
+                                script = exec_arguments.get('script', '')
+
+                                print("\n=== Code to be Executed ===\n")
+                                print(script if script else "No script provided")
+
+                                exec_result = await self.execute_dynamic_code_tool(
+                                    client,
+                                    tool_name=exec_tool_name,
+                                    script=script
+                                )
+                                if isinstance(exec_result, dict) and 'content' in exec_result:
+                                    result_text = extract_text_from_content(exec_result['content'])
+                                else:
+                                    result_text = json.dumps(exec_result)
+
+                            else:
+                                # Regular MCP tool call
+                                tool_result = await self.call_tool(
+                                    client=client, 
+                                    name=tool_name, 
+                                    arguments=tool_args
+                                )
+                                
+                                if isinstance(tool_result, dict) and 'content' in tool_result:
+                                    result_text = extract_text_from_content(tool_result['content'])
+                                else:
+                                    result_text = json.dumps(tool_result)
+
+                            print(f"\n=== Result Text after iteration {iteration+1} ===\n")
+                            print(f"Tool result preview: {result_text[:200]}...")
+
+                            messages.append({
+                                "tool_call_id": tool_call_id,
+                                "role": "tool",
+                                "name": tool_name,
+                                "content": result_text
+                            })
+
+                        except Exception as e:
+                            error_msg = f"Error calling tool {tool_name}: {str(e)}"
+                            print(error_msg)
+                            messages.append({
+                                "tool_call_id": tool_call_id,
+                                "role": "tool",
+                                "name": tool_name,
+                                "content": error_msg
+                            })
+
+                    if tools_changed:
+                        print("Tools changed, refreshing tool list...")
+                        mcp_tools = await self.list_tools(client)
+                        print(f"Now have {len(mcp_tools)} tools available")
+
+                    continue
+                # Unexpected finish reason
+                print(f"Unexpected finish_reason: {finish_reason}")
+                break
+
+            return {
+                "content": "Maximum iterations reached without completion",
+                "messages": messages,
+                "active_servers": self.active_servers,
+                "available_tools": list(self.available_tools.keys()),
+                "full_response": response
+            }
