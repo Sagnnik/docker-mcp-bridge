@@ -25,6 +25,7 @@ def handle_mcp_find(servers):
         return
     final_server = None
     if len(servers) == 1:
+        final_server = servers[0]
         print(f"Found 1 server: {final_server['name']}")
         print(f"Description: {final_server.get('description', 'N/A')}")
     else:
@@ -242,10 +243,6 @@ class MCPGatewayClient:
             print(f"Error removing MCP server {server_name}: {e}")
             return False
         
-        except Exception as e:
-            print(f"Error removing MCP server {server_name}: {e}")
-            return False
-        
     async def create_dynamic_code_tool(self, client: httpx.AsyncClient, code: str, name: str, servers: List[str], timeout: int = 30):
         """This creates a dynamic tool"""
         if not self.code_mode_enabled:
@@ -314,7 +311,7 @@ class MCPGatewayClient:
             if initial_servers:
                 for server in initial_servers:
                     print(f"Adding initial server: {server}")
-                    await self.add_mcp_servers(client)
+                    await self.add_mcp_servers(client, server)
 
             mcp_tools = await self.list_tools(client)
             messages = [
@@ -362,6 +359,9 @@ class MCPGatewayClient:
                             if tool_name == "mcp-find":
                                 servers = await self.find_mcp_servers(client, tool_args.get('query'))
                                 final_server, additional_info = handle_mcp_find(servers)
+                                if not final_server:
+                                    print(additional_info)
+                                    continue
 
                                 # Handle config schema
                                 if 'config_schema' in final_server:
@@ -406,6 +406,8 @@ class MCPGatewayClient:
                                     add_status = "success"
                                 elif stringified_add_mcp_result.startswith("Error"):
                                     add_status = "failed"
+                                else:
+                                    add_status = "undefined"
                                 
                                 print(f"\n✓ Server '{final_server_name}' successfully added and activated!")
                                 tools_changed = True

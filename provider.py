@@ -4,7 +4,6 @@ from typing import Dict, List, Optional, Any
 import os
 import httpx
 import json
-import copy
 from prompts import LLM_TOOL_SCHEMAS
     
 def should_expose(name:str, mode:str):
@@ -41,20 +40,20 @@ def should_expose(name:str, mode:str):
 
 class LLMProvider(ABC):
     @abstractmethod
-    async def chat(self, messages: List[Dict], model:str, tools: Optional[List[Dict]]) -> Dict:
+    async def chat(self, messages: List[Dict], model:str, tools: Optional[List[Dict]]):
         pass
 
     @abstractmethod
-    def format_tool_for_provider(self, mcp_tools: List[Dict[str, Any]], mode: str='default') -> Dict:
+    def format_tool_for_provider(self, mcp_tools: List[Dict[str, Any]], mode: str='default'):
         pass
 
-    @abstractmethod
-    def extract_tool_calls(self, response: Dict)-> Dict:
-        pass
+    # @abstractmethod
+    # def extract_tool_calls(self, response: Dict)-> Dict:
+    #     pass
     
 class OpenAIProvider(LLMProvider):
     def __init__(self, api_key: str = None):
-        self.base_url = "https://api.openai.com/v1/chat/completions"
+        #self.base_url = "https://api.openai.com/v1/chat/completions"
         self.api_key = api_key or os.getenv('OPENAI_API_KEY')
         if not self.api_key:
             raise RuntimeError("OPENAI_API_KEY is not set. Please set it in your environment.")
@@ -77,10 +76,10 @@ class OpenAIProvider(LLMProvider):
             description = t.get("description", "")
             # Use cleaner schemas for dynamic mcps
             if name in LLM_TOOL_SCHEMAS:
-                input_schema = copy.deepcopy(LLM_TOOL_SCHEMAS[name])
+                input_schema = LLM_TOOL_SCHEMAS[name]
             else:
                 # For other tools, use original schema with fixes
-                input_schema = copy.deepcopy(t.get("inputSchema", {})) or {}
+                input_schema = t.get("inputSchema", {})
                 if input_schema.get('type') is None:
                     input_schema['type'] = 'object'
                 if 'properties' not in input_schema:
@@ -128,23 +127,24 @@ class OpenAIProvider(LLMProvider):
         finish_reason = choice.finish_reason
         data = response.model_dump()
         return data, assistant_message, finish_reason
+    
+class LLMProviderFactory:
+    _providers: Dict[str, LLMProvider] = {}
 
-    # def extract_tool_calls(self, response: Dict) -> List[Dict]:
-    #     choices = response.get("choices", [])
-    #     if not choices:
-    #         return []
-    #     tool_calls = choices[0].get("message", {}).get("tool_calls", [])
-    #     return [
-    #         {
-    #             "id": tc.get("id"),
-    #             "type": tc.get("type"),
-    #             "function": {
-    #                 "name": tc["function"]["name"],
-    #                 "arguments": json.loads(tc["function"]["arguments"]) if isinstance(tc["function"]["arguments"], str) else tc["function"]["arguments"]
-    #             }
-    #         }
-    #         for tc in tool_calls
-    #     ]
+    @classmethod
+    def initialize_provider(cls):
+        cls._providers = {
+            "openai": OpenAIProvider(),
+        }
+
+    @classmethod
+    def get_provider(cls, provider_name: str) -> LLMProvider:
+        if not cls._providers:
+            cls.initialize_provider()
+        
+        if provider_name not in cls._providers:
+            raise ValueError(f"Unknown provider: {provider_name}")
+        return cls._providers[provider_name]
 
 class OpenRouterProvider(LLMProvider):
     def __init__(self, api_key:str = None, site_url:str = None, app_name:str = None):
@@ -181,10 +181,10 @@ class OpenRouterProvider(LLMProvider):
             description = t.get("description", "")
             # Use cleaner schemas for dynamic mcps
             if name in LLM_TOOL_SCHEMAS:
-                input_schema = copy.deepcopy(LLM_TOOL_SCHEMAS[name])
+                input_schema = LLM_TOOL_SCHEMAS[name]
             else:
                 # For other tools, use original schema with fixes
-                input_schema = copy.deepcopy(t.get("inputSchema", {})) or {}
+                input_schema = t.get("inputSchema", {})
                 if input_schema.get('type') is None:
                     input_schema['type'] = 'object'
                 if 'properties' not in input_schema:
@@ -274,21 +274,5 @@ class OpenRouterProvider(LLMProvider):
                 return data, assistant_message, finish_reason
             else:
                 raise
-
-        
-class LLMProviderFactory:
-    _providers: Dict[str, LLMProvider] = {}
-
-    @classmethod
-    def initalize_provider(cls):
-        cls._providers = {
-            "openai": OpenAIProvider(),
-        }
-
-    @classmethod
-    def get_provider(cls, provider_name: str) -> LLMProvider:
-        if provider_name not in cls._providers:
-            raise ValueError(f"Unknown provider: {provider_name}")
-        return cls._providers[provider_name]
         
 
