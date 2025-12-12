@@ -9,7 +9,6 @@ dependencies = [
     "loguru>=0.7.3",
     "openai>=2.8.1",
     "python-dotenv>=1.2.1",
-    "rich-cli",
     "websockets>=15.0.1",
 ]
 
