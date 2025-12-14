@@ -28,7 +28,10 @@ async def dynamic_mcp_test():
     async with httpx.AsyncClient(timeout=300) as client:
         # Initialize
         await mcp.initialize(client)
-        await mcp.list_tools(client)
+        tools_list = await mcp.list_tools(client)
+        # print("\n===Tools List===\n")
+        # print(tools_list)
+        # exit(0)
 
         # Find Servers
         query = input("Enter search query for MCP servers: ").strip() or "github"

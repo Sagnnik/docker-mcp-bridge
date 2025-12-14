@@ -1,7 +1,9 @@
 from typing import Optional, Dict, List, Any
 import httpx
 import json
+import re
 from logger import logger
+from models import AddServerResult
 
 class MCPGatewayAPIClient:
     MCP_PROTOCOL_VERSION = "2024-11-05"
@@ -153,6 +155,89 @@ class MCPGatewayAPIClient:
         await self.list_tools()
         logger.info(f"Added server: {server_name}")
         return result
+    
+    async def add_server_llm(self, server_name: str, activate:str, mcp_find_result: Optional[List[Dict]] = None) -> AddServerResult:
+        """
+        Attempt to add server dynamically requested by the LLM
+        - LLM can only request addition {name: deepwiki, activate: true}
+        - Runtime need to enforce configs and secrets
+        - Returns a structured interruption when needed
+        """
+
+        try: 
+            result = await self.call_tool("mcp-add", {
+                "name": server_name.strip(),
+                "activate": activate
+            })
+        except Exception as e:
+            return AddServerResult(
+                status="failed",
+                server=server_name,
+                message=str(e)
+            )
+        
+        response_text = ""
+        if isinstance(result, dict) and "content" in result:
+            response_text = self._parse_response(result["content"])
+        else:
+            response_text = str(result)
+
+        # Detect missing secrets
+        secret_match = re.search(
+            r"Missing required secrets\s*\(([^)]+)\)",
+            response_text,
+            re.IGNORECASE
+        )
+
+        if secret_match:
+            secrets = [
+                s.strip()
+                for s in secret_match.group(1).split(",")
+            ]
+
+            return AddServerResult(
+                status="secrets_required",
+                server=server_name,
+                required_secrets=secrets,
+                instructions=response_text,
+                raw_response=response_text
+            )
+
+        # Detect Missing configs
+        required_configs: List[Dict[str, Any]] = []
+        if mcp_find_result:
+            for res in mcp_find_result:
+                if server_name.strip() == res['name'].strip() and "config_schema" in res:
+                    schema = res['config_schema']
+                    required = schema.get("required", [])
+                    properties = schema.get("properties", {})
+
+                    for key in required:
+                        prop = properties.get(key, {})
+                        required_configs.append({
+                            "key": key, 
+                            "type": prop.get("type", "string"),
+                            "description": prop.get(
+                                "description",
+                                "Configuration value required"
+                            )
+                        })
+        if required_configs:
+            return AddServerResult(
+                status="config_required",
+                server=server_name,
+                required_configs=required_configs,
+                raw_response=response_text
+            )
+        
+        # If there are no missing secrets or configs check for success once
+        if response_text.startswith("Successfully"):
+            return AddServerResult(
+                status="added",
+                server=server_name,
+                message="Server added and ready to use"
+            )
+
     
     async def remove_server(self, server_name: str):
         """Remove MCP server"""

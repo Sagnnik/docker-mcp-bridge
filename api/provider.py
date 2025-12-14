@@ -11,13 +11,14 @@ load_dotenv()
 def should_expose(name:str, mode:str):
     exposed_tools = {"mcp-find", "code-mode", "mcp-exec"} 
     code_mode_tools = {"code-mode", "mcp-exec"}
-    not_expose = {"mcp-add", "mcp-config-set", "mcp-remove"}
+    not_expose_default = {"mcp-add", "mcp-config-set", "mcp-remove"}
+    not_expose = {"mcp-config-set", "mcp-remove"}
 
     def is_custom(name:str):
         return name.startswith("code-mode-")
     
     if mode == 'default':
-        if name in not_expose:
+        if name in not_expose_default:
             return False
         if name in exposed_tools:
             return False
@@ -26,12 +27,16 @@ def should_expose(name:str, mode:str):
         return True
     
     elif mode == 'dynamic':
+        if name in not_expose:
+            return False
         if name in code_mode_tools:
             return False
         if is_custom(name):
             return False
         return True
     elif mode == 'code':
+        if name in not_expose:
+            return False
         if name in exposed_tools:
             return True
         if is_custom(name):
@@ -42,7 +47,7 @@ def should_expose(name:str, mode:str):
 
 class LLMProvider(ABC):
     @abstractmethod
-    async def chat(self, messages: List[Dict], model:str, tools: Optional[List[Dict]]):
+    async def generate(self, messages: List[Dict], model:str, tools: Optional[List[Dict]]):
         pass
 
     @abstractmethod
@@ -101,7 +106,7 @@ class OpenAIProvider(LLMProvider):
 
         return tools
     
-    async def chat(
+    async def generate(
         self, 
         messages: List[Dict], 
         model: str, 
@@ -206,7 +211,7 @@ class OpenRouterProvider(LLMProvider):
 
         return tools
     
-    async def chat(
+    async def generate(
             self, 
             messages: List[Dict],
             model:str, 
