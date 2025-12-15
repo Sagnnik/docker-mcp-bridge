@@ -69,7 +69,7 @@ class SecretsRequiredResponse(BaseModel):
 
 class ChatResumeRequest(BaseModel):
     interrupt_id: str
-    provided_configs: Optional[Dict[str, Any]] = None
+    provided_configs: Dict[str, Any]
     active_servers: Optional[List[str]] = None
     model: Optional[str] = None
     provider: Optional[str] = None
