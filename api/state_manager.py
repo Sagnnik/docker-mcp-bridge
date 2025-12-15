@@ -1,5 +1,5 @@
 from typing import Dict, Any, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 
 # Could use redis
@@ -34,7 +34,7 @@ async def store_interrupt_state(
         "max_iterations": max_iterations,
         "current_iteration": current_iteration,
         "mcp_find_cache": mcp_find_cache,
-        "created_at": datetime.utcnow(),
+        "created_at": datetime.now(timezone.utc),
         "ttl": 3600  # 1 hour
     }
 
@@ -46,7 +46,7 @@ async def get_interrupt_state(interrupt_id: str) -> Optional[Dict[str, Any]]:
         return None
     
     # Check TTL
-    elapsed = (datetime.utcnow() - state['created_at']).total_seconds()
+    elapsed = (datetime.now(timezone.utc) - state['created_at']).total_seconds()
     if elapsed > state['ttl']:
         interrupt_states.pop(interrupt_id, None)
         return None

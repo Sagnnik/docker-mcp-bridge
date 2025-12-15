@@ -162,13 +162,24 @@ class MCPGatewayAPIClient:
         - LLM can only request addition {name: deepwiki, activate: true}
         - Runtime need to enforce configs and secrets
         - Returns a structured interruption when needed
+
+        Decision order:
+        1. Missing secrets  -> HARD STOP
+        2. Missing config   -> INTERRUPT
+        3. Success          -> ADDED
+        4. Anything else    -> FAILED
         """
 
-        try: 
-            result = await self.call_tool("mcp-add", {
-                "name": server_name.strip(),
-                "activate": activate
-            })
+        server_name = server_name.strip()
+
+        try:
+            result = await self.call_tool(
+                "mcp-add",
+                {
+                    "name": server_name,
+                    "activate": activate
+                }
+            )
         except Exception as e:
             return AddServerResult(
                 status="failed",
@@ -176,13 +187,14 @@ class MCPGatewayAPIClient:
                 message=str(e)
             )
         
-        response_text = ""
         if isinstance(result, dict) and "content" in result:
             response_text = self._parse_response(result["content"])
         else:
             response_text = str(result)
 
-        # Detect missing secrets
+        response_text = response_text.strip()
+
+        # 1. Missing secrets (HARD STOP)
         secret_match = re.search(
             r"Missing required secrets\s*\(([^)]+)\)",
             response_text,
@@ -190,53 +202,100 @@ class MCPGatewayAPIClient:
         )
 
         if secret_match:
-            secrets = [
-                s.strip()
-                for s in secret_match.group(1).split(",")
-            ]
+            required_secrets: List[str] = []
+
+            # Enrich from mcp-find (authoritative)
+            if mcp_find_result:
+                for res in mcp_find_result:
+                    if res.get("name") == server_name:
+                        required_secrets.extend(
+                            res.get("required_secrets", [])
+                        )
+
+            # Fallback if MCP metadata missing
+            if not required_secrets:
+                raw_match = re.search(
+                    r"Missing required secrets\s*\(([^)]+)\)",
+                    response_text,
+                    re.IGNORECASE
+                )
+                if raw_match:
+                    required_secrets = [
+                        s.strip() for s in raw_match.group(1).split(",")
+                    ]
 
             return AddServerResult(
                 status="secrets_required",
                 server=server_name,
-                required_secrets=secrets,
+                required_secrets=required_secrets,
                 instructions=response_text,
                 raw_response=response_text
             )
+        
+        # 2. Missing config (INTERRUPT)
+        config_match = re.search(
+            r"Missing required config\s*\(([^)]+)\)",
+            response_text,
+            re.IGNORECASE
+        )
 
-        # Detect Missing configs
-        required_configs: List[Dict[str, Any]] = []
-        if mcp_find_result:
-            for res in mcp_find_result:
-                if server_name.strip() == res['name'].strip() and "config_schema" in res:
-                    schema = res['config_schema']
-                    required = schema.get("required", [])
-                    properties = schema.get("properties", {})
+        if config_match:
+            required_configs: List[Dict[str, Any]] = []
 
-                    for key in required:
-                        prop = properties.get(key, {})
-                        required_configs.append({
-                            "key": key, 
-                            "type": prop.get("type", "string"),
-                            "description": prop.get(
-                                "description",
-                                "Configuration value required"
-                            )
-                        })
-        if required_configs:
+            # Try to enrich config details from mcp-find (optional)
+            if mcp_find_result:
+                for res in mcp_find_result:
+                    if res.get("name") == server_name and "config_schema" in res:
+                        for schema in res["config_schema"]:
+                            required = schema.get("required", [])
+                            properties = schema.get("properties", {})
+
+                            for key in required:
+                                prop = properties.get(key, {})
+                                required_configs.append({
+                                    "key": key,
+                                    "type": prop.get("type", "string"),
+                                    "description": prop.get(
+                                        "description",
+                                        "Configuration value required"
+                                    )
+                                })
+
+            # Fallback when schema is unavailable
+            if not required_configs:
+                required_configs.append({
+                    "key": "unknown",
+                    "type": "string",
+                    "description": (
+                        "This MCP server requires configuration, "
+                        "but no config_schema was returned. "
+                        "Refer to MCP documentation."
+                    )
+                })
+
             return AddServerResult(
                 status="config_required",
                 server=server_name,
                 required_configs=required_configs,
+                instructions=response_text,
                 raw_response=response_text
             )
         
-        # If there are no missing secrets or configs check for success once
-        if response_text.startswith("Successfully"):
+        # 3. Success
+        if response_text.lower().startswith("uccessfully"):
             return AddServerResult(
                 status="added",
                 server=server_name,
                 message="Server added and ready to use"
             )
+
+        # 4. Default return failure
+        return AddServerResult(
+            status="failed",
+            server=server_name,
+            message=response_text,
+            raw_response=response_text
+        )
 
     
     async def remove_server(self, server_name: str):
@@ -250,9 +309,30 @@ class MCPGatewayAPIClient:
         logger.info(f"Removed server: {server_name}")
         return result
     
-    def _parse_response(self, text: str) -> Dict:
-        """Parse SSE response (simplified)"""
-        for line in text.strip().split('\n'):
-            if line.startswith('data: '):
-                return json.loads(line[6:])
-        return json.loads(text)
+    def _parse_response(self, content) -> str:
+        """
+        Normalize MCP / SSE responses into plain text
+        """
+        if content is None:
+            return ""
+
+        # MCP structured content
+        if isinstance(content, list):
+            texts = []
+            for item in content:
+                if isinstance(item, dict) and item.get("type") == "text":
+                    texts.append(item.get("text", ""))
+            return "\n".join(texts).strip()
+
+        # Already a string (maybe SSE)
+        if isinstance(content, str):
+            for line in content.strip().split("\n"):
+                if line.startswith("data: "):
+                    try:
+                        return json.loads(line[6:])
+                    except Exception:
+                        return line[6:]
+            return content.strip()
+
+        # Fallback
+        return str(content).strip()

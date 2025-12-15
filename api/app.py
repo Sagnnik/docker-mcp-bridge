@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException, Body
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
-from test.provider import LLMProviderFactory
+from provider import LLMProviderFactory
 from models import (
     ChatResponse, 
     ChatRequest, 
@@ -21,7 +21,7 @@ from state_manager import (
     cleanup_interrupt_state
 )
 from gateway_client import MCPGatewayAPIClient
-from test.prompts import MCP_BRIDGE_MESSAGES
+from prompts import MCP_BRIDGE_MESSAGES
 from logger import logger
 from typing import Dict, Any
 import json
@@ -52,7 +52,7 @@ async def health_check():
     """Health check endpoint"""
     return {"status": "healthy", "service": "mcp-gateway-client"}
 
-@app.post("/chat", response_model=ChatResponse, tags=['chat'])
+@app.post("/chat", response_model=ChatResponseUnion, tags=['chat'])
 async def chat(request: ChatRequest):
     """
     Non-streaming chat endpoint with MCP tools
@@ -133,6 +133,7 @@ async def chat(request: ChatRequest):
                     for tc in assistant_msg['tool_calls']:
                         tool_name = tc['function']['name']
                         tool_args = json.loads(tc['function']['arguments'])
+
                         if tool_name in tool_change_triggers:
                             tools_changed = True
                         
@@ -144,10 +145,21 @@ async def chat(request: ChatRequest):
                                 result = await client.call_tool(tool_name, tool_args)
                                 result_text = json.dumps(result)
                                 
-                                if isinstance(result, list):
-                                    for server_info in result:
-                                        if isinstance(server_info, dict) and 'name' in server_info:
-                                            mcp_find_cache[server_info['name']] = server_info
+                                # Parse MCP text response
+                                if isinstance(result, dict) and "content" in result:
+                                    text = client._parse_response(result["content"])
+                                    try:
+                                        payload = json.loads(text)
+                                    except json.JSONDecodeError:
+                                        payload = {}
+                                else:
+                                    payload = {}
+
+                                servers = payload.get("servers", [])
+
+                                for server_info in servers:
+                                    if isinstance(server_info, dict) and "name" in server_info:
+                                        mcp_find_cache[server_info["name"]] = server_info
 
                             elif tool_name == "mcp-add":
                                 logger.info(f"[tool name]: {tool_name}\n[tool args]: {tool_args}\n")
@@ -156,8 +168,8 @@ async def chat(request: ChatRequest):
                                 server_name = tool_args.get('name', '').strip()
                                 cached_find = mcp_find_cache.get(server_name)
                                 mcp_find_result = [cached_find] if cached_find else None
-
-                                # add_server_ll call
+                                
+                                # add_server_llm call
                                 add_result = await client.add_server_llm(
                                     server_name=server_name,
                                     activate=tool_args.get('activate', True),
@@ -229,7 +241,6 @@ async def chat(request: ChatRequest):
                                 logger.info(f"[tool name]: {tool_name}\n [tool args]: {tool_args}\n")
                                 result = await client.call_tool(tool_name, tool_args)
                                 result_text = json.dumps(result)
-                                tools_changed = True
 
                             else:
                                 logger.info(f"[tool name]: {tool_name}\n [tool args]: {tool_args}\n")
@@ -267,6 +278,8 @@ async def chat(request: ChatRequest):
                 available_tools=list(client.available_tools.keys()),
                 finish_reason="max_iteration"
             )
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Chat error: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
@@ -280,43 +293,40 @@ async def chat_resume(request: ChatResumeRequest):
     ```json
         {
             "interrupt_id": "abc-123",
-            "provided_configs": {
+            "provided_configs": [optional]{
                 "github_token": "ghp_...",
-            },
-            "conversation_state": [...],
-            "active_servers": ["weather"],
-            "model": "gpt-5-mini",
-            "provider": "openai",
-            "mode": "dynamic",
-            "max_iterations": 5
+            }
         }
     ```
     """  
     try:
         # 1. Retrieve interrupt state
         interrupt_state = await get_interrupt_state(request.interrupt_id)
+        logger.info("Restored interrupt state...")
         if not interrupt_state:
             raise HTTPException(
                 status_code=404,
                 detail=f"Interrupt {request.interrupt_id} not found or expired"
             )
         
-        # 2. Validate that all required configs are provided
-        required_keys = {cfg['key'] for cfg in interrupt_state['required_configs']}
-        provided_keys = set(request.provided_configs.keys())
+        # 2. Check if required configs are provided
+        # Then validate that all required configs
+        if request.provided_configs:
+            required_keys = {cfg['key'] for cfg in interrupt_state['required_configs']}
+            provided_keys = set(request.provided_configs.keys())
 
-        if required_keys != provided_keys:
-            missing = required_keys - provided_keys
-            extra = provided_keys - required_keys
-            error_msg = []
-            if missing:
-                error_msg.append(f"Missing configs: {', '.join(missing)}")
-            if extra:
-                error_msg.append(f"Unexpected configs: {', '.join(extra)}")
-            raise HTTPException(
-                status_code=400,
-                detail="; ".join(error_msg)
-            )
+            if required_keys != provided_keys:
+                missing = required_keys - provided_keys
+                extra = provided_keys - required_keys
+                error_msg = []
+                if missing:
+                    error_msg.append(f"Missing configs: {', '.join(missing)}")
+                if extra:
+                    error_msg.append(f"Unexpected configs: {', '.join(extra)}")
+                raise HTTPException(
+                    status_code=400,
+                    detail="; ".join(error_msg)
+                )
         # 3. Rebuild client state
         async with MCPGatewayAPIClient() as client:
 
@@ -329,28 +339,31 @@ async def chat_resume(request: ChatResumeRequest):
             server_name = interrupt_state['server_name']
             pending_tc = interrupt_state['pending_tool_call']
 
-            logger.info(f"Retrying mcp-add for {server_name} with configs: {list(request.provided_configs.keys())}")
+            if request.provided_configs:
+                logger.info(f"Retrying mcp-add for {server_name} with configs: {list(request.provided_configs.keys())}")
 
-            add_result = await client.add_server(server_name=server_name, activate=True, config=request.provided_configs)
-            if isinstance(add_result, dict) and "content" in add_result:
-                result_text = client._parse_response(add_result["content"])
+                add_result = await client.add_server(server_name=server_name, activate=True, config=request.provided_configs)
+                if isinstance(add_result, dict) and "content" in add_result:
+                    result_text = client._parse_response(add_result["content"])
+                else:
+                    result_text = str(add_result)
+
+                messages = interrupt_state['messages'].copy()
+                messages.append({
+                    "tool_call_id": pending_tc['id'],
+                    "role": "tool",
+                    "name": "mcp-add",
+                    "content": result_text
+                })
             else:
-                result_text = str(add_result)
-
-            messages = interrupt_state['messages'].copy()
-            messages.append({
-                "tool_call_id": pending_tc['id'],
-                "role": "tool",
-                "name": "mcp-add",
-                "content": result_text
-            })
+                messages = interrupt_state['messages'].copy()
 
             tools = await client.list_tools()
             logger.info(f"Tools refreshed after resume, now have {len(tools)} tools")
             
-            provider = LLMProviderFactory.get_provider(request.provider)
+            provider = LLMProviderFactory.get_provider(request.provider if request.provider else interrupt_state['provider'])
             mcp_find_cache = interrupt_state.get('mcp_find_cache', {})
-            remaining_iterations = request.max_iterations - interrupt_state['current_iteration'] - 1
+            remaining_iterations = interrupt_state['max_iterations'] - interrupt_state['current_iteration'] - 1
             tool_change_triggers = {"mcp-add", "mcp-find", "mcp-exec", "code-mode"}
 
             for iteration in range(remaining_iterations):
@@ -358,7 +371,7 @@ async def chat_resume(request: ChatResumeRequest):
                 
                 response, assistant_msg, finish_reason = await provider.generate(
                     messages=messages,
-                    model=request.model,
+                    model=request.model if request.model else interrupt_state['model'],
                     tools=tools,
                     mode=interrupt_state['mode']
                 )
@@ -388,16 +401,29 @@ async def chat_resume(request: ChatResumeRequest):
 
                         try:
                             if tool_name == "mcp-find":
+                                logger.info(f"[tool name]: {tool_name}\n [tool args]: {tool_args}\n")
                                 result = await client.call_tool(tool_name, tool_args)
                                 result_text = json.dumps(result)
                                 
-                                # Cache results by server name
-                                if isinstance(result, list):
-                                    for server_info in result:
-                                        if isinstance(server_info, dict) and 'name' in server_info:
-                                            mcp_find_cache[server_info['name']] = server_info
+                                # Parse MCP text response
+                                if isinstance(result, dict) and "content" in result:
+                                    text = client._parse_response(result["content"])
+                                    try:
+                                        payload = json.loads(text)
+                                    except json.JSONDecodeError:
+                                        payload = {}
+                                else:
+                                    payload = {}
+
+                                servers = payload.get("servers", [])
+
+                                for server_info in servers:
+                                    if isinstance(server_info, dict) and "name" in server_info:
+                                        mcp_find_cache[server_info["name"]] = server_info
 
                             elif tool_name == "mcp-add":
+                                logger.info(f"[tool name]: {tool_name}\n[tool args]: {tool_args}\n")
+
                                 # Get cached find result for this server
                                 server_name_new = tool_args.get('name', '').strip()
                                 cached_find = mcp_find_cache.get(server_name_new)
@@ -410,7 +436,7 @@ async def chat_resume(request: ChatResumeRequest):
                                     mcp_find_result=mcp_find_result
                                 )
                                 
-                                # Check for another interrupt (nested interrupts)
+                                # Check for another interrupt
                                 if add_result.status == "secrets_required":
                                     await cleanup_interrupt_state(request.interrupt_id)
                                     return SecretsRequiredResponse(
@@ -442,9 +468,9 @@ async def chat_resume(request: ChatResumeRequest):
                                         server_name=add_result.server,
                                         required_configs=add_result.required_configs or [],
                                         mode=interrupt_state['mode'],
-                                        model=request.model,
-                                        provider=request.provider,
-                                        max_iterations=request.max_iterations,
+                                        model=request.model if request.mode else interrupt_state['model'],
+                                        provider=request.provider if request.provider else interrupt_state['provider'],
+                                        max_iterations=request.max_iterations if request.max_iterations else interrupt_state['max_iterations'],
                                         current_iteration=interrupt_state['current_iteration'] + iteration + 1,
                                         mcp_find_cache=mcp_find_cache
                                     )
@@ -461,6 +487,7 @@ async def chat_resume(request: ChatResumeRequest):
                                     )
                                 
                                 elif add_result.status == "added":
+                                    # Success
                                     result_text = json.dumps({
                                         "status": "success",
                                         "message": add_result.message or "Server added successfully"
@@ -473,11 +500,14 @@ async def chat_resume(request: ChatResumeRequest):
                                     })
 
                             elif tool_name in ['code-mode', 'mcp-exec']:
+                                logger.info(f"[tool name]: {tool_name}\n [tool args]: {tool_args}\n")
                                 result = await client.call_tool(tool_name, tool_args)
                                 result_text = json.dumps(result)
 
                             else:
+                                logger.info(f"[tool name]: {tool_name}\n [tool args]: {tool_args}\n")
                                 result = await client.call_tool(tool_name, tool_args)
+
                                 if isinstance(result, dict) and 'content' in result:
                                     result_text = client._parse_response(result['content'])
                                 else:

@@ -69,12 +69,10 @@ class SecretsRequiredResponse(BaseModel):
 
 class ChatResumeRequest(BaseModel):
     interrupt_id: str
-    provided_configs: Dict[str, Any]
-    conversation_state: List[Dict[str, Any]]
-    active_servers: List[str]
-    model: str
-    provider: str
-    mode: str
-    max_iterations: int = 5
+    provided_configs: Optional[Dict[str, Any]] = None
+    active_servers: Optional[List[str]] = None
+    model: Optional[str] = None
+    provider: Optional[str] = None
+    max_iterations: Optional[int] = None
 
 ChatResponseUnion = Union[ChatResponse, ConfigInterruptResponse, SecretsRequiredResponse]
