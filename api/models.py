@@ -75,4 +75,15 @@ class ChatResumeRequest(BaseModel):
     provider: Optional[str] = None
     max_iterations: Optional[int] = None
 
+class AgentResult:
+    finish_reason: str
+    content: str
+    messages: List[Dict[str, Any]]
+    interrupt_id: Optional[str] = None
+    interrupt_type: Optional[str] = None
+    server: Optional[str] = None
+    required_configs: Optional[List[Dict[str, Any]]] = None
+    required_secrets: Optional[List[str]] = None
+    instructions: Optional[str] = None
+
 ChatResponseUnion = Union[ChatResponse, ConfigInterruptResponse, SecretsRequiredResponse]
