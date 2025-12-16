@@ -361,10 +361,3 @@ class AgentCore:
             break
         
         yield {'type': 'done', 'finish_reason': 'max_iteration'}
-                    
-
-
-
-
-        
-
