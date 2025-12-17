@@ -156,7 +156,7 @@ class MCPGatewayAPIClient:
         logger.info(f"Added server: {server_name}")
         return result
     
-    async def add_server_llm(self, server_name: str, activate:str, mcp_find_result: Optional[List[Dict]] = None) -> AddServerResult:
+    async def add_server_llm(self, server_name: str, activate:str=True, mcp_find_result: Optional[List[Dict]] = None) -> AddServerResult:
         """
         Attempt to add server dynamically requested by the LLM
         - LLM can only request addition {name: deepwiki, activate: true}
@@ -177,7 +177,7 @@ class MCPGatewayAPIClient:
                 "mcp-add",
                 {
                     "name": server_name,
-                    "activate": activate
+                    "activate": True
                 }
             )
         except Exception as e:

@@ -11,13 +11,13 @@ class AgentCore:
         self.client = client
         self.provider = provider
         self.mode = mode
-        self.mcp_find_cache = Dict[str, Dict[str, Any]] = {}
+        self.mcp_find_cache: Dict[str, Dict[str, Any]] = {}
 
     async def prepare_messages(self, messages: List[Dict[str, Any]], mode:str)->List[Dict[str, Any]]:
         prepared = [
             {
-                "role": m.role,
-                "content": m.content
+                "role": m["role"],
+                "content": m["content"]
             }
             for m in messages
         ]
@@ -55,9 +55,11 @@ class AgentCore:
                 return await self._handle_mcp_add(tool_args, tool_call_id)
             
             elif tool_name in ['code-mode', 'mcp-exec']:
+                logger.info(f"\n[tool name]: {tool_name}\n [tool args]: {tool_args}\n")
                 result = await self.client.call_tool(tool_name, tool_args)
                 return {"status": "success", "result_text": json.dumps(result)}
             else:
+                logger.info(f"[tool name]: {tool_name}\n [tool args]: {tool_args}\n")
                 result = await self.client.call_tool(tool_name, tool_args)
                 if isinstance(result, dict) and 'content' in result:
                     result_text = self.client._parse_response(result['content'])
@@ -71,6 +73,7 @@ class AgentCore:
             return {"status": "error", "result_text": f"Error: {str(e)}"}
         
     async def _handle_mcp_find(self, tool_args: Dict[str, Any]) -> Dict[str, Any]:
+        logger.info(f"\n[tool name]: mcp-find\n [tool args]: {tool_args}\n")
         result = await self.client.call_tool("mcp-find", tool_args)
         result_text = json.dumps(result)
 
@@ -89,6 +92,7 @@ class AgentCore:
         return {"status": "success", "result_text": result_text}
     
     async def _handle_mcp_add(self, tool_args: Dict[str, Any], tool_call_id: str) -> Dict[str, Any]:
+        logger.info(f"\n[tool name]: mcp-add\n[tool args]: {tool_args}\n")
         server_name = tool_args.get('name', '').strip()
         cached_find = self.mcp_find_cache.get(server_name)
         mcp_find_result = [cached_find] if cached_find else None

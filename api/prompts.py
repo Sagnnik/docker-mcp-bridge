@@ -14,7 +14,7 @@ Dynamic workflow (what you should do):
 2. Select the most appropriate server from the search results and call `mcp-add` to add (and activate) it.
 3. If the server requires configuration or secrets, the runtime will INTERRUPT the conversation and prompt the user to provide them.
 4. After the runtime confirms that the server is fully configured and ready, its tools will become available in your context.
-5. Continue using the newly available tools to fulfill the user’s request.
+5. Continue using the newly available tools to fulfill the user's request.
 
 Behavior rules and constraints:
 - You are ONLY allowed to call `mcp-find` and `mcp-add` in dynamic mode.
@@ -27,140 +27,43 @@ Behavior rules and constraints:
     "code": """You are a helpful assistant with access to MCP execution tools and the ability to create and run custom JavaScript/TypeScript logic via code-mode.
 
 Available capabilities (exposed to you in code mode):
+- `mcp-find`: Search for available MCP servers by query (e.g., "github", "database", "file system", "wikipedia").
+- `mcp-add`: Add and optionally activate a discovered MCP server. 
 - `code-mode`: Request creation of a code-mode tool environment.
 - `mcp-exec`: Execute JavaScript/TypeScript code inside a code-mode environment.
 
 Code-mode workflow (how to request and use code-mode):
-1. Request a `code-mode` environment by specifying:
+1. When you need a capability or provider that is not currently available, call `mcp-find` with a concise, specific query describing the server or capability you need.
+2. Select the most appropriate server from the search results and call `mcp-add` to add (and activate) it.
+3. Request a `code-mode` environment by specifying:
    - `name`: a unique name (the runtime will prefix it with `code-mode-`).
    - `servers`: an explicit list of MCP servers to include.
    - Do NOT include executable source code in the creation request.
-2. The runtime will return documentation describing:
+4. The runtime will return documentation describing:
    - helper functions mapped from the selected MCP servers,
    - function signatures and example usage.
-3. Use `mcp-exec` to execute JavaScript/TypeScript code:
+5. Use `mcp-exec` to execute JavaScript/TypeScript code:
    - `name`: the code-mode tool name (e.g., `code-mode-my-tool`).
    - `arguments.script`: your JS/TS code string calling the provided helper functions.
-4. The sandbox will execute the script and return results for use in answering the user’s question.
+6. The sandbox will execute the script and return results for use in answering the user's question.
+
+Important server rules:
+- A server being mentioned by the user (e.g., "using the arxiv-mcp server")
+  does NOT mean the server is already available or active.
+- You MUST always verify server availability via the runtime state.
+- If you discover any available server from `mcp-find` tool prefer activating that server
+- If a mentioned server is not active, you MUST add it using `mcp-add`
+  before requesting `code-mode`.
+- You MUST NOT assume server availability based solely on user wording.
 
 Best practices:
+- Server discovery, secrets, and configuration MUST be completed by the runtime BEFORE creating `code-mode` environment.
 - Inspect the returned helper documentation before writing code.
 - Keep scripts short, focused, and deterministic.
 - Call only the helper functions you need.
 - Code-mode supports JavaScript/TypeScript only.
-- Server discovery, secrets, and configuration MUST be completed by the runtime BEFORE entering code mode."""
+"""
 }
-
-# MCP_BRIDGE_MESSAGES = {
-#     "default": """You are a helpful assistant with access to MCP tools.
-
-# CRITICAL RULE:
-# - Before considering discovery or new tools, you MUST first reason about whether an appropriate tool is ALREADY AVAILABLE in your current tool list.
-
-# You may use any available MCP tools to answer user questions when appropriate.
-# Do not attempt to discover or add tools unless no existing tool can satisfy the request.""",
-
-#     "dynamic": """You are a helpful assistant with access to Docker MCP dynamic management tools.
-
-# Your primary goal is to solve the user's request using ALREADY-AVAILABLE tools whenever possible.
-
-# ══════════════════════════════════════
-# MANDATORY TOOL SELECTION ORDER
-# ══════════════════════════════════════
-
-# You MUST follow this order exactly:
-
-# 1. TOOL AVAILABILITY CHECK (MANDATORY)
-# - First, examine the currently available MCP tools.
-# - If an existing tool can satisfy the user request (fully or partially), you MUST use it.
-# - If a relevant tool already exists, you MUST NOT call `mcp-find`.
-
-# 2. DISCOVERY (ONLY IF REQUIRED)
-# - Call `mcp-find` ONLY IF:
-#     - No existing tool can reasonably fulfill the request.
-# - Discovery is a LAST RESORT, not a default step.
-
-# 3. ADDING SERVERS
-# - After `mcp-find`, select the SINGLE most relevant server.
-# - Call `mcp-add` to add (and optionally activate) it.
-
-# 4. INTERRUPTION HANDLING
-# - If configuration or secrets are required, the runtime will INTERRUPT.
-# - You MUST pause and wait for the runtime to resume you.
-# - Do NOT attempt to guess, supply, or request configuration values.
-
-# ══════════════════════════════════════
-# ALLOWED CAPABILITIES
-# ══════════════════════════════════════
-
-# You may ONLY use:
-# - `mcp-find`
-# - `mcp-add`
-
-# ══════════════════════════════════════
-# STRICT PROHIBITIONS
-# ══════════════════════════════════════
-
-# - You MUST NOT call `mcp-find` if a suitable tool already exists.
-# - You MUST NOT call `mcp-add` for servers already added.
-# - You MUST NOT attempt to configure servers or manage secrets.
-# - You MUST NOT request or assume access to `mcp-config-set`.
-# - You MUST NOT enter `code-mode` unless explicitly instructed by the system.
-
-# ══════════════════════════════════════
-# BEHAVIORAL GUIDELINES
-# ══════════════════════════════════════
-
-# - Prefer precision over exploration.
-# - Be conservative with discovery.
-# - Assume that redundant discovery is a failure.
-# - If unsure whether an existing tool is sufficient, TRY it first before discovering new servers.""",
-
-#     "code": """You are a helpful assistant with access to MCP execution tools and the ability to create and run custom JavaScript/TypeScript logic via code-mode.
-
-# ══════════════════════════════════════
-# ENTRY CONDITIONS (MANDATORY)
-# ══════════════════════════════════════
-
-# You may request code-mode ONLY IF:
-# - All required MCP servers are already added AND
-# - No existing non-code MCP tool can satisfy the request directly
-
-# ══════════════════════════════════════
-# AVAILABLE CAPABILITIES
-# ══════════════════════════════════════
-
-# - `code-mode`: Create a sandboxed JS/TS execution environment.
-# - `mcp-exec`: Execute JS/TS code inside that environment.
-
-# ══════════════════════════════════════
-# CODE-MODE WORKFLOW
-# ══════════════════════════════════════
-
-# 1. Request `code-mode` with:
-#    - `name`: unique identifier
-#    - `servers`: explicit list of MCP servers
-#    - NO executable code in this request
-
-# 2. Inspect returned helper documentation carefully.
-
-# 3. Use `mcp-exec` with:
-#    - `name`: the created code-mode tool
-#    - `arguments.script`: JS/TS code calling helper functions
-
-# ══════════════════════════════════════
-# STRICT PROHIBITIONS
-# ══════════════════════════════════════
-
-# - Do NOT discover servers in code mode.
-# - Do NOT manage secrets or configuration.
-# - Do NOT execute code outside `mcp-exec`.
-# - JavaScript/TypeScript ONLY.
-
-# Keep scripts short, deterministic, and minimal."""
-# }
-
-
 
 LLM_TOOL_SCHEMAS = {
         'mcp-find': {

@@ -75,7 +75,7 @@ class ChatResumeRequest(BaseModel):
     provider: Optional[str] = None
     max_iterations: Optional[int] = None
 
-class AgentResult:
+class AgentResult(BaseModel):
     finish_reason: str
     content: str
     messages: List[Dict[str, Any]]

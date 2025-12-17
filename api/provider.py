@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
     
 def should_expose(name:str, mode:str):
-    exposed_tools = {"mcp-find", "code-mode", "mcp-exec"} 
+    exposed_tools = {"mcp-find", "mcp-add", "code-mode", "mcp-exec"} 
     code_mode_tools = {"code-mode", "mcp-exec"}
     not_expose_default = {"mcp-add", "mcp-config-set", "mcp-remove"}
     not_expose = {"mcp-config-set", "mcp-remove"}

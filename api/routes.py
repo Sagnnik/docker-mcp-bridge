@@ -145,19 +145,14 @@ async def chat_resume(request: ChatResumeRequest):
             )
         
         if request.provided_configs:
-            required_keys = {cfg['key'] for cfg in interrupt_state['required_config']}
+            required_keys = {cfg['key'] for cfg in interrupt_state['required_configs']}
             provided_keys = set(request.provided_configs.keys())
 
-            if required_keys != provided_keys:
-                missing = required_keys - provided_keys
-                extra = provided_keys - required_keys
-                error_msg = []
-                if missing:
-                    error_msg.append(f"Missing configs: {', '.join(missing)}")
-                if extra:
-                    error_msg.append(f"Unexpected configs: {', '.join(extra)}")
-
-                raise HTTPException(status_code=400, detail="; ".join(error_msg))
+            if request.provided_configs:
+                required = {c["key"] for c in interrupt_state["required_configs"]}
+                provided = set(request.provided_configs.keys())
+                if required != provided:
+                    raise HTTPException(status_code=400, detail="Config Mismatch")
             
         async with MCPGatewayAPIClient() as client:
             for server in interrupt_state['active_servers']:
@@ -168,7 +163,7 @@ async def chat_resume(request: ChatResumeRequest):
 
             messages = interrupt_state['messages'].copy()
             if request.provided_configs:
-                server_name = interrupt_state['server_name']
+                server_name = interrupt_state["server_name"]
                 logger.info(f"Retrying mcp-add for {server_name}")
 
                 add_result = await client.add_server(
@@ -177,21 +172,39 @@ async def chat_resume(request: ChatResumeRequest):
                     config=request.provided_configs
                 )
 
-                if isinstance(add_result, dict) and 'content' in add_result:
-                    result_text = client._parse_response(add_result['content'])
+                if isinstance(add_result, dict) and "content" in add_result:
+                    result_text = client._parse_response(add_result["content"])
                 else:
                     result_text = str(add_result)
 
-                # Reconstruct the tool call sequence
-                pending_tc = interrupt_state['pending_tool_call']
-                messages.append({
-                    "role": "assistant",
-                    "tool_calls": [pending_tc],
-                    "content": None
-                })
+                pending_tc = interrupt_state.get("pending_tool_call")
+
+                if pending_tc:
+                    tool_call = pending_tc
+                else:
+                    # Need to synthesize tool calls for runtime interrupts
+                    tool_call = {
+                        "id": "resume-mcp-add",
+                        "type": "function",
+                        "function": {
+                            "name": "mcp-add",
+                            "arguments": json.dumps({
+                                "name": server_name,
+                                "activate": True,
+                                **request.provided_configs
+                            })
+                        }
+                    }
+
+                    messages.append({
+                        "role": "assistant",
+                        "tool_calls": [tool_call],
+                        "content": None
+                    })
+
                 messages.append({
                     "role": "tool",
-                    "tool_call_id": pending_tc["id"],
+                    "tool_call_id": tool_call["id"],
                     "name": "mcp-add",
                     "content": result_text
                 })
@@ -202,13 +215,11 @@ async def chat_resume(request: ChatResumeRequest):
             agent = AgentCore(client, provider, interrupt_state['mode'])
             agent.mcp_find_cache = interrupt_state.get('mcp_find_cache', {})
             
-            remaining_iterations = interrupt_state['max_iterations'] - interrupt_state['current_iteration'] - 1
-            
             result = await agent.run_agent_loop(
                 messages=messages,
-                model=request.model if request.model else interrupt_state['model'],
-                max_iterations=interrupt_state['current_iteration'] + remaining_iterations,
-                current_iteration=interrupt_state['current_iteration']
+                model=request.model or interrupt_state["model"],
+                max_iterations=interrupt_state["max_iterations"],
+                current_iteration=interrupt_state["current_iteration"]
             )
 
             await cleanup_interrupt_state(request.interrupt_id)
@@ -288,6 +299,7 @@ async def chat_stream(request: ChatRequest):
     - `error`: Error occurred
     """
     async def event_generator():
+        interrupt_id = None
         try:
             async with MCPGatewayAPIClient() as client:
                 for server in request.inital_servers:
@@ -373,18 +385,10 @@ async def chat_stream_resume(request: ChatResumeRequest):
                 return
             
             if request.provided_configs:
-                required_keys = {cfg['key'] for cfg in interrupt_state['required_configs']}
-                provided_keys = set(request.provided_configs.keys())
-                
-                if required_keys != provided_keys:
-                    missing = required_keys - provided_keys
-                    extra = provided_keys - required_keys
-                    error_msg = []
-                    if missing:
-                        error_msg.append(f"Missing configs: {', '.join(missing)}")
-                    if extra:
-                        error_msg.append(f"Unexpected configs: {', '.join(extra)}")
-                    yield f"data: {json.dumps({'type': 'error', 'message': '; '.join(error_msg)})}\n\n"
+                required = {c["key"] for c in interrupt_state["required_configs"]}
+                provided = set(request.provided_configs.keys())
+                if required != provided:
+                    yield f"data: {json.dumps({'type': 'error', 'message': 'Config mismatch'})}\n\n"
                     return
                 
             yield f"data: {json.dumps({'type': 'status', 'message': 'Resuming conversation...'})}\n\n"
@@ -398,32 +402,48 @@ async def chat_stream_resume(request: ChatResumeRequest):
                 
                 messages = interrupt_state['messages'].copy()
                 if request.provided_configs:
-                    server_name = interrupt_state['server_name']
+                    server_name = interrupt_state["server_name"]
                     logger.info(f"Retrying mcp-add for {server_name}")
-                    
+
                     add_result = await client.add_server(
                         server_name=server_name,
                         activate=True,
                         config=request.provided_configs
                     )
-                    
-                    if isinstance(add_result, dict) and 'content' in add_result:
+
+                    if isinstance(add_result, dict) and "content" in add_result:
                         result_text = client._parse_response(add_result["content"])
                     else:
                         result_text = str(add_result)
-                    
-                    yield f"data: {json.dumps({'type': 'tool_result', 'tool': 'mcp-add', 'result': result_text[:500]})}\n\n"
-                    
-                    # Reconstruct the tool call sequence
-                    pending_tc = interrupt_state['pending_tool_call']
-                    messages.append({
-                        "role": "assistant",
-                        "tool_calls": [pending_tc],
-                        "content": None
-                    })
+
+                    pending_tc = interrupt_state.get("pending_tool_call")
+
+                    if pending_tc:
+                        tool_call = pending_tc
+                    else:
+                        # Need to synthesize tool calls for runtime interrupts
+                        tool_call = {
+                            "id": "resume-mcp-add",
+                            "type": "function",
+                            "function": {
+                                "name": "mcp-add",
+                                "arguments": json.dumps({
+                                    "name": server_name,
+                                    "activate": True,
+                                    **request.provided_configs
+                                })
+                            }
+                        }
+
+                        messages.append({
+                            "role": "assistant",
+                            "tool_calls": [tool_call],
+                            "content": None
+                        })
+
                     messages.append({
                         "role": "tool",
-                        "tool_call_id": pending_tc["id"],
+                        "tool_call_id": tool_call["id"],
                         "name": "mcp-add",
                         "content": result_text
                     })
@@ -434,16 +454,11 @@ async def chat_stream_resume(request: ChatResumeRequest):
                 agent = AgentCore(client, provider, interrupt_state['mode'])
                 agent.mcp_find_cache = interrupt_state.get('mcp_find_cache', {})
                 
-                remaining_iterations = (
-                    interrupt_state['max_iterations'] - 
-                    interrupt_state['current_iteration'] - 1
-                )
-                
                 async for event in agent.run_agent_loop_stream(
                     messages=messages,
-                    model=request.model if request.model else interrupt_state['model'],
-                    max_iterations=interrupt_state['current_iteration'] + remaining_iterations,
-                    current_iteration=interrupt_state['current_iteration']
+                    model=request.model or interrupt_state["model"],
+                    max_iterations=interrupt_state["max_iterations"],
+                    current_iteration=interrupt_state["current_iteration"],
                 ):
                     # Handle new interrupts
                     if event['type'] == 'config_required':
