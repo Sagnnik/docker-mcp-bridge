@@ -7,27 +7,29 @@ from provider import LLMProviderFactory
 from prompts import MCP_BRIDGE_MESSAGES
 from configs_secrets import hil_configs, handle_secrets_interactive
 
-MCP_PROTOCOL_VERSION = "2024-11-05"
-MCP_URL = "http://localhost:8811/mcp"
-
-def handle_mcp_find(servers):
+def handle_mcp_find(servers, verbose=False):
     """
     Handle mcp-find
     - if it returns only one server auto add it
-    - if it returns multiple servers another let the user choose it
+    - if it returns multiple servers let the user choose it
     - let user input configs and secrets interactively using cli
     """
     additional_info = ""
-    print("\n=== Servers Found ===\n")
+    if verbose:
+        print("\n=== Servers Found ===\n")
+    
     if not servers:
-        print("No relevant MCP server found!")
+        if verbose:
+            print("No relevant MCP server found!")
         additional_info = "No relevant MCP server found!"
-        return
+        return None, additional_info
+    
     final_server = None
     if len(servers) == 1:
         final_server = servers[0]
-        print(f"Found 1 server: {final_server['name']}")
-        print(f"Description: {final_server.get('description', 'N/A')}")
+        if verbose:
+            print(f"Found 1 server: {final_server['name']}")
+            print(f"Description: {final_server.get('description', 'N/A')}")
     else:
         for i, server in enumerate(servers):
             has_config = '✓ config' if 'config_schema' in server else ''
@@ -43,145 +45,125 @@ def handle_mcp_find(servers):
         final_server = servers[server_index]
 
     final_server_name = final_server['name']
-    print(f"\n✓ Selected server: {final_server_name}")
+    if verbose:
+        print(f"\n✓ Selected server: {final_server_name}")
         
     return final_server, additional_info
 
 class MCPGatewayClient:
-    def __init__(self):
-        self.gateway_url = MCP_URL
-        self.session_id:Optional[str]=None
-        self._next_id = 1
-        self.dynamic_tools_enabled = False
-        self.code_mode_enabled = False
-        self.active_servers: List[str] = []
-        self.available_tools: Dict[str, Dict] = {}
+    MCP_PROTOCOL_VERSION = "2024-11-05"
+    MCP_URL = "http://localhost:8811/mcp"
 
-    async def initialize(self, client: httpx.AsyncClient):
+    def __init__(self):
+        self.session_id: Optional[str] = None
+        self._next_id = 1
+        self.available_tools: Dict[str, Dict] = {}
+        self.active_servers: List[str] = []
+        self._client: Optional[httpx.AsyncClient] = None
+
+    async def __aenter__(self):
+        self._client = httpx.AsyncClient(timeout=300)
+        await self.initialize()
+        return self
+    
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        if self._client:
+            await self._client.aclose()
+    
+    async def initialize(self):
+        """Initialize MCP session"""
         payload = {
             "jsonrpc": "2.0",
             "id": self._next_id,
             "method": "initialize",
             "params": {
-                "protocolVersion": MCP_PROTOCOL_VERSION,
+                "protocolVersion": self.MCP_PROTOCOL_VERSION,
                 "capabilities": {},
-                "clientInfo": {
-                    "name": "gpt-mcp-bridge",
-                    "version": "1.0.0"
-                }
+                "clientInfo": {"name": "mcp-api-gateway", "version": "1.0.0"}
             }
         }
-        self._next_id+=1
-        try:
-            response = await client.post(
-                url=self.gateway_url,
-                json=payload,
-                headers={
-                    "Mcp-Protocol-Version": MCP_PROTOCOL_VERSION,
-                    "Accept": "application/json, text/event-stream",
-                }
-            )
-            response.raise_for_status()
-            self.session_id = response.headers.get("Mcp-Session-Id") or response.headers.get("mcp-session-id")
-            data = parse_sse_json(response.text)
-            if not data:
-                raise RuntimeError(f"Invalid initialize response: {response.text}")
-            
-            notif_payload = {
-                "jsonrpc": "2.0",
-                "method": "notifications/initialized",
-            }
-            notif_headers = {
-                "Mcp-Session-Id": self.session_id,
-                "Mcp-Protocol-Version": MCP_PROTOCOL_VERSION,
+        self._next_id += 1
+        
+        response = await self._client.post(
+            self.MCP_URL,
+            json=payload,
+            headers={
+                "Mcp-Protocol-Version": self.MCP_PROTOCOL_VERSION,
                 "Accept": "application/json, text/event-stream",
             }
-            notif_response = await client.post(
-                url=self.gateway_url,
-                json=notif_payload,
-                headers=notif_headers
-            )
-            notif_response.raise_for_status()
+        )
+        response.raise_for_status()
+        
+        self.session_id = response.headers.get("Mcp-Session-Id") or response.headers.get("mcp-session-id")
+        
+        await self._client.post(
+            self.MCP_URL,
+            json={"jsonrpc": "2.0", "method": "notifications/initialized"},
+            headers={
+                "Mcp-Session-Id": self.session_id,
+                "Mcp-Protocol-Version": self.MCP_PROTOCOL_VERSION,
+                "Accept": "application/json, text/event-stream",
+            }
+        )
+        
+        await self.list_tools()
 
-            return data
-        except Exception as e:
-            print(f"Error connecting to MCP Gateway: {str(e)}")
-    
-    async def list_tools(self, client: httpx.AsyncClient):
+    async def list_tools(self):
+        """List available MCP tools"""
         payload = {
             "jsonrpc": "2.0",
             "id": self._next_id,
             "method": "tools/list",
             "params": {}
         }
-        self._next_id+=1
-        headers = {
-            "Mcp-Session-Id": self.session_id,
-            "Mcp-Protocol-Version": MCP_PROTOCOL_VERSION,
-            "Accept": "application/json, text/event-stream",
-        }
-        try:
-            response = await client.post(
-                url=self.gateway_url,
-                json=payload,
-                headers=headers
-            )
-            data = parse_sse_json(response.text)
-            if "error" in data:
-                raise RuntimeError(f"MCP tools/list error: {data['error']}")
-            
-            tools = data.get('result').get('tools')
-            for tool in tools:
-                self.available_tools[tool["name"]] = tool
+        self._next_id += 1
 
-            #print(f"Loaded {len(self.available_tools)} tools from MCP Gateway")
+        response = await self._client.post(
+            self.MCP_URL,
+            json=payload,
+            headers={
+                "Mcp-Session-Id": self.session_id,
+                "Mcp-Protocol-Version": self.MCP_PROTOCOL_VERSION,
+                "Accept": "application/json, text/event-stream",
+            }
+        )
 
-            if "mcp-find" in self.available_tools and 'mcp-add' in self.available_tools and 'mcp-remove' in self.available_tools:
-                self.dynamic_tools_enabled = True
-                #print("Docker Dynamic Tools (mcp-find, mcp-add, mcp-remove) available")
-
-            if "code-mode" in self.available_tools:
-                self.code_mode_enabled = True
-                #print("Docker code-mode available")
-            
-            return tools
-        except Exception as e:
-            print(f"Error connecting to MCP Gateway: {str(e)}")
+        data = self._parse_response(response.text)
+        tools = data.get('result', {}).get('tools', [])
+        
+        self.available_tools = {tool["name"]: tool for tool in tools}
+        return tools
     
-    async def call_tool(self, client:httpx.AsyncClient, name:str, arguments: Dict[str, Any]):
+    async def call_tool(self, name: str, arguments: Dict[str, Any]):
+        """Call an MCP tool"""
         if name not in self.available_tools:
             raise ValueError(f"Tool {name} not found")
         
-        payload ={
+        payload = {
             "jsonrpc": "2.0",
             "id": self._next_id,
             "method": "tools/call",
-            "params": {
-                "name": name,
-                "arguments": arguments
-            }
+            "params": {"name": name, "arguments": arguments}
         }
-        self._next_id+=1
-        headers = {
-            "Mcp-Session-Id": self.session_id,
-            "Mcp-Protocol-Version": MCP_PROTOCOL_VERSION,
-            "Accept": "application/json, text/event-stream",
-        }
-        try:
-            response = await client.post(
-                url=self.gateway_url,
-                json=payload,
-                headers=headers
-            )
-            data = parse_sse_json(response.text)
-            if 'error' in data:
-                raise RuntimeError(f"MCP tools/call error: {data['error']}")
-            
-            return data["result"]
-        except Exception as e:
-            raise RuntimeError(f"Error calling tool {name}: {e}")
+        self._next_id += 1
         
-    async def find_mcp_servers(self,client: httpx.AsyncClient, query:str):
+        response = await self._client.post(
+            self.MCP_URL,
+            json=payload,
+            headers={
+                "Mcp-Session-Id": self.session_id,
+                "Mcp-Protocol-Version": self.MCP_PROTOCOL_VERSION,
+                "Accept": "application/json, text/event-stream",
+            }
+        )
+        
+        data = self._parse_response(response.text)
+        if 'error' in data:
+            raise RuntimeError(f"MCP error: {data['error']}")
+        
+        return data["result"]
+        
+    async def find_mcp_servers(self, client: httpx.AsyncClient, query: str):
         if not self.dynamic_tools_enabled:
             return []
         
@@ -190,20 +172,23 @@ class MCPGatewayClient:
             result = json.loads(result['content'][0]['text'])
             return result['servers']
         except Exception as e:
-            print(f"Error finding MCP servers: {e}")
+            if self.verbose:
+                print(f"Error finding MCP servers: {e}")
             return []
         
-    async def add_mcp_configs(self, client:httpx.AsyncClient, server:str, keys:List[str], values:List[Any]):
+    async def add_mcp_configs(self, client: httpx.AsyncClient, server: str, keys: List[str], values: List[Any]):
         try: 
             results = []
             for i, key in enumerate(keys):
-                result = await self.call_tool(client=client, name="mcp-config-set", arguments={"server":server, "key":key, "value": values[i]})
+                result = await self.call_tool(client=client, name="mcp-config-set", arguments={"server": server, "key": key, "value": values[i]})
                 results.append(result)
             return results
         except Exception as e:
-            print(f"Error setting configs using mcp-config-set: {str(e)}")
+            if self.verbose:
+                print(f"Error setting configs using mcp-config-set: {str(e)}")
+            raise
 
-    async def add_mcp_servers(self, client: httpx.AsyncClient, server_name:str, activate:bool=True):
+    async def add_mcp_servers(self, client: httpx.AsyncClient, server_name: str, activate: bool = True):
         if not self.dynamic_tools_enabled:
             return False
         
@@ -216,31 +201,28 @@ class MCPGatewayClient:
             return result
         
         except Exception as e:
-            print(f"Error adding MCP server {server_name}: {e}")
+            if self.verbose:
+                print(f"Error adding MCP server {server_name}: {e}")
             return False
         
     async def remove_mcp_servers(self, client: httpx.AsyncClient, server_name: str):
-        # this is not working
         if not self.dynamic_tools_enabled:
             return False
         
         try:
             result = await self.call_tool(client=client, name="mcp-remove", arguments={"name": server_name})
-            print(f"Remove result: {result}")  # Debug line
             
             if result.get('content'):
                 if server_name in self.active_servers:
                     self.active_servers.remove(server_name)
-                    print(f"Removed {server_name} from active_servers")  # Debug line
                 
-                tools = await self.list_tools(client=client)
-                print(f"Active servers after removal: {self.active_servers}")  # Debug line
-                print(f"Available tools count: {len(self.available_tools)}")  # Debug line
+                await self.list_tools(client=client)
                 
             return result
         
         except Exception as e:
-            print(f"Error removing MCP server {server_name}: {e}")
+            if self.verbose:
+                print(f"Error removing MCP server {server_name}: {e}")
             return False
         
     async def create_dynamic_code_tool(self, client: httpx.AsyncClient, code: str, name: str, servers: List[str], timeout: int = 30):
@@ -272,7 +254,7 @@ class MCPGatewayClient:
         except Exception as e:
             raise RuntimeError(f"Error executing code-mode: {e}")
         
-    async def execute_dynamic_code_tool(self, client: httpx.AsyncClient, tool_name: str, script:str):
+    async def execute_dynamic_code_tool(self, client: httpx.AsyncClient, tool_name: str, script: str):
         """Execute the created tool"""
         try:
             result = await self.call_tool(
@@ -293,14 +275,16 @@ class MCPGatewayClient:
             self,
             provider_name: str, 
             user_message: str,
-            model:str,
+            model: str,
             initial_servers: List[str],
-            mode:str = "dynamic",
-            system_message: Optional[str]="",
-            max_iterations: int=5,
-            enable_dynamic_tools: bool=True,
-            enable_code_mode: bool = False
+            mode: str = "dynamic",
+            system_message: Optional[str] = "",
+            max_iterations: int = 5,
+            enable_dynamic_tools: bool = True,
+            enable_code_mode: bool = False,
+            verbose: bool = False
     ):
+        self.verbose = verbose
         provider = LLMProviderFactory.get_provider(provider_name)
 
         async with httpx.AsyncClient(timeout=300) as client:
@@ -310,14 +294,15 @@ class MCPGatewayClient:
             # Load with initial servers requested
             if initial_servers:
                 for server in initial_servers:
-                    print(f"Adding initial server: {server}")
+                    if verbose:
+                        print(f"Adding initial server: {server}")
                     await self.add_mcp_servers(client, server)
 
             mcp_tools = await self.list_tools(client)
             messages = [
                 {
                     "role": "system",
-                    "content": system_message+MCP_BRIDGE_MESSAGES.get(mode)
+                    "content": system_message + MCP_BRIDGE_MESSAGES.get(mode)
                 },
                 {
                     "role": "user",
@@ -345,7 +330,10 @@ class MCPGatewayClient:
                 
                 if finish_reason == "tool_calls" and assistant_message.get('tool_calls'):
                     tool_calls = assistant_message['tool_calls']
-                    print(f"\n==== Iteration {iteration+1}/{max_iterations} ==== Processing {len(tool_calls)} tool calls ====\n")
+                    
+                    if verbose:
+                        print(f"\n==== Iteration {iteration+1}/{max_iterations} ==== Processing {len(tool_calls)} tool calls ====\n")
+                    
                     tools_changed = False
 
                     for tc in tool_calls:
@@ -353,14 +341,16 @@ class MCPGatewayClient:
                         tool_args = json.loads(tc['function']['arguments'])
                         tool_call_id = tc['id']
 
-                        print(f"Calling tool: {tool_name} with args: {tool_args}")
+                        if verbose:
+                            print(f"Calling tool: {tool_name} with args: {tool_args}")
 
                         try:
                             if tool_name == "mcp-find":
                                 servers = await self.find_mcp_servers(client, tool_args.get('query'))
-                                final_server, additional_info = handle_mcp_find(servers)
+                                final_server, additional_info = handle_mcp_find(servers, verbose=verbose)
                                 if not final_server:
-                                    print(additional_info)
+                                    if verbose:
+                                        print(additional_info)
                                     continue
 
                                 # Handle config schema
@@ -372,7 +362,8 @@ class MCPGatewayClient:
                                         keys=config_keys, 
                                         values=config_values
                                     )
-                                    print("✓ Configuration completed")
+                                    if verbose:
+                                        print("✓ Configuration completed")
 
                                 # Handle required secrets
                                 if 'required_secrets' in final_server:
@@ -387,11 +378,14 @@ class MCPGatewayClient:
 
                                 # Add the MCP server
                                 if mode in ['dynamic', 'default']:
-                                    activate=True
+                                    activate = True
                                 elif mode == 'code':
-                                    activate=False
+                                    activate = False
+                                    
                                 final_server_name = final_server['name']
-                                print(f"\nAdding server '{final_server_name}'...")
+                                if verbose:
+                                    print(f"\nAdding server '{final_server_name}'...")
+                                    
                                 add_mcp_result = await self.add_mcp_servers(
                                     client=client, 
                                     server_name=final_server_name, 
@@ -400,8 +394,10 @@ class MCPGatewayClient:
                                 await asyncio.sleep(1)
                                 stringified_add_mcp_result = json.dumps(add_mcp_result)
 
-                                print("\n=== Add Server Result ===")
-                                print(json.dumps(add_mcp_result, indent=2))
+                                if verbose:
+                                    print("\n=== Add Server Result ===")
+                                    print(json.dumps(add_mcp_result, indent=2))
+                                    
                                 if stringified_add_mcp_result.startswith("Successfully"):
                                     add_status = "success"
                                 elif stringified_add_mcp_result.startswith("Error"):
@@ -409,7 +405,9 @@ class MCPGatewayClient:
                                 else:
                                     add_status = "undefined"
                                 
-                                print(f"\n✓ Server '{final_server_name}' successfully added and activated!")
+                                if verbose:
+                                    print(f"\n✓ Server '{final_server_name}' successfully added and activated!")
+                                    
                                 tools_changed = True
 
                                 result_text = additional_info + json.dumps(
@@ -439,8 +437,9 @@ class MCPGatewayClient:
                                 exec_arguments = tool_args.get('arguments', {})
                                 script = exec_arguments.get('script', '')
 
-                                print("\n=== Code to be Executed ===\n")
-                                print(script if script else "No script provided")
+                                if verbose:
+                                    print("\n=== Code to be Executed ===\n")
+                                    print(script if script else "No script provided")
 
                                 exec_result = await self.execute_dynamic_code_tool(
                                     client,
@@ -465,8 +464,9 @@ class MCPGatewayClient:
                                 else:
                                     result_text = json.dumps(tool_result)
 
-                            print(f"\n=== Result Text after iteration {iteration+1} ===\n")
-                            print(f"Tool result preview: {result_text[:200]}...")
+                            if verbose:
+                                print(f"\n=== Result Text after iteration {iteration+1} ===\n")
+                                print(f"Tool result preview: {result_text[:200]}...")
 
                             messages.append({
                                 "tool_call_id": tool_call_id,
@@ -477,7 +477,8 @@ class MCPGatewayClient:
 
                         except Exception as e:
                             error_msg = f"Error calling tool {tool_name}: {str(e)}"
-                            print(error_msg)
+                            if verbose:
+                                print(error_msg)
                             messages.append({
                                 "tool_call_id": tool_call_id,
                                 "role": "tool",
@@ -486,13 +487,17 @@ class MCPGatewayClient:
                             })
 
                     if tools_changed:
-                        print("Tools changed, refreshing tool list...")
+                        if verbose:
+                            print("Tools changed, refreshing tool list...")
                         mcp_tools = await self.list_tools(client)
-                        print(f"Now have {len(mcp_tools)} tools available")
+                        if verbose:
+                            print(f"Now have {len(mcp_tools)} tools available")
 
                     continue
+                    
                 # Unexpected finish reason
-                print(f"Unexpected finish_reason: {finish_reason}")
+                if verbose:
+                    print(f"Unexpected finish_reason: {finish_reason}")
                 break
 
             return {

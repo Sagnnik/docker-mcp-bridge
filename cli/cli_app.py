@@ -9,475 +9,431 @@ from rich.syntax import Syntax
 from rich.markdown import Markdown
 from rich import box
 import json
-import httpx
 from typing import Optional, List
 from mcp_host import MCPGatewayClient
+import httpx
+from prompt_toolkit import prompt
+from prompt_toolkit.shortcuts import radiolist_dialog, button_dialog
+from prompt_toolkit.styles import Style
 
 console = Console()
 
-def print_banner():
-    """Display welcome banner"""
-    banner = """
-╔═══════════════════════════════════════════════════════════╗
-║                                                           ║
-║        🤖 MCP Gateway CLI - Tool Management Made Easy     ║
-║                                                           ║
-╚═══════════════════════════════════════════════════════════╝
-    """
-    console.print(banner, style="bold cyan")
+# ============= Styles =============
+
+dialog_style = Style.from_dict({
+    'dialog': 'bg:#1e1e1e',
+    'dialog.body': 'bg:#1e1e1e #00ff00',
+    'dialog.body text-area': 'bg:#1e1e1e #00ff00',
+    'button': 'bg:#2e2e2e #00ff00',
+    'button.focused': 'bg:#00ff00 #000000 bold',
+    'radio-list': 'bg:#1e1e1e #00ff00',
+    'radio-checked': 'bg:#1e1e1e #00ff00 bold',
+    'radio': 'bg:#1e1e1e #888888',
+})
+
+# ============= Print Helpers =============
+
+def print_welcome():
+    """Display welcome message"""
+    console.print("\n[bold cyan]╔══════════════════════════════════════════════╗[/bold cyan]")
+    console.print("[bold cyan]║[/bold cyan]  [bold white]🤖 MCP Gateway - Interactive Chat[/bold white]       [bold cyan]    ║[/bold cyan]")
+    console.print("[bold cyan]╚══════════════════════════════════════════════╝[/bold cyan]")
+    console.print("\n[dim]Type your message or use commands:[/dim]")
+    console.print("  [cyan]/help[/cyan]   - Show available commands")
+    # console.print("  [cyan]/add[/cyan]    - Add MCP servers")
+    # console.print("  [cyan]/find[/cyan]   - Search for servers")
+    # console.print("  [cyan]/list[/cyan]   - List tools & servers")
+    # console.print("  [cyan]/remove[/cyan] - Remove a server")
+    console.print("  [cyan]/exit[/cyan]   - Quit\n")
 
 def print_success(message: str):
-    """Print success message"""
     console.print(f"✅ {message}", style="bold green")
 
 def print_error(message: str):
-    """Print error message"""
     console.print(f"❌ {message}", style="bold red")
 
-def print_warning(message: str):
-    """Print warning message"""
-    console.print(f"⚠️  {message}", style="bold yellow")
-
 def print_info(message: str):
-    """Print info message"""
-    console.print(f"ℹ️  {message}", style="bold blue")
-
-def print_section_header(title: str):
-    """Print section header"""
-    console.print(f"\n{'─' * 70}", style="cyan")
-    console.print(f"  {title}", style="bold cyan")
-    console.print(f"{'─' * 70}", style="cyan")
-
-def print_servers_table(servers: List[dict]):
-    """Display servers in a beautiful table"""
-    if not servers:
-        print_warning("No servers found")
-        return
-    
-    table = Table(
-        title="🔍 Available MCP Servers",
-        box=box.ROUNDED,
-        show_header=True,
-        header_style="bold magenta",
-        title_style="bold cyan"
-    )
-    table.add_column("#", style="cyan", width=4)
-    table.add_column("Name", style="bold green", width=25)
-    table.add_column("Description", style="white", width=50)
-    table.add_column("Config", justify="center", width=8)
-    table.add_column("Secrets", justify="center", width=8)
-
-    for i, server in enumerate(servers, 1):
-        name = server.get('name', 'N/A')
-        description = server.get('description', 'No description')[:47] + "..."
-        has_config = '✓' if 'config_schema' in server else '○'
-        has_secrets = '✓' if 'required_secrets' in server else '○'
-        
-        table.add_row(
-            str(i),
-            name,
-            description,
-            has_config,
-            has_secrets
-        )
-    
-    console.print(table)
-
-def print_tools_table(tools: List[dict]):
-    """Display tools in a beautiful table"""
-    if not tools:
-        print_warning("No tools available")
-        return
-    
-    table = Table(
-        title="🔧 Available Tools",
-        box=box.ROUNDED,
-        show_header=True,
-        header_style="bold magenta",
-        title_style="bold cyan"
-    )
-    
-    table.add_column("Tool Name", style="bold green", width=30)
-    table.add_column("Description", style="white", width=60)
-    
-    for tool in tools:
-        name = tool.get('name', 'N/A')
-        description = tool.get('description', 'No description')[:57] + "..."
-        table.add_row(name, description)
-    
-    console.print(table)
-
-def print_json_pretty(data: dict, title: str = "Response"):
-    """Display JSON in a pretty panel"""
-    json_str = json.dumps(data, indent=2)
-    syntax = Syntax(json_str, "json", theme="monokai", line_numbers=False)
-    panel = Panel(syntax, title=f"📄 {title}", border_style="cyan", box=box.ROUNDED)
-    console.print(panel)
+    console.print(f"💡 {message}", style="bold blue")
 
 def print_chat_response(content: str):
-    """Display chat response in a nice format"""
+    """Display chat response"""
     panel = Panel(
         Markdown(content),
-        title="🤖 Assistant Response",
+        title="🤖 Assistant",
         border_style="green",
         box=box.ROUNDED,
         padding=(1, 2)
     )
     console.print(panel)
 
-async def add_server_interactive(client: MCPGatewayClient, http_client, server: dict):
-    """Add server with interactive config/secrets handling"""
-    from configs_secrets import hil_configs, handle_secrets_interactive
+def print_help():
+    """Show help panel"""
+    help_text = """
+[bold cyan]Available Commands:[/bold cyan]
 
-    server_name = server['name']
+[bold]/chat <message>[/bold]   - Chat with AI using available tools
+[bold]/add[/bold]              - Search and add MCP servers
+[bold]/find <query>[/bold]     - Search for specific servers
+[bold]/list[/bold]             - Show active servers and tools
+[bold]/remove[/bold]           - Remove a server
+[bold]/help[/bold]             - Show this help
+[bold]/exit[/bold]             - Exit the CLI
+
+[bold cyan]Examples:[/bold cyan]
+
+  /find github
+  /add
+  What's the weather in San Francisco?
+  Search for MCP repositories
+    """
+    console.print(Panel(help_text, title="💡 Help", border_style="cyan", box=box.ROUNDED))
+
+# ============= Interactive Selection =============
+
+def select_from_list(items: List[dict], title: str, name_key: str = 'name') -> Optional[dict]:
+    """Interactive selection using arrow keys"""
+    if not items:
+        return None
     
-    print_section_header(f"⚙️  Configuring: {server_name}")
+    # Create radio list options
+    values = [(i, f"{item.get(name_key, 'Unknown')} - {item.get('description', '')[:50]}") 
+              for i, item in enumerate(items)]
+    
+    result = radiolist_dialog(
+        title=title,
+        text="Use arrow keys to navigate, Enter to select:",
+        values=values,
+        style=dialog_style,
+    ).run()
+    
+    if result is not None:
+        return items[result]
+    return None
 
-    # Handle configs
-    if 'config_schema' in server:
-        print_info("This server requires configuration")
-        config_server, config_keys, config_values = hil_configs(server)
-        
-        with Progress(
-            SpinnerColumn(),
-            TextColumn("[progress.description]{task.description}"),
-            console=console,
-        ) as progress:
-            task = progress.add_task("Setting configurations...", total=None)
-            await client.add_mcp_configs(
-                client=http_client,
-                server=config_server,
-                keys=config_keys,
-                values=config_values
-            )
-        print_success("Configuration completed")
+async def confirm_action(title: str, text: str) -> bool:
+    result = await button_dialog(
+        title=title,
+        text=text,
+        buttons=[('Yes', True), ('No', False)],
+        style=dialog_style,
+    ).run_async()
+    return bool(result)
 
-    # Handle secrets
-    if 'required_secrets' in server:
-        secrets_ok = handle_secrets_interactive(server)
-        if not secrets_ok:
-            print_warning("Continuing without complete secret configuration")
+# ============= Command Handlers =============
 
-    # Add server
+async def handle_add(client: MCPGatewayClient, http_client):
+    """Add server workflow"""
+    from configs_secrets import hil_configs, handle_secrets_interactive
+    
+    console.print("\n[bold cyan]🔍 Searching for servers...[/bold cyan]")
+    query = Prompt.ask("Search query (or press Enter for all)", default="")
+    
     with Progress(
         SpinnerColumn(),
         TextColumn("[progress.description]{task.description}"),
         console=console,
     ) as progress:
-        task = progress.add_task(f"Adding server '{server_name}'...", total=None)
-        result = await client.add_mcp_servers(
-            client=http_client,
-            server_name=server_name,
-            activate=True
-        )
+        task = progress.add_task("Searching...", total=None)
+        servers = await client.find_mcp_servers(http_client, query or "mcp")
     
-    if result:
-        print_success(f"Server '{server_name}' added successfully! 🎉")
-        
-        # Show available tools
-        tools = list(client.available_tools.values())
-        new_tools = [t for t in tools if server_name in t.get('name', '').lower()]
-        
-        if new_tools:
-            console.print(f"\n[bold]New tools available:[/bold]")
-            for tool in new_tools[:5]:
-                console.print(f"  • {tool['name']}", style="green")
-            if len(new_tools) > 5:
-                console.print(f"  ... and {len(new_tools) - 5} more")
-    else:
-        print_error(f"Failed to add server '{server_name}'")
-
-def show_interactive_help():
-    """Show help for interactive mode"""
-    help_text = """
-[bold cyan]Available Commands:[/bold cyan]
-
-  [bold]tools[/bold]         - List all available tools
-  [bold]servers[/bold]       - Show active servers
-  [bold]search <query>[/bold] - Search for MCP servers
-  [bold]add <name>[/bold]    - Add an MCP server
-  [bold]help[/bold]          - Show this help
-  [bold]exit[/bold]          - Exit interactive mode
-
-[bold cyan]Examples:[/bold cyan]
-  search github
-  add weather
-  tools
-    """
-    console.print(Panel(help_text, title="💡 Help", border_style="cyan", box=box.ROUNDED))
-
-@click.group()
-@click.version_option(version="0.1.0")
-def cli():
-    """
-    MCP Gateway CLI - Manage MCP servers and chat with AI tools
+    if not servers:
+        print_error("No servers found")
+        return
     
-    Examples:
-      mcp-cli chat "What's the weather in SF?"
-      mcp-cli search github
-      mcp-cli list-tools
-    """
-    pass
-
-@cli.command()
-@click.argument('query')
-@click.option('--activate', is_flag=True, help="Auto-activate found server")
-def search(query: str, activate:bool):
-    """
-    Search for MCP servers
+    print_success(f"Found {len(servers)} servers")
     
-    Example: mcp-cli search github
-    """
-    print_banner()
-    print_section_header(f"🔍 Searching for: {query}")
-
-    async def run():
-        async with httpx.AsyncClient(timeout=120) as client:
-            mcp = MCPGatewayClient()
-
-            with Progress(
-                SpinnerColumn(),
-                TextColumn("[progress.description]{task.description}"),
-                console=console
-            ) as progress:
-                task = progress.add_task("Initializing MCP Gateway...", total=None)
-                await mcp.list_tools(client)
-                tools = await mcp.list_tools(client)
-
-            if format == 'json':
-                print_json_pretty({"tools": tools}, "Available Tools")
-
-            else:
-                print_success(f"Loaded {len(tools)} tools")
-                print_tools_table(tools)
-
-                if mcp.active_servers:
-                    print_info(f"Active servers: {', '.join(mcp.active_servers)}")
-
-    asyncio.run(run())
-
-@cli.command()
-@click.argument('messages')
-@click.option('--model', default='gpt-4o', help='LLM model to use')
-@click.option('--provider', default='openai', help='LLM provider')
-@click.option('--mode', type=click.Choice(['dynamic', 'code', 'default']), default='dynamic', help='Tool mode')
-@click.option('--servers', multiple=True, help='Initial servers to load')
-@click.option('--max-iter', default=5, help='Max agentic iterations')
-@click.option('--verbose', is_flag=True, help='Show detailed tool calls')
-def chat(message: str, model: str, provider: str, mode: str, servers: tuple, max_iter: int, verbose: bool):
-    """
-    Chat with AI using MCP tools
+    # Interactive selection
+    server = select_from_list(servers, "Select Server to Add")
     
-    Examples:
-      mcp-cli chat "What's the weather in SF?"
-      mcp-cli chat "Search GitHub for MCP servers" --mode dynamic
-      mcp-cli chat "List my repos" --servers github
-    """
-
-    print_banner()
-    print_section_header("💬 Starting Chat Session")
-
-    console.print(f"[bold]User:[/bold] {message}\n")
-
-    async def run():
-        async with httpx.AsyncClient(timeout=120) as client:
-            mcp = MCPGatewayClient()
-
-            with Progress(
-                SpinnerColumn(),
-                TextColumn("[progress.description]{task.description}"),
-                console=console,
-            ) as progress:
-                task = progress.add_task("Initializing...", total=None)
-
-                try:
-                    result = await mcp.chat_with_llm(
-                        provider_name=provider,
-                        user_message=message,
-                        model=model,
-                        initial_servers=list(servers),
-                        mode=mode,
-                        max_iterations=max_iter
-                    )
-
-                    progress.stop()
-
-                    if result.get('content'):
-                        print_chat_response(result['content'])
-
-                    if verbose:
-                        console.print("\n")
-                        print_section_header("📊 Session Metadata")
-
-                        metadata = {
-                            "active_servers": result.get('active_servers', []),
-                            "available_tools": result.get('available_tools', []),
-                        }
-                        print_json_pretty(metadata, "Session Info")
-
-                except Exception as e:
-                    progress.stop()
-                    print_error(f"Chat error: {str(e)}")
-                    if verbose:
-                        console.print_exception()
-
-    asyncio.run(run())
-
-@cli.command()
-@click.argument('server_name')
-def add(server_name:str):
-    """
-    Add an MCP server by name
-    
-    Example: mcp-cli add github
-    """
-    print_banner()
-    print_section_header(f"📦 Adding Server: {server_name}")
-    async def run():
-        async with httpx.AsyncClient(timeout=300) as http_client:
-            client = MCPGatewayClient()
-            
-            with Progress(
-                SpinnerColumn(),
-                TextColumn("[progress.description]{task.description}"),
-                console=console,
-            ) as progress:
-                task = progress.add_task("Initializing...", total=None)
-                await client.initialize(http_client)
-                await client.list_tools(http_client)
-
-                progress.update(task, description=f"Searching for '{server_name}'...")
-                servers = await client.find_mcp_servers(http_client, server_name)
-
-            if not servers:
-                print_error(f"Server '{server_name}' not found")
-                return
-            
-            # Find exact match or let user choose
-            exact_match = next((s for s in servers if s['name'] == server_name), None)
-
-            if exact_match:
-                server = exact_match
-            elif len(servers) == 1:
-                server = servers[0]
-            else:
-                print_warning(f"Multiple servers found matching '{server_name}'")
-                print_servers_table(servers)
-                choice = Prompt.ask(
-                    "Select server number",
-                    choices=[str(i) for i in range(1, len(servers) + 1)]
-                )
-                server = servers[int(choice) - 1]
-            
-            await add_server_interactive(client, http_client, server)
-
-    asyncio.run(run())
-
-@cli.command()
-@click.argument('server_name')
-def remove(server_name: str):
-    """
-    Remove an MCP server
-    
-    Example: mcp-cli remove github
-    """
-    print_banner()
-    print_section_header(f"🗑️  Removing Server: {server_name}")
-    
-    if not Confirm.ask(f"Are you sure you want to remove '{server_name}'?"):
+    if not server:
         print_info("Cancelled")
         return
     
-    async def run():
-        async with httpx.AsyncClient(timeout=300) as http_client:
-            client = MCPGatewayClient()
-            
-            with Progress(
-                SpinnerColumn(),
-                TextColumn("[progress.description]{task.description}"),
-                console=console,
-            ) as progress:
-                task = progress.add_task("Removing server...", total=None)
-                await client.initialize(http_client)
-                result = await client.remove_mcp_servers(http_client, server_name)
-            
-            if result:
-                print_success(f"Server '{server_name}' removed successfully")
-            else:
-                print_error(f"Failed to remove server '{server_name}'")
+    server_name = server['name']
+    console.print(f"\n[bold]Selected:[/bold] {server_name}")
+    console.print(f"[dim]{server.get('description', 'No description')}[/dim]\n")
     
-    asyncio.run(run())
+    # Check requirements
+    needs_config = 'config_schema' in server
+    needs_secrets = 'required_secrets' in server
+    
+    if needs_config or needs_secrets:
+        console.print("[yellow]⚙️  Setup required:[/yellow]")
+        if needs_config:
+            console.print("  • Configuration needed")
+        if needs_secrets:
+            console.print("  • Credentials needed")
+        console.print()
+    
+    if not confirm_action("Confirm", f"Add '{server_name}'?"):
+        print_info("Cancelled")
+        return
+    
+    # Configure
+    if needs_config:
+        config_server, config_keys, config_values = hil_configs(server)
+        with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}")) as progress:
+            task = progress.add_task("Configuring...", total=None)
+            await client.add_mcp_configs(http_client, config_server, config_keys, config_values)
+    
+    if needs_secrets:
+        handle_secrets_interactive(server)
+    
+    # Add server
+    with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}")) as progress:
+        task = progress.add_task("Adding server...", total=None)
+        result = await client.add_mcp_servers(http_client, server_name, activate=True)
+    
+    if result:
+        print_success(f"🎉 '{server_name}' added successfully!")
+        await client.list_tools(http_client)
+    else:
+        print_error(f"Failed to add '{server_name}'")
 
-@cli.command()
-def interactive():
-    """
-    Start interactive mode for exploring MCP tools
-    """
-    print_banner()
-    console.print("\n[bold cyan]🎮 Interactive Mode[/bold cyan]")
-    console.print("Type 'help' for commands, 'exit' to quit\n")
+async def handle_find(client: MCPGatewayClient, http_client, query: str):
+    """Search servers"""
+    with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}")) as progress:
+        task = progress.add_task(f"Searching for '{query}'...", total=None)
+        servers = await client.find_mcp_servers(http_client, query)
+    
+    if not servers:
+        print_error(f"No servers found matching '{query}'")
+        return
+    
+    print_success(f"Found {len(servers)} server(s)\n")
+    
+    # Display table
+    table = Table(box=box.ROUNDED, show_header=True, header_style="bold cyan")
+    table.add_column("Name", style="bold green", width=25)
+    table.add_column("Description", style="white", width=60)
+    
+    for server in servers:
+        name = server.get('name', 'N/A')
+        desc = server.get('description', 'No description')
+        if len(desc) > 57:
+            desc = desc[:57] + "..."
+        table.add_row(name, desc)
+    
+    console.print(table)
+    
+    # Ask to add
+    if confirm_action("Add Server?", "Would you like to add one of these servers?"):
+        server = select_from_list(servers, "Select Server")
+        if server:
+            await handle_add_selected(client, http_client, server)
 
-    async def run():
-        async with httpx.AsyncClient(timeout=300) as http_client:
-            client = MCPGatewayClient()
+async def handle_add_selected(client: MCPGatewayClient, http_client, server: dict):
+    """Add a pre-selected server"""
+    from configs_secrets import hil_configs, handle_secrets_interactive
+    
+    server_name = server['name']
+    
+    # Check requirements
+    needs_config = 'config_schema' in server
+    needs_secrets = 'required_secrets' in server
+    
+    # Configure
+    if needs_config:
+        config_server, config_keys, config_values = hil_configs(server)
+        with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}")) as progress:
+            task = progress.add_task("Configuring...", total=None)
+            await client.add_mcp_configs(http_client, config_server, config_keys, config_values)
+    
+    if needs_secrets:
+        handle_secrets_interactive(server)
+    
+    # Add server
+    with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}")) as progress:
+        task = progress.add_task("Adding server...", total=None)
+        result = await client.add_mcp_servers(http_client, server_name, activate=True)
+    
+    if result:
+        print_success(f"🎉 '{server_name}' added!")
+        await client.list_tools(http_client)
+    else:
+        print_error(f"Failed to add '{server_name}'")
 
-            # Initialize
-            with Progress(
-                SpinnerColumn(),
-                TextColumn("[progress.description]{task.description}"),
-                console=console,
-            ) as progress:
-                task = progress.add_task("Initializing...", total=None)
-                await client.initialize(http_client)
-                await client.list_tools(http_client)
+async def handle_list(client: MCPGatewayClient, http_client):
+    """List servers and tools"""
+    console.print("\n[bold cyan]📊 Current Status[/bold cyan]\n")
+    
+    # Active servers
+    if client.active_servers:
+        console.print("[bold green]Active Servers:[/bold green]")
+        for server in client.active_servers:
+            console.print(f"  • {server}")
+    else:
+        console.print("[dim]No active servers[/dim]")
+    
+    console.print()
+    
+    # Tools
+    tools = list(client.available_tools.values())
+    if tools:
+        console.print(f"[bold green]Available Tools:[/bold green] [cyan]{len(tools)} tools[/cyan]\n")
+        
+        table = Table(box=box.ROUNDED, show_header=True, header_style="bold cyan")
+        table.add_column("Tool", style="green", width=30)
+        table.add_column("Description", width=60)
+        
+        for tool in tools[:10]:  # Show first 10
+            name = tool.get('name', 'N/A')
+            desc = tool.get('description', 'No description')
+            if len(desc) > 57:
+                desc = desc[:57] + "..."
+            table.add_row(name, desc)
+        
+        console.print(table)
+        
+        if len(tools) > 10:
+            console.print(f"\n[dim]... and {len(tools) - 10} more tools[/dim]")
+    else:
+        console.print("[dim]No tools available yet[/dim]")
+    
+    console.print()
 
-            print_success("Ready! Type your commands below.")
+async def handle_remove(client: MCPGatewayClient, http_client):
+    """Remove server"""
+    if not client.active_servers:
+        print_error("No active servers to remove")
+        return
+    
+    # Create list for selection
+    server_list = [{'name': s, 'description': ''} for s in client.active_servers]
+    server = select_from_list(server_list, "Select Server to Remove")
+    
+    if not server:
+        print_info("Cancelled")
+        return
+    
+    server_name = server['name']
+    
+    if not confirm_action("Confirm Removal", f"Remove '{server_name}'?\nAll its tools will be removed."):
+        print_info("Cancelled")
+        return
+    
+    with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}")) as progress:
+        task = progress.add_task("Removing...", total=None)
+        result = await client.remove_mcp_servers(http_client, server_name)
+    
+    if result:
+        print_success(f"Removed '{server_name}'")
+    else:
+        print_error(f"Failed to remove '{server_name}'")
+
+async def handle_chat(client: MCPGatewayClient, http_client, message: str):
+    """Handle chat message"""
+    console.print(f"\n[bold]You:[/bold] {message}\n")
+    
+    with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}")) as progress:
+        task = progress.add_task("Thinking...", total=None)
+        
+        try:
+            result = await client.chat_with_llm(
+                provider_name="openai",
+                user_message=message,
+                model="gpt-4o",
+                initial_servers=list(client.active_servers) if client.active_servers else [],
+                mode="dynamic",
+                max_iterations=5,
+                verbose=False  # Disable verbose output
+            )
             
-            while True:
-                try:
-                    command = Prompt.ask("\n[bold green]mcp[/bold green]")
+            progress.stop()
+            
+            if result.get('content'):
+                print_chat_response(result['content'])
+            
+            # Show active servers if changed
+            if result.get('active_servers'):
+                console.print(f"\n[dim]Active: {', '.join(result['active_servers'])}[/dim]")
+        
+        except Exception as e:
+            progress.stop()
+            print_error(f"Error: {str(e)}")
 
-                    if command.lower() in ['exit', 'quit', 'q']:
-                        print_info("Goodbye! 👋")
-                        break
+# ============= Main Chat Loop =============
 
-                    elif command.lower() == 'help':
-                        show_interactive_help()
-                    
-                    elif command.lower() == 'tools':
-                        tools = list(client.available_tools.values())
-                        print_tools_table(tools)
-                    
-                    elif command.lower() == 'servers':
-                        if client.active_servers:
-                            print_success(f"Active: {', '.join(client.active_servers)}")
-                        else:
-                            print_info("No active servers")
-
-                    elif command.lower().startswith('search '):
-                        query = command[7:].strip()
-                        servers = await client.find_mcp_servers(http_client, query)
-                        print_servers_table(servers)
-                    
-                    elif command.lower().startswith('add '):
-                        server_name = command[4:].strip()
-                        servers = await client.find_mcp_servers(http_client, server_name)
-                        if servers:
-                            server = servers[0]
-                            await add_server_interactive(client, http_client, server)
-
-                    else:
-                        print_warning(f"Unknown command: {command}")
-                        print_info("Type 'help' to see available commands")
+async def chat_loop():
+    """Main interactive chat loop"""
+    print_welcome()
+    
+    async with httpx.AsyncClient(timeout=300) as http_client:
+        client = MCPGatewayClient()
+        
+        # Initialize
+        with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}")) as progress:
+            task = progress.add_task("Initializing...", total=None)
+            await client.initialize(http_client)
+            await client.list_tools(http_client)
+        
+        print_success("Ready!\n")
+        
+        # Main loop
+        while True:
+            try:
+                # Get input
+                user_input = Prompt.ask("[bold green]›[/bold green]").strip()
                 
-                except KeyboardInterrupt:
-                    console.print()
-                    if Confirm.ask("Exit interactive mode?"):
-                        break
-                except Exception as e:
-                    print_error(f"Error: {str(e)}")
+                if not user_input:
+                    continue
+                
+                # Handle commands
+                if user_input.startswith('/'):
+                    parts = user_input.split(maxsplit=1)
+                    cmd = parts[0].lower()
+                    args = parts[1] if len(parts) > 1 else ""
+                    
+                    if cmd == '/exit' or cmd == '/quit':
+                        if confirm_action("Exit", "Are you sure?"):
+                            print_info("Goodbye! 👋")
+                            break
+                    
+                    elif cmd == '/help':
+                        print_help()
+                    
+                    elif cmd == '/add':
+                        await handle_add(client, http_client)
+                    
+                    elif cmd == '/find':
+                        if not args:
+                            args = Prompt.ask("Search query")
+                        await handle_find(client, http_client, args)
+                    
+                    elif cmd == '/list':
+                        await handle_list(client, http_client)
+                    
+                    elif cmd == '/remove':
+                        await handle_remove(client, http_client)
+                    
+                    else:
+                        print_error(f"Unknown command: {cmd}")
+                        print_info("Type /help to see available commands")
+                
+                else:
+                    # Regular chat
+                    await handle_chat(client, http_client, user_input)
+            
+            except KeyboardInterrupt:
+                console.print()
+                if confirm_action("Exit", "Exit the chat?"):
+                    break
+            except EOFError:
+                break
+            except Exception as e:
+                print_error(f"Error: {str(e)}")
+
+# ============= CLI Entry Point =============
+
+@click.command()
+@click.version_option(version="2.0.0")
+def cli():
+    """
+    🤖 MCP Gateway - Interactive Chat Interface
     
-    asyncio.run(run())
+    Chat with AI and manage MCP servers with /commands
+    """
+    asyncio.run(chat_loop())
 
 if __name__ == '__main__':
     cli()

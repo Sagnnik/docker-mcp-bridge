@@ -4,8 +4,10 @@ from typing import Dict, List, Optional, Any
 import os
 import httpx
 import json
+from dotenv import load_dotenv
 from prompts import LLM_TOOL_SCHEMAS
-    
+
+load_dotenv()
 def should_expose(name:str, mode:str):
     exposed_tools = {"mcp-find", "code-mode", "mcp-exec"} 
     code_mode_tools = {"code-mode", "mcp-exec"}
