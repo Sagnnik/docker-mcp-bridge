@@ -1,23 +1,24 @@
 from abc import ABC, abstractmethod
 from openai import AsyncOpenAI
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, AsyncGenerator
 import os
 import httpx
 import json
-from dotenv import load_dotenv
 from prompts import LLM_TOOL_SCHEMAS
-
+from dotenv import load_dotenv
 load_dotenv()
+    
 def should_expose(name:str, mode:str):
     exposed_tools = {"mcp-find", "code-mode", "mcp-exec"} 
     code_mode_tools = {"code-mode", "mcp-exec"}
-    not_expose = {"mcp-add", "mcp-config-set", "mcp-remove"}
+    not_expose_default = {"mcp-add", "mcp-config-set", "mcp-remove"}
+    not_expose = {"mcp-config-set", "mcp-remove"}
 
     def is_custom(name:str):
         return name.startswith("code-mode-")
     
     if mode == 'default':
-        if name in not_expose:
+        if name in not_expose_default:
             return False
         if name in exposed_tools:
             return False
@@ -26,12 +27,16 @@ def should_expose(name:str, mode:str):
         return True
     
     elif mode == 'dynamic':
+        if name in not_expose:
+            return False
         if name in code_mode_tools:
             return False
         if is_custom(name):
             return False
         return True
     elif mode == 'code':
+        if name in not_expose:
+            return False
         if name in exposed_tools:
             return True
         if is_custom(name):
@@ -42,7 +47,11 @@ def should_expose(name:str, mode:str):
 
 class LLMProvider(ABC):
     @abstractmethod
-    async def chat(self, messages: List[Dict], model:str, tools: Optional[List[Dict]]):
+    async def generate(self, messages: List[Dict], model:str, tools: Optional[List[Dict]]):
+        pass
+
+    @abstractmethod
+    async def generate_stream(self, messages: List[Dict], model:str, tools: Optional[List[Dict]], mode: str) -> AsyncGenerator:
         pass
 
     @abstractmethod
@@ -55,7 +64,6 @@ class LLMProvider(ABC):
     
 class OpenAIProvider(LLMProvider):
     def __init__(self, api_key: str = None):
-        #self.base_url = "https://api.openai.com/v1/chat/completions"
         self.api_key = api_key or os.getenv('OPENAI_API_KEY')
         if not self.api_key:
             raise RuntimeError("OPENAI_API_KEY is not set. Please set it in your environment.")
@@ -101,7 +109,7 @@ class OpenAIProvider(LLMProvider):
 
         return tools
     
-    async def chat(
+    async def generate(
         self, 
         messages: List[Dict], 
         model: str, 
@@ -110,7 +118,6 @@ class OpenAIProvider(LLMProvider):
     ):
         client = AsyncOpenAI(
             api_key=self.api_key,
-            #base_url=self.base_url,
             timeout=120.0
         )
         kwargs = {
@@ -129,6 +136,88 @@ class OpenAIProvider(LLMProvider):
         finish_reason = choice.finish_reason
         data = response.model_dump()
         return data, assistant_message, finish_reason
+    
+    async def generate_stream(self, 
+        messages: List[Dict], 
+        model: str, 
+        tools: Optional[List[Dict]], 
+        mode: str = "dynamic"
+    ) -> AsyncGenerator:
+        """
+        Streaming generation (for /sse/chat endpoint)
+        Yields chunks as they arrive from OpenAI
+        """
+        client = AsyncOpenAI(
+            api_key=self.api_key,
+            timeout=120.0
+        )
+
+        kwargs = {
+            "model": model,
+            "messages": messages,
+            "stream": True
+        }
+
+        if tools:
+            kwargs['tools'] = self.format_tool_for_provider(tools, mode)
+            kwargs['tool_choice'] = "auto"
+
+        stream = await client.chat.completions.create(**kwargs)
+
+        # For tool calls accumulate the response
+        accumulated_content = ""
+        accumulated_tool_calls = []
+        finish_reason = None
+
+        async for chunk in stream:
+            delta = chunk.choices[0].delta
+            finish_reason = chunk.choices[0].finish_reason
+
+            if delta.content:
+                accumulated_content += delta.content
+                yield {
+                    "type": "content_delta",
+                    "content": delta.content
+                }
+
+            # Accumulate tool call chunks
+            if delta.tool_calls:
+                for tc_delta in delta.tool_calls:
+                    # add empty tool call
+                    while len(accumulated_tool_calls) <= tc_delta.index:
+                        accumulated_tool_calls.append({
+                            "id": None,
+                            "type": "function",
+                            "function": {"name": "", "arguments": ""}
+                        })
+
+                    tool_call = accumulated_tool_calls[tc_delta.index]
+
+                    # if tool call - format the empty tool call
+                    if tc_delta.id:
+                        tool_call['id'] = tc_delta.id
+
+                    if tc_delta.function:
+                        if tc_delta.function.name:
+                            tool_call["function"]["name"] = tc_delta.function.name
+                        if tc_delta.function.arguments:
+                            tool_call["function"]["arguments"] += tc_delta.function.arguments
+        
+        # Yield the complete assistant message
+        assistant_message = {
+            "role": "assistant",
+            "content": accumulated_content or None
+        }
+
+        if accumulated_tool_calls:
+            assistant_message['tool_calls'] = accumulated_tool_calls
+
+        yield {
+            "type": "complete",
+            "message": assistant_message,
+            "finish_reason": finish_reason
+        }
+                        
     
 class LLMProviderFactory:
     _providers: Dict[str, LLMProvider] = {}

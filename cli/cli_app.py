@@ -10,26 +10,39 @@ from rich.markdown import Markdown
 from rich import box
 import json
 from typing import Optional, List
-from mcp_host import MCPGatewayClient
+from mcp_host import MCPGatewayClient, cli_chat_llm
 import httpx
 from prompt_toolkit import prompt
-from prompt_toolkit.shortcuts import radiolist_dialog, button_dialog
-from prompt_toolkit.styles import Style
+# from prompt_toolkit.shortcuts import radiolist_dialog, button_dialog
+# from prompt_toolkit.styles import Style
+import questionary
+
+from dataclasses import dataclass, asdict
+
+@dataclass
+class ChatConfig:
+    provider_name: str = "openai"
+    model: str = "gpt-4o"
+    mode: str = "dynamic"
+    max_iterations: int = 10
+    verbose: bool = False
+
+CHAT_CONFIG = ChatConfig()
 
 console = Console()
 
 # ============= Styles =============
 
-dialog_style = Style.from_dict({
-    'dialog': 'bg:#1e1e1e',
-    'dialog.body': 'bg:#1e1e1e #00ff00',
-    'dialog.body text-area': 'bg:#1e1e1e #00ff00',
-    'button': 'bg:#2e2e2e #00ff00',
-    'button.focused': 'bg:#00ff00 #000000 bold',
-    'radio-list': 'bg:#1e1e1e #00ff00',
-    'radio-checked': 'bg:#1e1e1e #00ff00 bold',
-    'radio': 'bg:#1e1e1e #888888',
-})
+# dialog_style = Style.from_dict({
+#     'dialog': 'bg:#1e1e1e',
+#     'dialog.body': 'bg:#1e1e1e #00ff00',
+#     'dialog.body text-area': 'bg:#1e1e1e #00ff00',
+#     'button': 'bg:#2e2e2e #00ff00',
+#     'button.focused': 'bg:#00ff00 #000000 bold',
+#     'radio-list': 'bg:#1e1e1e #00ff00',
+#     'radio-checked': 'bg:#1e1e1e #00ff00 bold',
+#     'radio': 'bg:#1e1e1e #888888',
+# })
 
 # ============= Print Helpers =============
 
@@ -40,10 +53,7 @@ def print_welcome():
     console.print("[bold cyan]╚══════════════════════════════════════════════╝[/bold cyan]")
     console.print("\n[dim]Type your message or use commands:[/dim]")
     console.print("  [cyan]/help[/cyan]   - Show available commands")
-    # console.print("  [cyan]/add[/cyan]    - Add MCP servers")
-    # console.print("  [cyan]/find[/cyan]   - Search for servers")
-    # console.print("  [cyan]/list[/cyan]   - List tools & servers")
-    # console.print("  [cyan]/remove[/cyan] - Remove a server")
+    console.print("  [cyan]/config[/cyan]  - Configure LLM provider, model, and behavior")
     console.print("  [cyan]/exit[/cyan]   - Quit\n")
 
 def print_success(message: str):
@@ -71,6 +81,7 @@ def print_help():
     help_text = """
 [bold cyan]Available Commands:[/bold cyan]
 
+[bold]/config[/bold]           - Configure LLM provider, model, and behavior
 [bold]/chat <message>[/bold]   - Chat with AI using available tools
 [bold]/add[/bold]              - Search and add MCP servers
 [bold]/find <query>[/bold]     - Search for specific servers
@@ -90,38 +101,101 @@ def print_help():
 
 # ============= Interactive Selection =============
 
-def select_from_list(items: List[dict], title: str, name_key: str = 'name') -> Optional[dict]:
+async def select_from_list(items: List[dict], title: str, name_key: str = 'name') -> Optional[dict]:
     """Interactive selection using arrow keys"""
     if not items:
         return None
     
-    # Create radio list options
-    values = [(i, f"{item.get(name_key, 'Unknown')} - {item.get('description', '')[:50]}") 
-              for i, item in enumerate(items)]
+    # Create choices for questionary
+    choices = []
+    for item in items:
+        name = item.get(name_key, 'Unknown')
+        desc = item.get('description', '')
+        
+        # Format the choice text
+        if desc:
+            # Truncate description if too long
+            if len(desc) > 60:
+                desc = desc[:57] + "..."
+            choice_text = f"{name} - {desc}"
+        else:
+            choice_text = name
+        
+        choices.append(questionary.Choice(
+            title=choice_text,
+            value=item
+        ))
     
-    result = radiolist_dialog(
-        title=title,
-        text="Use arrow keys to navigate, Enter to select:",
-        values=values,
-        style=dialog_style,
-    ).run()
+    # Use questionary select ASYNC for arrow-key navigation
+    result = await questionary.select(
+        title,
+        choices=choices,
+        use_arrow_keys=True,
+        instruction="(Use arrow keys to navigate, Enter to select)"
+    ).ask_async()
     
-    if result is not None:
-        return items[result]
-    return None
+    return result
 
-async def confirm_action(title: str, text: str) -> bool:
-    result = await button_dialog(
-        title=title,
-        text=text,
-        buttons=[('Yes', True), ('No', False)],
-        style=dialog_style,
-    ).run_async()
-    return bool(result)
+async def confirm_action(title: str, text: str = "") -> bool:
+    """Confirm action using questionary"""
+    message = f"{title}: {text}" if text else title
+    return await questionary.confirm(message, default=False).ask_async()
 
 # ============= Command Handlers =============
 
-async def handle_add(client: MCPGatewayClient, http_client):
+async def handle_config():
+    console.print("\n[bold cyan]⚙️ Chat Configuration[/bold cyan]\n")
+
+    provider = await questionary.select(
+        "Select provider",
+        choices=["openai", "anthropic", "google", "ollama"],
+        default=CHAT_CONFIG.provider_name
+    ).ask_async()
+
+    model = await questionary.text(
+        "Model name",
+        default=CHAT_CONFIG.model
+    ).ask_async()
+
+    mode = await questionary.select(
+        "Mode",
+        choices=["default", "dynamic", "code-mode"],
+        default=CHAT_CONFIG.mode
+    ).ask_async()
+
+    max_iterations = await questionary.text(
+        "Max iterations",
+        default=str(CHAT_CONFIG.max_iterations),
+        validate=lambda x: x.isdigit() and int(x) > 0
+    ).ask_async()
+
+    verbose = await questionary.confirm(
+        "Verbose logging?",
+        default=CHAT_CONFIG.verbose
+    ).ask_async()
+
+    CHAT_CONFIG.provider_name = provider
+    CHAT_CONFIG.model = model
+    CHAT_CONFIG.mode = mode
+    CHAT_CONFIG.max_iterations = int(max_iterations)
+    CHAT_CONFIG.verbose = verbose
+
+    print_success("Chat configuration updated")
+
+    console.print(
+        Panel(
+            Syntax(
+                json.dumps(asdict(CHAT_CONFIG), indent=2),
+                "json",
+                theme="monokai",
+                line_numbers=False,
+            ),
+            title="Current Chat Config",
+            border_style="cyan"
+        )
+    )
+
+async def handle_add(client: MCPGatewayClient):
     """Add server workflow"""
     from configs_secrets import hil_configs, handle_secrets_interactive
     
@@ -134,7 +208,7 @@ async def handle_add(client: MCPGatewayClient, http_client):
         console=console,
     ) as progress:
         task = progress.add_task("Searching...", total=None)
-        servers = await client.find_mcp_servers(http_client, query or "mcp")
+        servers = await client.find_mcp_servers(query or "mcp")
     
     if not servers:
         print_error("No servers found")
@@ -143,7 +217,7 @@ async def handle_add(client: MCPGatewayClient, http_client):
     print_success(f"Found {len(servers)} servers")
     
     # Interactive selection
-    server = select_from_list(servers, "Select Server to Add")
+    server = await select_from_list(servers, "Select Server to Add")
     
     if not server:
         print_info("Cancelled")
@@ -165,7 +239,7 @@ async def handle_add(client: MCPGatewayClient, http_client):
             console.print("  • Credentials needed")
         console.print()
     
-    if not confirm_action("Confirm", f"Add '{server_name}'?"):
+    if not await confirm_action("Confirm", f"Add '{server_name}'?"):
         print_info("Cancelled")
         return
     
@@ -174,7 +248,7 @@ async def handle_add(client: MCPGatewayClient, http_client):
         config_server, config_keys, config_values = hil_configs(server)
         with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}")) as progress:
             task = progress.add_task("Configuring...", total=None)
-            await client.add_mcp_configs(http_client, config_server, config_keys, config_values)
+            await client.add_mcp_configs(config_server, config_keys, config_values)
     
     if needs_secrets:
         handle_secrets_interactive(server)
@@ -182,19 +256,19 @@ async def handle_add(client: MCPGatewayClient, http_client):
     # Add server
     with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}")) as progress:
         task = progress.add_task("Adding server...", total=None)
-        result = await client.add_mcp_servers(http_client, server_name, activate=True)
+        result = await client.add_mcp_servers(server_name, activate=True)
     
     if result:
         print_success(f"🎉 '{server_name}' added successfully!")
-        await client.list_tools(http_client)
+        await client.list_tools()
     else:
         print_error(f"Failed to add '{server_name}'")
 
-async def handle_find(client: MCPGatewayClient, http_client, query: str):
+async def handle_find(client: MCPGatewayClient, query: str):
     """Search servers"""
     with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}")) as progress:
         task = progress.add_task(f"Searching for '{query}'...", total=None)
-        servers = await client.find_mcp_servers(http_client, query)
+        servers = await client.find_mcp_servers(query)
     
     if not servers:
         print_error(f"No servers found matching '{query}'")
@@ -215,14 +289,16 @@ async def handle_find(client: MCPGatewayClient, http_client, query: str):
         table.add_row(name, desc)
     
     console.print(table)
+    console.print()  # Add spacing
     
-    # Ask to add
-    if confirm_action("Add Server?", "Would you like to add one of these servers?"):
-        server = select_from_list(servers, "Select Server")
-        if server:
-            await handle_add_selected(client, http_client, server)
+    # Directly select server with arrow keys
+    server = await select_from_list(servers, "Select a server to add")
+    if server:
+        await handle_add_selected(client, server)
+    else:
+        print_error("Server selection cancelled")
 
-async def handle_add_selected(client: MCPGatewayClient, http_client, server: dict):
+async def handle_add_selected(client: MCPGatewayClient, server: dict):
     """Add a pre-selected server"""
     from configs_secrets import hil_configs, handle_secrets_interactive
     
@@ -237,7 +313,7 @@ async def handle_add_selected(client: MCPGatewayClient, http_client, server: dic
         config_server, config_keys, config_values = hil_configs(server)
         with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}")) as progress:
             task = progress.add_task("Configuring...", total=None)
-            await client.add_mcp_configs(http_client, config_server, config_keys, config_values)
+            await client.add_mcp_configs(config_server, config_keys, config_values)
     
     if needs_secrets:
         handle_secrets_interactive(server)
@@ -245,15 +321,15 @@ async def handle_add_selected(client: MCPGatewayClient, http_client, server: dic
     # Add server
     with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}")) as progress:
         task = progress.add_task("Adding server...", total=None)
-        result = await client.add_mcp_servers(http_client, server_name, activate=True)
+        result = await client.add_mcp_servers(server_name, activate=True)
     
     if result:
         print_success(f"🎉 '{server_name}' added!")
-        await client.list_tools(http_client)
+        await client.list_tools()
     else:
         print_error(f"Failed to add '{server_name}'")
 
-async def handle_list(client: MCPGatewayClient, http_client):
+async def handle_list(client: MCPGatewayClient):
     """List servers and tools"""
     console.print("\n[bold cyan]📊 Current Status[/bold cyan]\n")
     
@@ -292,7 +368,7 @@ async def handle_list(client: MCPGatewayClient, http_client):
     
     console.print()
 
-async def handle_remove(client: MCPGatewayClient, http_client):
+async def handle_remove(client: MCPGatewayClient):
     """Remove server"""
     if not client.active_servers:
         print_error("No active servers to remove")
@@ -300,7 +376,7 @@ async def handle_remove(client: MCPGatewayClient, http_client):
     
     # Create list for selection
     server_list = [{'name': s, 'description': ''} for s in client.active_servers]
-    server = select_from_list(server_list, "Select Server to Remove")
+    server = await select_from_list(server_list, "Select Server to Remove")
     
     if not server:
         print_info("Cancelled")
@@ -308,49 +384,41 @@ async def handle_remove(client: MCPGatewayClient, http_client):
     
     server_name = server['name']
     
-    if not confirm_action("Confirm Removal", f"Remove '{server_name}'?\nAll its tools will be removed."):
+    if not await confirm_action("Confirm Removal", f"Remove '{server_name}'?\nAll its tools will be removed."):
         print_info("Cancelled")
         return
     
     with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}")) as progress:
         task = progress.add_task("Removing...", total=None)
-        result = await client.remove_mcp_servers(http_client, server_name)
+        result = await client.remove_mcp_servers(server_name)
     
     if result:
         print_success(f"Removed '{server_name}'")
     else:
         print_error(f"Failed to remove '{server_name}'")
 
-async def handle_chat(client: MCPGatewayClient, http_client, message: str):
-    """Handle chat message"""
+async def handle_chat(client: MCPGatewayClient, message: str):
     console.print(f"\n[bold]You:[/bold] {message}\n")
-    
-    with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}")) as progress:
-        task = progress.add_task("Thinking...", total=None)
-        
-        try:
-            result = await client.chat_with_llm(
-                provider_name="openai",
-                user_message=message,
-                model="gpt-4o",
-                initial_servers=list(client.active_servers) if client.active_servers else [],
-                mode="dynamic",
-                max_iterations=5,
-                verbose=False  # Disable verbose output
-            )
-            
-            progress.stop()
-            
-            if result.get('content'):
-                print_chat_response(result['content'])
-            
-            # Show active servers if changed
-            if result.get('active_servers'):
-                console.print(f"\n[dim]Active: {', '.join(result['active_servers'])}[/dim]")
-        
-        except Exception as e:
-            progress.stop()
-            print_error(f"Error: {str(e)}")
+    try:
+        result = await cli_chat_llm(
+            console,
+            client=client,
+            provider_name=CHAT_CONFIG.provider_name,
+            user_message=message,
+            model=CHAT_CONFIG.model,
+            mode=CHAT_CONFIG.mode,
+            max_iterations=CHAT_CONFIG.max_iterations,
+            verbose=CHAT_CONFIG.verbose
+        )
+
+        if result.get('content'):
+            print_chat_response(result['content'])
+
+        if result.get('active_servers'):
+            console.print(f"\n[dim]Active: {', '.join(result['active_servers'])}[/dim]")
+
+    except Exception as e:
+        print_error(f"Error: {str(e)}")
 
 # ============= Main Chat Loop =============
 
@@ -358,14 +426,10 @@ async def chat_loop():
     """Main interactive chat loop"""
     print_welcome()
     
-    async with httpx.AsyncClient(timeout=300) as http_client:
-        client = MCPGatewayClient()
-        
-        # Initialize
+    async with MCPGatewayClient() as client:
         with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}")) as progress:
             task = progress.add_task("Initializing...", total=None)
-            await client.initialize(http_client)
-            await client.list_tools(http_client)
+            await client.list_tools()
         
         print_success("Ready!\n")
         
@@ -385,7 +449,7 @@ async def chat_loop():
                     args = parts[1] if len(parts) > 1 else ""
                     
                     if cmd == '/exit' or cmd == '/quit':
-                        if confirm_action("Exit", "Are you sure?"):
+                        if await confirm_action("Exit", "Are you sure?"):
                             print_info("Goodbye! 👋")
                             break
                     
@@ -393,18 +457,21 @@ async def chat_loop():
                         print_help()
                     
                     elif cmd == '/add':
-                        await handle_add(client, http_client)
+                        await handle_add(client)
                     
                     elif cmd == '/find':
                         if not args:
                             args = Prompt.ask("Search query")
-                        await handle_find(client, http_client, args)
+                        await handle_find(client, args)
                     
                     elif cmd == '/list':
-                        await handle_list(client, http_client)
+                        await handle_list(client)
                     
                     elif cmd == '/remove':
-                        await handle_remove(client, http_client)
+                        await handle_remove(client)
+                    
+                    elif cmd == '/config':
+                        await handle_config()
                     
                     else:
                         print_error(f"Unknown command: {cmd}")
@@ -412,11 +479,11 @@ async def chat_loop():
                 
                 else:
                     # Regular chat
-                    await handle_chat(client, http_client, user_input)
+                    await handle_chat(client, user_input)
             
             except KeyboardInterrupt:
                 console.print()
-                if confirm_action("Exit", "Exit the chat?"):
+                if await confirm_action("Exit", "Exit the chat?"):
                     break
             except EOFError:
                 break
