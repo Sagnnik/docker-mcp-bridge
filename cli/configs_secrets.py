@@ -3,6 +3,7 @@ import getpass
 from typing import List, Dict
 from rich.console import Console
 from rich.prompt import Prompt, Confirm
+from rich.rule import Rule
 
 console = Console()
 
@@ -17,18 +18,16 @@ def parse_secret_key(secret_full_key: str):
     return secret_full_key, secret_full_key
 
 def set_docker_secret_interactive(server_name: str, secret_key: str):
-    """
-    Prompt user to enter a secret value and set it via docker CLI
-    """
-    console.print(f"\n{'─'*60}")
-    console.print(f"🔑 Secret: [cyan]{secret_key}[/cyan]")
-    console.print(f"{'─'*60}")
+    console.print()
+    console.print(f"[bold]🔑 Secret[/bold]  [cyan]{secret_key}[/cyan]")
+    console.print("[dim]Value will not be shown while typing[/dim]")
 
-    secret_value = getpass.getpass(f"Enter value for '{secret_key}' (input hidden): ")
+    secret_value = getpass.getpass("› ")
+
     if not secret_value.strip():
-        console.print(f"[yellow]⚠️  Skipping empty secret '{secret_key}'[/yellow]")
+        console.print(f"[yellow]⚠ Skipped empty value[/yellow]")
         return False
-    
+
     try:
         result = subprocess.run(
             ['docker', 'mcp', 'secret', 'set', f'{server_name}/{secret_key}'],
@@ -39,131 +38,131 @@ def set_docker_secret_interactive(server_name: str, secret_key: str):
         )
 
         if result.returncode == 0:
-            console.print(f"[green]✓ Secret '{secret_key}' set successfully[/green]")
+            console.print(f"[green]✓ Saved[/green]")
             return True
         else:
             error_msg = result.stderr.decode() if result.stderr else "Unknown error"
-            console.print(f"[red]✗ Failed to set secret '{secret_key}': {error_msg}[/red]")
+            console.print(f"[red]✗ Failed[/red] [dim]{error_msg}[/dim]")
             return False
-        
+
     except subprocess.TimeoutExpired:
-        console.print(f"[red]✗ Timeout while setting secret '{secret_key}'[/red]")
+        console.print(f"[red]✗ Timeout[/red]")
         return False
     except Exception as e:
-        console.print(f"[red]✗ Unexpected error: {str(e)}[/red]")
+        console.print(f"[red]✗ Error[/red] [dim]{str(e)}[/dim]")
         return False
 
+
 def prompt_manual_secret_setup(server_name: str, secret_keys: List[str]):
-    """
-    Show instructions for manual secret setup via CLI
-    """
-    console.print(f"\n{'='*70}")
-    console.print("[bold]🔐 SECRET CONFIGURATION REQUIRED[/bold]")
-    console.print(f"{'='*70}")
-    console.print(f"\nServer: [cyan]{server_name}[/cyan]")
-    console.print("\n[bold]Run these commands in your terminal:[/bold]\n")
-    
-    for secret_key in secret_keys:
-        console.print(f"  [dim]docker mcp secret set {server_name}/{secret_key}[/dim]")
-    
-    console.print(f"\n{'='*70}")
+    console.print()
+    console.print(Rule("[bold yellow]Manual Secret Setup"))
+    console.print(f"[bold]Server:[/bold] [cyan]{server_name}[/cyan]\n")
+
+    console.print("[bold]Run the following commands:[/bold]\n")
+
+    for key in secret_keys:
+        console.print(f"  [dim]docker mcp secret set {server_name}/{key}[/dim]")
+
+    console.print("\n[dim]Press Enter once finished[/dim]")
+
+from rich.rule import Rule
 
 def handle_secrets_interactive(server: Dict):
     """
-    Handle secret configuration interactively
-    Returns True if secrets were configured successfully
+    Handle secret configuration interactively.
+    Returns True if user chooses to continue / secrets configured.
     """
-    if 'required_secrets' not in server or not server['required_secrets']:
+    if not server.get("required_secrets"):
         return True  # No secrets needed
-    
-    server_name = server['name']
-    required_secrets = server['required_secrets']
 
-    console.print(f"\n{'='*70}")
-    console.print(f"[bold]🔐 Server '{server_name}' requires secret configuration[/bold]")
-    console.print(f"{'='*70}")
-    console.print(f"\n[yellow]Required secrets:[/yellow] {', '.join(required_secrets)}")
+    server_name = server["name"]
+    required_secrets = server["required_secrets"]
 
-    console.print("\n[bold]How would you like to configure secrets?[/bold]")
-    console.print("  [cyan]1.[/cyan] Interactive mode (enter values now)")
-    console.print("  [cyan]2.[/cyan] Manual mode (I'll run docker commands myself)")
-    console.print("  [cyan]3.[/cyan] Skip (configure later)")
+    console.print()
+    console.print(Rule("[bold yellow]Secrets Required"))
+    console.print(f"[bold]Server:[/bold] [cyan]{server_name}[/cyan]")
+    console.print(f"[bold]Secrets:[/bold] {', '.join(required_secrets)}\n")
 
-    choice = Prompt.ask("\nEnter choice", choices=["1", "2", "3"], default="1")
+    console.print("[bold]Choose how to proceed:[/bold]")
+    console.print("  [cyan]1[/cyan] Interactive — enter secret values now")
+    console.print("  [cyan]2[/cyan] Manual — I will run docker commands myself")
+    console.print("  [cyan]3[/cyan] Skip — configure later\n")
 
-    if choice == '1':
-        # Interactive mode
-        console.print("\n[bold cyan]--- Interactive Secret Configuration ---[/bold cyan]")
+    choice = Prompt.ask("›", choices=["1", "2", "3"], default="1")
+
+    if choice == "1":
+        console.print("\n[bold cyan]Interactive secret setup[/bold cyan]\n")
+
         success_count = 0
-        
+
         for secret_key in required_secrets:
-            success = set_docker_secret_interactive(server_name, secret_key)
-            if success:
+            if set_docker_secret_interactive(server_name, secret_key):
                 success_count += 1
             else:
-                console.print(f"\n[yellow]⚠️  Required secret '{secret_key}' was not set![/yellow]")
+                console.print(f"[yellow]⚠ Secret not set:[/yellow] {secret_key}")
                 if Confirm.ask("Retry?", default=True):
-                    success = set_docker_secret_interactive(server_name, secret_key)
-                    if success:
+                    if set_docker_secret_interactive(server_name, secret_key):
                         success_count += 1
-        
+
         if success_count == len(required_secrets):
-            console.print(f"\n[green]✓ All {success_count} required secrets configured successfully[/green]")
+            console.print(f"\n[green]✓ All secrets configured successfully[/green]")
             return True
-        else:
-            console.print(f"\n[yellow]⚠️  Only {success_count}/{len(required_secrets)} secrets were configured[/yellow]")
-            return Confirm.ask("Continue anyway?", default=False)
-        
-    elif choice == '2':
-        # Manual mode
-        prompt_manual_secret_setup(server_name, required_secrets)
-        Prompt.ask("\n[dim]Press Enter after you've configured the secrets[/dim]", default="")
-        console.print("[green]✓ Continuing...[/green]\n")
-        return True
-    
-    else:
-        # Skip
-        console.print("[yellow]⚠️  Skipping secret configuration. Server may not work correctly.[/yellow]")
+
+        console.print(
+            f"\n[yellow]⚠ Configured {success_count}/{len(required_secrets)} secrets[/yellow]"
+        )
         return Confirm.ask("Continue anyway?", default=False)
+
+    if choice == "2":
+        console.print()
+        console.print(Rule("[bold cyan]Manual Secret Setup"))
+        console.print(f"[bold]Server:[/bold] [cyan]{server_name}[/cyan]\n")
+
+        console.print("[bold]Run the following commands:[/bold]\n")
+        for key in required_secrets:
+            console.print(f"  [dim]docker mcp secret set {server_name}/{key}[/dim]")
+
+        Prompt.ask("\n[dim]Press Enter once finished[/dim]", default="")
+        console.print("[green]✓ Continuing[/green]\n")
+        return True
+
+    console.print(
+        "\n[yellow]⚠ Secrets were not configured. "
+        "This server may not function correctly.[/yellow]"
+    )
+    return Confirm.ask("Continue anyway?", default=False)
+
     
 def hil_configs(server: Dict):
-    """
-    Human-in-the-loop for config schema
-    Returns (server_name, config_keys, config_values)
-    """
-    config_schema = server['config_schema'][0]
-    console.print(f"\n[bold cyan]--- Configuration Required ---[/bold cyan]")
-    console.print(config_schema.get('description', 'No description'))
+    config_schema = server["config_schema"][0]
 
-    config_server_name = config_schema['name']
-    config_keys = list(config_schema['properties'].keys())
-    required_keys = config_schema.get('required', [])
+    console.print()
+    console.print(Rule("[bold cyan]Configuration Required"))
+    console.print(f"[dim]{config_schema.get('description', '')}[/dim]\n")
 
-    console.print(f"\n[yellow]Required properties:[/yellow] {required_keys}")
-    console.print(f"[dim]Optional properties:[/dim] {[k for k in config_keys if k not in required_keys]}")
+    config_server_name = config_schema["name"]
+    config_keys = list(config_schema["properties"].keys())
+    required_keys = config_schema.get("required", [])
+
+    console.print(f"[bold]Required:[/bold] {required_keys}")
+    console.print(f"[dim]Optional:[/dim] {[k for k in config_keys if k not in required_keys]}\n")
 
     config_values = []
-    for key in config_keys:
-        prop_info = config_schema['properties'][key]
-        prop_desc = prop_info.get('description', '')
-        prop_type = prop_info.get('type', 'string')
-        is_required = key in required_keys
 
-        # Build prompt text
-        prompt_text = key
-        if prop_desc:
-            prompt_text = f"{key} ({prop_desc})"
-        
-        # Use Rich Prompt which handles display better
-        if is_required:
-            value = Prompt.ask(f"[yellow]✱[/yellow] {prompt_text} [red][REQUIRED][/red]")
-            # Validate required fields
+    for key in config_keys:
+        prop = config_schema["properties"][key]
+        label = f"{key}"
+        if prop.get("description"):
+            label += f" — {prop['description']}"
+
+        if key in required_keys:
+            value = Prompt.ask(f"[yellow]*[/yellow] {label}")
             while not value.strip():
-                console.print(f"[red]⚠️  '{key}' is required![/red]")
-                value = Prompt.ask(f"[yellow]✱[/yellow] {prompt_text} [red][REQUIRED][/red]")
+                console.print(f"[red]Required[/red]")
+                value = Prompt.ask(f"[yellow]*[/yellow] {label}")
         else:
-            value = Prompt.ask(f"  {prompt_text}", default="")
-        
+            value = Prompt.ask(f"  {label}", default="")
+
         config_values.append(value)
 
     return config_server_name, config_keys, config_values

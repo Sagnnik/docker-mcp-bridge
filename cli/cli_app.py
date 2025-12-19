@@ -7,15 +7,16 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.prompt import Prompt, Confirm
 from rich.syntax import Syntax
 from rich.markdown import Markdown
+from rich.rule import Rule
 from rich import box
 import json
 from typing import Optional, List
-from mcp_host import MCPGatewayClient, cli_chat_llm
+from mcp_host import MCPGatewayClient
+from cli_chat import cli_chat_llm
 import httpx
 from prompt_toolkit import prompt
-# from prompt_toolkit.shortcuts import radiolist_dialog, button_dialog
-# from prompt_toolkit.styles import Style
 import questionary
+from datetime import datetime
 
 from dataclasses import dataclass, asdict
 
@@ -31,45 +32,58 @@ CHAT_CONFIG = ChatConfig()
 
 console = Console()
 
-# ============= Styles =============
-
-# dialog_style = Style.from_dict({
-#     'dialog': 'bg:#1e1e1e',
-#     'dialog.body': 'bg:#1e1e1e #00ff00',
-#     'dialog.body text-area': 'bg:#1e1e1e #00ff00',
-#     'button': 'bg:#2e2e2e #00ff00',
-#     'button.focused': 'bg:#00ff00 #000000 bold',
-#     'radio-list': 'bg:#1e1e1e #00ff00',
-#     'radio-checked': 'bg:#1e1e1e #00ff00 bold',
-#     'radio': 'bg:#1e1e1e #888888',
-# })
-
 # ============= Print Helpers =============
 
 def print_welcome():
-    """Display welcome message"""
-    console.print("\n[bold cyan]╔══════════════════════════════════════════════╗[/bold cyan]")
-    console.print("[bold cyan]║[/bold cyan]  [bold white]🤖 MCP Gateway - Interactive Chat[/bold white]       [bold cyan]    ║[/bold cyan]")
-    console.print("[bold cyan]╚══════════════════════════════════════════════╝[/bold cyan]")
-    console.print("\n[dim]Type your message or use commands:[/dim]")
-    console.print("  [cyan]/help[/cyan]   - Show available commands")
-    console.print("  [cyan]/config[/cyan]  - Configure LLM provider, model, and behavior")
-    console.print("  [cyan]/exit[/cyan]   - Quit\n")
+    console.clear()
+    console.print("\n[bold cyan]🤖 MCP Gateway[/bold cyan]")
+    console.print("[dim]Interactive AI + MCP Server Console[/dim]\n")
+
+    console.print(Rule(style="grey39"))
+
+    console.print("[bold]Current configuration[/bold]\n")
+
+    console.print(f"  Provider        [green]{CHAT_CONFIG.provider_name}[/green]")
+    console.print(f"  Model           [green]{CHAT_CONFIG.model}[/green]")
+    console.print(f"  Mode            [yellow]{CHAT_CONFIG.mode}[/yellow]")
+    console.print(f"  Max iterations  [cyan]{CHAT_CONFIG.max_iterations}[/cyan]\n")
+
+    console.print("[bold]Commands[/bold]\n")
+
+    console.print("  [green]/help[/green]     Show available commands")
+    console.print("  [green]/config[/green]   Configure provider & model")
+    console.print("  [green]/add[/green]      Search and add MCP servers")
+    console.print("  [green]/list[/green]     Show active servers and tools")
+    console.print("  [green]/exit[/green]     Quit the CLI\n")
+
+    console.print("[dim]Type /help to get started.[/dim]\n")
+    console.print(Rule(style="grey39"))
+
+def status_panel(title: str, message: str, style: str = "cyan"):
+    console.print(
+        Panel(
+            message,
+            title=title,
+            border_style=style,
+            box=box.ROUNDED,
+            padding=(1, 2),
+        )
+    )
 
 def print_success(message: str):
-    console.print(f"✅ {message}", style="bold green")
+    status_panel("SUCCESS", f"✅ {message}", "green")
 
 def print_error(message: str):
-    console.print(f"❌ {message}", style="bold red")
+    status_panel("ERROR", f"❌ {message}", "red")
 
 def print_info(message: str):
-    console.print(f"💡 {message}", style="bold blue")
+    status_panel("INFO", f"💡 {message}", "blue")
 
 def print_chat_response(content: str):
-    """Display chat response"""
     panel = Panel(
         Markdown(content),
         title="🤖 Assistant",
+        subtitle=datetime.now().strftime("%H:%M:%S"),
         border_style="green",
         box=box.ROUNDED,
         padding=(1, 2)
@@ -398,7 +412,15 @@ async def handle_remove(client: MCPGatewayClient):
         print_error(f"Failed to remove '{server_name}'")
 
 async def handle_chat(client: MCPGatewayClient, message: str):
-    console.print(f"\n[bold]You:[/bold] {message}\n")
+    console.print(
+        Panel(
+            message,
+            title="🧑 You",
+            border_style="blue",
+            box=box.ROUNDED,
+            padding=(1, 2),
+        )
+    )
     try:
         result = await cli_chat_llm(
             console,
@@ -427,17 +449,22 @@ async def chat_loop():
     print_welcome()
     
     async with MCPGatewayClient() as client:
-        with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}")) as progress:
-            task = progress.add_task("Initializing...", total=None)
+        with Progress(
+            SpinnerColumn(style="cyan"),
+            TextColumn("[bold cyan]{task.description}"),
+            console=console,
+        ) as progress:
+            task = progress.add_task("🔌 Connecting to MCP Gateway", total=None)
             await client.list_tools()
-        
-        print_success("Ready!\n")
+            progress.update(task, description="📦 Loading tools")
         
         # Main loop
         while True:
             try:
                 # Get input
-                user_input = Prompt.ask("[bold green]›[/bold green]").strip()
+                user_input = Prompt.ask(
+                    "[bold green]You[/bold green] [dim]›[/dim]"
+                ).strip()
                 
                 if not user_input:
                     continue
