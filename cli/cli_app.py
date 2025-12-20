@@ -13,31 +13,41 @@ import json
 from typing import Optional, List
 from mcp_host import MCPGatewayClient
 from cli_chat import cli_chat_llm
-import httpx
-from prompt_toolkit import prompt
 import questionary
 from datetime import datetime
+import subprocess
+import shlex
 
 from dataclasses import dataclass, asdict
 
 @dataclass
 class ChatConfig:
     provider_name: str = "openai"
-    model: str = "gpt-4o"
+    model: str = "gpt-5-mini"
     mode: str = "dynamic"
     max_iterations: int = 10
-    verbose: bool = False
+    verbose: bool = True
 
 CHAT_CONFIG = ChatConfig()
 
 console = Console()
 
+message_history = []
+history_index = -1
+
 # ============= Print Helpers =============
 
 def print_welcome():
     console.clear()
-    console.print("\n[bold cyan]🤖 MCP Gateway[/bold cyan]")
-    console.print("[dim]Interactive AI + MCP Server Console[/dim]\n")
+    console.print(
+    Panel(
+        "[bold cyan]🤖 MCP Gateway[/bold cyan]\n"
+        "[dim]Interactive AI + MCP Server Console[/dim]",
+        box=box.DOUBLE,
+        border_style="cyan",
+        padding=(1, 2),
+    )
+)
 
     console.print(Rule(style="grey39"))
 
@@ -54,6 +64,7 @@ def print_welcome():
     console.print("  [green]/config[/green]   Configure provider & model")
     console.print("  [green]/add[/green]      Search and add MCP servers")
     console.print("  [green]/list[/green]     Show active servers and tools")
+    console.print("  [green]!<cmd>[/green]    Execute shell commands")
     console.print("  [green]/exit[/green]     Quit the CLI\n")
 
     console.print("[dim]Type /help to get started.[/dim]\n")
@@ -101,8 +112,15 @@ def print_help():
 [bold]/find <query>[/bold]     - Search for specific servers
 [bold]/list[/bold]             - Show active servers and tools
 [bold]/remove[/bold]           - Remove a server
+[bold]!<command>[/bold]        - Execute shell commands (e.g., !ls, !pwd)
 [bold]/help[/bold]             - Show this help
 [bold]/exit[/bold]             - Exit the CLI
+
+[bold cyan]Features:[/bold cyan]
+
+  Use arrow keys to navigate command history
+  Tab completion for commands
+  Execute shell commands with ! prefix
 
 [bold cyan]Examples:[/bold cyan]
 
@@ -112,6 +130,57 @@ def print_help():
   Search for MCP repositories
     """
     console.print(Panel(help_text, title="💡 Help", border_style="cyan", box=box.ROUNDED))
+
+# ============= Shell Command Execution =============
+
+async def execute_shell_command(command: str):
+    """Execute a shell command and display output"""
+    try:
+        # Remove the leading '!' and strip whitespace
+        shell_cmd = command[1:].strip()
+        
+        if not shell_cmd:
+            print_error("No command provided")
+            return
+        
+        console.print(f"\n[bold cyan] Executing:[/bold cyan] [yellow]{shell_cmd}[/yellow]\n")
+        
+        # Execute the command
+        # Use shlex.split for proper argument parsing, but keep as string for shell=True
+        process = await asyncio.create_subprocess_shell(
+            shell_cmd,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+            shell=True
+        )
+        
+        stdout, stderr = await process.communicate()
+        
+        # Display output
+        if stdout:
+            output = stdout.decode('utf-8', errors='replace')
+            console.print(Panel(
+                output.rstrip(),
+                title="📤 Output",
+                border_style="green",
+                box=box.ROUNDED
+            ))
+        
+        if stderr:
+            error = stderr.decode('utf-8', errors='replace')
+            console.print(Panel(
+                error.rstrip(),
+                title="⚠️ Error Output",
+                border_style="yellow",
+                box=box.ROUNDED
+            ))
+        
+        # Show return code if non-zero
+        if process.returncode != 0:
+            console.print(f"\n[yellow]⚠️  Exit code: {process.returncode}[/yellow]")
+        
+    except Exception as e:
+        print_error(f"Failed to execute command: {str(e)}")
 
 # ============= Interactive Selection =============
 
@@ -154,6 +223,34 @@ async def confirm_action(title: str, text: str = "") -> bool:
     """Confirm action using questionary"""
     message = f"{title}: {text}" if text else title
     return await questionary.confirm(message, default=False).ask_async()
+
+async def get_input_with_history(prompt_text: str) -> str:
+    """Get user input with arrow key history navigation"""
+    global history_index
+    
+    # Reset history index
+    history_index = len(message_history)
+    
+    # Use questionary for input with better arrow key support
+    try:
+        user_input = await questionary.text(
+            prompt_text,
+            qmark="",
+            style=questionary.Style([
+                ('question', 'bold fg:green'),
+                ('answer', 'fg:white'),
+            ])
+        ).ask_async()
+        
+        if user_input and user_input.strip():
+            # Add to history if not duplicate of last entry
+            if not message_history or message_history[-1] != user_input.strip():
+                message_history.append(user_input.strip())
+            return user_input.strip()
+        
+        return ""
+    except (KeyboardInterrupt, EOFError):
+        raise
 
 # ============= Command Handlers =============
 
@@ -461,12 +558,17 @@ async def chat_loop():
         # Main loop
         while True:
             try:
-                # Get input
-                user_input = Prompt.ask(
-                    "[bold green]You[/bold green] [dim]›[/dim]"
-                ).strip()
+                # Get input with history support
+                user_input = await get_input_with_history(
+                    "You ›"
+                )
                 
                 if not user_input:
+                    continue
+                
+                # Handle shell commands
+                if user_input.startswith('!'):
+                    await execute_shell_command(user_input)
                     continue
                 
                 # Handle commands

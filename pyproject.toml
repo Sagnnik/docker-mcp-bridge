@@ -16,4 +16,5 @@ dependencies = [
 [tool.uv.workspace]
 members = [
     "cli",
+    "api",
 ]
