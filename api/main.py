@@ -4,13 +4,16 @@ from fastapi.middleware.cors import CORSMiddleware
 from provider import LLMProviderFactory
 import routes
 from logger import logger
+from services.redis_client import init_redis, close_redis
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Starting MCP Gateway API...")
+    await init_redis()
     LLMProviderFactory.initialize_provider()
     yield
     logger.info("Shutting down MCP Gateway API...")
+    await close_redis()
 
 app = FastAPI(
     title="MCP Gateway Client",

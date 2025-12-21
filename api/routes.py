@@ -16,7 +16,13 @@ from models import (
 )
 from gateway_client import MCPGatewayAPIClient
 from provider import LLMProviderFactory
-from state_manager import (
+# from services.state_manager import (
+#     generate_interrupt_id, 
+#     store_interrupt_state,
+#     get_interrupt_state, 
+#     cleanup_interrupt_state
+# )
+from services.state_manager_redis import (
     generate_interrupt_id, 
     store_interrupt_state,
     get_interrupt_state, 
