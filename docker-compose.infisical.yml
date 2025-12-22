@@ -1,0 +1,48 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: infisical_postgres
+    restart: unless-stopped
+    networks:
+      - infisical_net
+    environment:
+      POSTGRES_USER: infisical
+      POSTGRES_PASSWORD: infisical_password
+      POSTGRES_DB: infisical
+    volumes:
+      - infisical_postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7.0
+    container_name: infisical_redis
+    restart: unless-stopped
+    networks:
+      - infisical_net
+    ports:
+      - "6379:6379"
+    volumes:
+      - infisical_redis_data:/data
+
+  infisical:
+    image: infisical/infisical:v0.133.0-postgres
+    container_name: infisical_app
+    restart: unless-stopped
+    networks:
+      - infisical_net
+    ports:
+      - "8080:8080"
+    environment:
+      ENCRYPTION_KEY: f40c9178624764ad85a6830b37ce239a
+      AUTH_SECRET: q6LRi7c717a3DQ8JUxlWYkZpMhG4+RHLoFUVt3Bvo2U=
+      REDIS_URL: redis://infisical_redis:6379
+      DB_CONNECTION_URI: postgresql://infisical:infisical_password@infisical_postgres:5432/infisical
+      SITE_URL: http://localhost
+      EMAIL_ENABLED: "false"
+
+volumes:
+  infisical_postgres_data:
+  infisical_redis_data:
+
+networks:
+  infisical_net:
+    driver: bridge

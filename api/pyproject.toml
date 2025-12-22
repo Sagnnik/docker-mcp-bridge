@@ -5,6 +5,8 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "infisicalsdk>=1.0.13",
+    "langfuse>=3.11.1",
     "redis>=7.1.0",
 ]
 

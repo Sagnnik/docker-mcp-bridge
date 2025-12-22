@@ -3,6 +3,7 @@ from logger import logger
 from typing import Dict, Any, List, Optional, AsyncGenerator
 from prompts import MCP_BRIDGE_MESSAGES
 from models import AgentResult
+from langfuse import observe
 
 TOOL_CHANGE_TRIGGERS = {"mcp-add", "mcp-find", "mcp-exec", "code-mode"}
 
@@ -41,6 +42,7 @@ class AgentCore:
         
         return prepared
     
+    @observe(name="handle_tool_call")
     async def handle_tool_call(self, tool_name:str, tool_args: Dict[str, Any], tool_call_id:str)-> Dict[str, Any]:
         """
         Returns:
@@ -149,6 +151,7 @@ class AgentCore:
                 })
             }
         
+    @observe(name="agent_loop")   
     async def run_agent_loop(
         self, 
         messages: List[Dict[str, Any]], 
@@ -247,6 +250,7 @@ class AgentCore:
             messages=messages
         )
     
+    @observe(name="agent_loop_streaming")
     async def run_agent_loop_stream(
         self,
         messages: List[Dict[str, Any]],
