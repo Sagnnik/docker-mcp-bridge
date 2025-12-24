@@ -2,8 +2,6 @@ from abc import ABC, abstractmethod
 from openai import AsyncOpenAI
 from typing import Dict, List, Optional, Any, AsyncGenerator
 import os
-import httpx
-import json
 from utils.prompts import LLM_TOOL_SCHEMAS
 from config import settings
     

@@ -13,6 +13,7 @@ class Settings(BaseSettings):
 
     # API keys
     openai_api_key: Optional[str] = None
+    openrouter_api_key: Optional[str] = None
 
     # Langfuse settings
     langfuse_enabled: bool = False
