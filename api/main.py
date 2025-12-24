@@ -3,10 +3,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from provider import LLMProviderFactory
 # import routes
-from routes import mcp_routes, chat_routes
+from router import mcp_routes, chat_routes
 from utils.logger import logger
 from config import settings
-from langfuse import get_client
 from services.redis_client import init_redis, close_redis
 from services.langfuse_client import init_langfuse, flush_langfuse
 from services.docker_secrets import initialize_docker_secrets
@@ -15,20 +14,18 @@ from services.docker_secrets import initialize_docker_secrets
 async def lifespan(app: FastAPI):
     logger.info("Starting MCP Gateway API...")
     await init_redis()
-    if settings.infisical_enabled:
-        initialize_docker_secrets()
+    # if settings.infisical_enabled:
+    #     initialize_docker_secrets()
 
-    #langfuse = init_langfuse(settings)  
-    if settings.langfuse_enabled:
-        langfuse = get_client()
-        if langfuse:
-            logger.info("Langfuse tracing enabled")
+    langfuse = init_langfuse(settings)  
+    if langfuse:
+        logger.info("Langfuse tracing enabled")
     LLMProviderFactory.initialize_provider()
 
     yield
 
     logger.info("Shutting down MCP Gateway API...")
-    #flush_langfuse()
+    flush_langfuse()
     langfuse.flush()
     await close_redis()
 
