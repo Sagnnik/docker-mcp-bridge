@@ -2,19 +2,24 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from provider import LLMProviderFactory
-import routes
-from logger import logger
+# import routes
+from routes import mcp_routes, chat_routes
+from utils.logger import logger
 from config import settings
 from langfuse import get_client
 from services.redis_client import init_redis, close_redis
 from services.langfuse_client import init_langfuse, flush_langfuse
+from services.docker_secrets import initialize_docker_secrets
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Starting MCP Gateway API...")
     await init_redis()
+    if settings.infisical_enabled:
+        initialize_docker_secrets()
+
+    #langfuse = init_langfuse(settings)  
     if settings.langfuse_enabled:
-        #langfuse = init_langfuse(settings)
         langfuse = get_client()
         if langfuse:
             logger.info("Langfuse tracing enabled")
@@ -46,4 +51,6 @@ async def health_check():
     """Health check endpoint"""
     return {"status": "healthy", "service": "mcp-gateway-client"}
 
-app.include_router(routes.router)
+# app.include_router(routes.router)
+app.include_router(chat_routes.router)
+app.include_router(mcp_routes.router)

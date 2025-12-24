@@ -1,7 +1,7 @@
 import json
-from logger import logger
+from utils.logger import logger
 from typing import Dict, Any, List, Optional, AsyncGenerator
-from prompts import MCP_BRIDGE_MESSAGES
+from utils.prompts import MCP_BRIDGE_MESSAGES
 from models import AgentResult
 from langfuse import observe
 

@@ -2,7 +2,7 @@ from typing import Optional, Dict, List, Any
 import httpx
 import json
 import re
-from logger import logger
+from utils.logger import logger
 from models import AddServerResult
 
 class MCPGatewayAPIClient:

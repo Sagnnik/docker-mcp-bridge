@@ -1,14 +1,11 @@
 from abc import ABC, abstractmethod
-#from openai import AsyncOpenAI
-from langfuse.openai import AsyncOpenAI
+from openai import AsyncOpenAI
 from typing import Dict, List, Optional, Any, AsyncGenerator
 import os
 import httpx
 import json
-from prompts import LLM_TOOL_SCHEMAS
+from utils.prompts import LLM_TOOL_SCHEMAS
 from config import settings
-# from dotenv import load_dotenv
-# load_dotenv()
     
 def should_expose(name:str, mode:str):
     exposed_tools = {"mcp-find", "mcp-add", "code-mode", "mcp-exec"} 
@@ -66,7 +63,6 @@ class LLMProvider(ABC):
     
 class OpenAIProvider(LLMProvider):
     def __init__(self, api_key: str = None):
-        # self.api_key = api_key or os.getenv('OPENAI_API_KEY')
         self.api_key = api_key or settings.openai_api_key
         if not self.api_key:
             raise RuntimeError("OPENAI_API_KEY is not set. Please set it in your environment.")

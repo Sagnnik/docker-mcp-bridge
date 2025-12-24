@@ -1,7 +1,7 @@
 from langfuse import Langfuse
 from config import settings
 from typing import Optional
-from logger import logger
+from utils.logger import logger
 
 _langfuse: Optional[Langfuse] = None
 
