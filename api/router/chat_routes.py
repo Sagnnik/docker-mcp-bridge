@@ -12,7 +12,7 @@ from models import (
     ChatResponseUnion
 )
 from core.gateway_client import MCPGatewayAPIClient
-from provider import LLMProviderFactory
+from providers import LLMProviderFactory
 from services.state_manager import (
     generate_interrupt_id, 
     store_interrupt_state,

@@ -1,8 +1,7 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from provider import LLMProviderFactory
-# import routes
+from providers import LLMProviderFactory
 from router import mcp_routes, chat_routes
 from utils.logger import logger
 from config import settings

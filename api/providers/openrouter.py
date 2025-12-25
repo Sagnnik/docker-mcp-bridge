@@ -80,6 +80,23 @@ class OpenRouterProvider(LLMProvider):
         mode: str = "dynamic",
         **kwargs
     ):
+        """
+        Openrouter accepts extra_body param
+        kwargs = {
+            "temperature": 0.7,
+            "max_tokens": 2000,
+            "top_p": 0.9,
+            "extra_body": {
+                "provider": {
+                    "order": ["Moonshot"],
+                    "allow_fallbacks": False
+                }
+            }
+        }
+        Can add:
+        - Model fallbacks: List(model_names)
+        - Adjust Reasoning: max_tokens, effort[high, medium, low]
+        """
         
         client = AsyncOpenAI(
             api_key=self.api_key,
