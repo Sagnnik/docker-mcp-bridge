@@ -1,20 +1,29 @@
-from typing import Optional, Dict, List, Any
+from typing import Optional, Dict, List, Any, Set
 import httpx
 import json
 import re
 from utils.logger import logger
 from models import AddServerResult
+import state_manager
 
 class MCPGatewayAPIClient:
     MCP_PROTOCOL_VERSION = "2024-11-05"
     MCP_URL = "http://localhost:8811/mcp"
+    MCP_MANAGEMENT_TOOLS = {
+        "code-mode",
+        "mcp-add",
+        "mcp-config-set",
+        "mcp-exec",
+        "mcp-find",
+        "mcp-remove"
+    }
 
-    def __init__(self):
+    def __init__(self, user_id:str):
+        self.user_id = user_id
         self.session_id: Optional[str] = None
         self._next_id = 1
-        self.available_tools: Dict[str, Dict] = {}
-        self.active_servers: List[str] = []
         self._client: Optional[httpx.AsyncClient] = None
+        
 
     async def __aenter__(self):
         self._client = httpx.AsyncClient(timeout=300)
@@ -34,7 +43,11 @@ class MCPGatewayAPIClient:
             "params": {
                 "protocolVersion": self.MCP_PROTOCOL_VERSION,
                 "capabilities": {},
-                "clientInfo": {"name": "mcp-api-gateway", "version": "1.0.0"}
+                "clientInfo": {
+                        "name": "mcp-api-gateway", 
+                        "version": "1.0.0", 
+                        "userId": self.user_id
+                    }
             }
         }
         self._next_id += 1
@@ -45,6 +58,7 @@ class MCPGatewayAPIClient:
             headers={
                 "Mcp-Protocol-Version": self.MCP_PROTOCOL_VERSION,
                 "Accept": "application/json, text/event-stream",
+                "X-User-Id": self.user_id,
             }
         )
         response.raise_for_status()
@@ -58,13 +72,12 @@ class MCPGatewayAPIClient:
                 "Mcp-Session-Id": self.session_id,
                 "Mcp-Protocol-Version": self.MCP_PROTOCOL_VERSION,
                 "Accept": "application/json, text/event-stream",
+                "X-User-Id": self.user_id,
             }
         )
-        
-        await self.list_tools()
-        logger.info(f"MCP session initialized: {self.session_id}")
+        logger.info(f"[User: {self.user_id}] MCP session initialized: {self.session_id}")
 
-    async def list_tools(self):
+    async def list_tools(self, filter_by_user: bool = True)-> List[Dict]:
         """List available MCP tools"""
         payload = {
             "jsonrpc": "2.0",
@@ -81,20 +94,45 @@ class MCPGatewayAPIClient:
                 "Mcp-Session-Id": self.session_id,
                 "Mcp-Protocol-Version": self.MCP_PROTOCOL_VERSION,
                 "Accept": "application/json, text/event-stream",
+                "X-User-Id": self.user_id,
             }
         )
 
         data = self._parse_response(response.text)
-        tools = data.get('result', {}).get('tools', [])
+        all_tools = data.get('result', {}).get('tools', [])
         
-        self.available_tools = {tool["name"]: tool for tool in tools}
-        logger.info(f"Loaded {len(self.available_tools)} tools")
-        return tools
+        logger.info(f"[User: {self.user_id}] Gateway returned {len(all_tools)} total tools")
+        
+        if not filter_by_user:
+            return all_tools
+        
+        # Filter by user's active server tools
+        user_tool_names = await state_manager.get_user_tools(self.user_id)
+        allowed_tools = self.MCP_MANAGEMENT_TOOLS | user_tool_names
+        filtered_tools = [
+            tool for tool in all_tools 
+            if tool.get("name") in allowed_tools
+        ]
+        
+        logger.info(
+            f"[User: {self.user_id}] Filtered to {len(filtered_tools)} tools "
+            f"({len(self.MCP_MANAGEMENT_TOOLS)} management + {len(user_tool_names)} user tools)"
+        )
+        return filtered_tools
     
     async def call_tool(self, name: str, arguments: Dict[str, Any]):
-        """Call an MCP tool"""
-        if name not in self.available_tools:
-            raise ValueError(f"Tool {name} not found")
+        """Call an MCP tool with access control"""
+        # No access check (excluding mangement tools)
+        if name not in self.MCP_MANAGEMENT_TOOLS:
+            user_tool_names = await state_manager.get_user_tools(self.user_id)
+
+            if name not in user_tool_names:
+                raise PermissionError(
+                    f"Access denied: Tool '{name}' is not available to user {self.user_id}. "
+                    f"Please activate the required MCP server first."
+                )
+        
+        logger.info(f"[User: {self.user_id}] Calling tool '{name}' with Arguments: {arguments}")
         
         payload = {
             "jsonrpc": "2.0",
@@ -111,13 +149,16 @@ class MCPGatewayAPIClient:
                 "Mcp-Session-Id": self.session_id,
                 "Mcp-Protocol-Version": self.MCP_PROTOCOL_VERSION,
                 "Accept": "application/json, text/event-stream",
+                "X-User-Id": self.user_id,
             }
         )
         
         data = self._parse_response(response.text)
         if 'error' in data:
+            logger.error(f"[User: {self.user_id}] Tool '{name}' error: {data['error']}")
             raise RuntimeError(f"MCP error: {data['error']}")
         
+        logger.info(f"[User: {self.user_id}] Tool '{name}' executed successfully")
         return data["result"]
 
     async def add_server(self, server_name: str, activate: bool = True, 
@@ -139,21 +180,36 @@ class MCPGatewayAPIClient:
                     "value": value
                 })
 
-        # Note: Secrets should be pre-configured in environment or mounted
-        # Not handled here for security reasons
-        # if secrets:
-        #     logger.warning(f"Secrets provided for {server_name} but must be configured externally")
+        logger.info(f"[User: {self.user_id}] Adding server '{server_name}'")
+            
+        # Get the tools before adding
+        tools_before = await self.list_tools(filter_by_user=False)
+        tools_before_names = {tool["name"] for tool in tools_before}
 
         result = await self.call_tool("mcp-add", {
             "name": server_name,
             "activate": activate
         })
 
-        if server_name not in self.active_servers:
-            self.active_servers.append(server_name)
+        # Get tools after adding
+        tools_after = await self.list_tools(filter_by_user=False)
+        tools_after_names = {tool["name"] for tool in tools_after}
+
+        new_tool_names = (tools_after_names - tools_before_names) - self.MCP_MANAGEMENT_TOOLS
+
+        if new_tool_names:
+            # Add these tools to user's available tools
+            await state_manager.add_user_tools(self.user_id, new_tool_names)
+            logger.info(
+                f"[User: {self.user_id}] Server '{server_name}' added {len(new_tool_names)} "
+                f"tools: {sorted(new_tool_names)}"
+            )
+        else:
+            logger.warning(f"[User: {self.user_id}] Server '{server_name}' added no new tools")
         
-        await self.list_tools()
-        logger.info(f"Added server: {server_name}")
+        # Track server activation
+        await state_manager.add_user_server(self.user_id, server_name)
+        
         return result
     
     async def add_server_llm(self, server_name: str, activate:str=True, mcp_find_result: Optional[List[Dict]] = None) -> AddServerResult:
@@ -171,6 +227,11 @@ class MCPGatewayAPIClient:
         """
 
         server_name = server_name.strip()
+        logger.info(f"[User: {self.user_id}] LLM requesting server '{server_name}'")
+        
+        # Get tools before adding
+        tools_before = await self.list_tools(filter_by_user=False)
+        tools_before_names = {tool["name"] for tool in tools_before}
 
         try:
             result = await self.call_tool(
@@ -181,6 +242,7 @@ class MCPGatewayAPIClient:
                 }
             )
         except Exception as e:
+            logger.error(f"[User: {self.user_id}] Failed to add server '{server_name}': {e}")
             return AddServerResult(
                 status="failed",
                 server=server_name,
@@ -223,6 +285,8 @@ class MCPGatewayAPIClient:
                     required_secrets = [
                         s.strip() for s in raw_match.group(1).split(",")
                     ]
+
+            logger.warning(f"[User: {self.user_id}] Server '{server_name}' requires secrets: {required_secrets}")
 
             return AddServerResult(
                 status="secrets_required",
@@ -273,6 +337,8 @@ class MCPGatewayAPIClient:
                     )
                 })
 
+            logger.warning(f"[User: {self.user_id}] Server '{server_name}' requires config: {required_configs}")
+
             return AddServerResult(
                 status="config_required",
                 server=server_name,
@@ -282,31 +348,89 @@ class MCPGatewayAPIClient:
             )
         
         # 3. Success
-        if response_text.lower().startswith("uccessfully"):
+        success_indicators = [
+            "successfully added",
+            "success",
+            "ready to use",
+        ]
+
+        is_success = any(indicator in response_text.lower() for indicator in success_indicators)
+        
+        if is_success:
+            # Get tools after adding
+            tools_after = await self.list_tools(filter_by_user=False)
+            tools_after_names = {tool["name"] for tool in tools_after}
+            
+            # Find NEW tools
+            new_tool_names = (tools_after_names - tools_before_names) - self.MCP_MANAGEMENT_TOOLS
+            
+            if new_tool_names:
+                # Add to user's tool list
+                await state_manager.add_user_tools(self.user_id, new_tool_names)
+                logger.info(
+                    f"[User: {self.user_id}] Server '{server_name}' added {len(new_tool_names)} "
+                    f"tools: {sorted(new_tool_names)}"
+                )
+            else:
+                logger.warning(f"[User: {self.user_id}] Server '{server_name}' added no new tools")
+            
+            # Track server
+            await state_manager.add_user_server(self.user_id, server_name)
+            
             return AddServerResult(
                 status="added",
                 server=server_name,
-                message="Server added and ready to use"
+                message=f"Server added with {len(new_tool_names)} tools"
             )
 
-        # 4. Default return failure
+        # Failed
+        logger.error(f"[User: {self.user_id}] Failed: {response_text}")
         return AddServerResult(
             status="failed",
             server=server_name,
             message=response_text,
             raw_response=response_text
         )
+    
+    async def _rebuild_user_tools(self):
+        """
+        Rebuild user tool list from current gateway state
+        Called after removing a server
+        """
+        # Get current user's servers
+        user_servers = await state_manager.get_user_servers(self.user_id)
+
+        # Get all current tools from gateway
+        all_tools = await self.list_tools(filter_by_user=False)
+        current_tool_names = {tool["name"] for tool in all_tools} - self.MCP_MANAGEMENT_TOOLS
+
+        # Get user's current tool list
+        user_tool_names = await state_manager.get_user_tools(self.user_id)
+
+        # Keep only tools that still exist in gateway
+        valid_tools = user_tool_names & current_tool_names
+
+        await state_manager.set_user_tools(self.user_id, valid_tools)
+        
+        logger.debug(f"[User: {self.user_id}] Rebuilt tool list: {len(valid_tools)} tools remaining")
 
     
     async def remove_server(self, server_name: str):
-        """Remove MCP server"""
+        """
+        Remove server and clear its tools from user's list
+        We rebuild the user's tool list from scratch since we cannot know which tools belonged to this server
+        """
+        logger.info(f"[User: {self.user_id}] Removing server '{server_name}'")
+        
         result = await self.call_tool("mcp-remove", {"name": server_name})
         
-        if server_name in self.active_servers:
-            self.active_servers.remove(server_name)
+        # Remove from user's servers
+        await state_manager.remove_user_server(self.user_id, server_name)
         
-        await self.list_tools()
-        logger.info(f"Removed server: {server_name}")
+        # Rebuild user's tool list by checking what's still available
+        await self._rebuild_user_tools()
+        
+        logger.info(f"[User: {self.user_id}] Removed server '{server_name}'")
         return result
     
     def _parse_response(self, content) -> str:

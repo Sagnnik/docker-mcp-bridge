@@ -29,8 +29,8 @@ async def dynamic_mcp_test():
         # Initialize
         await mcp.initialize(client)
         tools_list = await mcp.list_tools(client)
-        # print("\n===Tools List===\n")
-        # print(tools_list)
+        print("\n===Tools List===\n")
+        print(tools_list)
         # exit(0)
 
         # Find Servers
@@ -99,11 +99,11 @@ async def dynamic_mcp_test():
         print(json.dumps(add_mcp_result, indent=2))
         
         print(f"\n✓ Server '{final_server_name}' successfully added and activated!")
-        exit(0)
 
         tools = await mcp.list_tools(client)
         print("\n===Printing initial tools output===\n")
         print(tools)
+        exit(0)
         
 
         create_result = await mcp.create_dynamic_code_tool(

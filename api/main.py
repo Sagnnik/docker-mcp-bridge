@@ -7,14 +7,14 @@ from utils.logger import logger
 from config import settings
 from services.redis_client import init_redis, close_redis
 from services.langfuse_client import init_langfuse, flush_langfuse
-from services.docker_secrets import initialize_docker_secrets
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Starting MCP Gateway API...")
     await init_redis()
-    # if settings.infisical_enabled:
-    #     initialize_docker_secrets()
+    if settings.infisical_enabled:
+        from services.docker_secrets import initialize_docker_secrets
+        initialize_docker_secrets()
 
     langfuse = init_langfuse(settings)  
     if langfuse:
@@ -47,6 +47,5 @@ async def health_check():
     """Health check endpoint"""
     return {"status": "healthy", "service": "mcp-gateway-client"}
 
-# app.include_router(routes.router)
 app.include_router(chat_routes.router)
 app.include_router(mcp_routes.router)

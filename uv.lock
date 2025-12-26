@@ -232,6 +232,7 @@ dependencies = [
     { name = "openai" },
     { name = "pydantic-settings" },
     { name = "python-dotenv" },
+    { name = "tqdm" },
     { name = "websockets" },
 ]
 
@@ -242,6 +243,7 @@ requires-dist = [
     { name = "openai", specifier = ">=2.8.1" },
     { name = "pydantic-settings", specifier = ">=2.12.0" },
     { name = "python-dotenv", specifier = ">=1.2.1" },
+    { name = "tqdm", specifier = ">=4.67.1" },
     { name = "websockets", specifier = ">=15.0.1" },
 ]
 

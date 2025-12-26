@@ -131,6 +131,8 @@ class MCPGatewayClient:
                 raise RuntimeError(f"MCP tools/list error: {data['error']}")
             
             tools = data.get('result').get('tools')
+            # tools = data.get('result')
+            # return tools
             for tool in tools:
                 self.available_tools[tool["name"]] = tool
 
@@ -181,14 +183,15 @@ class MCPGatewayClient:
         except Exception as e:
             raise RuntimeError(f"Error calling tool {name}: {e}")
         
-    async def find_mcp_servers(self,client: httpx.AsyncClient, query:str):
+    async def find_mcp_servers(self,client: httpx.AsyncClient, query:str, limit:int=5):
         if not self.dynamic_tools_enabled:
             return []
         
         try:
-            result = await self.call_tool(client=client, name="mcp-find", arguments={"query": query})
+            result = await self.call_tool(client=client, name="mcp-find", arguments={"query": query, "limit":limit})
             result = json.loads(result['content'][0]['text'])
-            return result['servers']
+            # return result['servers']
+            return result
         except Exception as e:
             print(f"Error finding MCP servers: {e}")
             return []
