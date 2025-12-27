@@ -1,171 +1,122 @@
-# MCP Agent Gateway API
+# MCP Gateway API
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+The MCP Gateway API is a FastAPI-based application that acts as a bridge between a large language model (LLM) and the Docker MCP (Mantle Convenience Proxy). It allows the LLM to interact with various external services and tools through the MCP, enabling it to perform a wide range of tasks.
 
-An intelligent gateway API that sits between a client application and Large Language Model (LLM) providers. This project supercharges LLMs by giving them dynamic access to a catalog of external tools via the Docker MCP (Multi-Capability Peripheral) framework.
+## Features
 
-## Abstract
+- **Dynamic Tool Discovery and Usage**: The LLM can dynamically discover and use tools provided by different MCP servers.
+- **Multiple LLM Providers**: Supports multiple LLM providers, including OpenAI and OpenRouter.
+- **Streaming and Non-Streaming Chat**: Provides both streaming and non-streaming chat endpoints.
+- **State Management**: Manages user sessions and the state of active MCP servers and tools.
+- **Secret Management**: Securely manages secrets for MCP servers using Infisical and Docker MCP secrets.
+- **Configuration Management**: Allows for dynamic configuration of MCP servers.
+- **Observability**: Integrates with Langfuse for tracing and observability.
+- **Code Execution**: Allows the LLM to execute JavaScript/TypeScript code in a sandboxed environment.
 
-The MCP Agent Gateway is designed to simplify the integration of powerful, tool-using AI agents into applications. It acts as a smart proxy that manages communication with LLMs (like OpenAI and Google) and orchestrates their access to MCP servers—sandboxed tools running in Docker. This enables developers to build sophisticated applications where an LLM can dynamically discover and use tools, such as finding servers with `mcp-find` or executing sandboxed Javascript/TypeScript code with `code-mode`.
+## Architecture
 
-## Core Features
+The application is structured into the following components:
 
-- **LLM Agnostic:** Easily switch between supported LLM providers (e.g., OpenAI, Google) via a simple API parameter.
-- **Dynamic Tool Management:** Empowers the LLM to dynamically find (`mcp-find`) and add (`mcp-add`) new capabilities from a Docker MCP catalog during a conversation.
-- **Sandboxed Code Execution:** Provides a `code-mode` for LLMs to write and execute custom Javascript/TypeScript in a secure, sandboxed environment.
-- **Interrupt and Resume:** Gracefully handles situations where a tool requires user configuration (e.g., an API key). The conversation is paused and can be resumed later, preserving the full context.
-- **Streaming and Non-Streaming:** Offers both standard request/response (`/chat`) and Server-Sent Events (`/sse/chat`) endpoints for real-time applications.
-
-## Architecture Overview
-
-The gateway operates as a central orchestrator:
-
-1.  **Client Application:** Sends a chat request to the Gateway API.
-2.  **Gateway API (`routes.py`):** The FastAPI entry point that receives the request.
-3.  **Agent Core (`core.py`):** The "brain" of the gateway. It runs the main agentic loop, preparing prompts and managing the conversation flow.
-4.  **LLM Provider (`provider.py`):** The agent core communicates with the selected LLM (e.g., OpenAI) through an abstracted provider interface.
-5.  **MCP Gateway Client (`gateway_client.py`):** When the LLM decides to use a tool, the client sends a JSON-RPC request to the locally running MCP Server.
-6.  **MCP Server:** A separate process (e.g., `docker mcp host`) running on `localhost:8811` that executes the tool commands.
+- **`main.py`**: The entry point of the FastAPI application. It initializes the application and includes the API routers.
+- **`config.py`**: Defines the application settings using Pydantic, loading values from a `.env` file.
+- **`core/`**: This directory contains the core logic of the application.
+  - **`core/core.py`**: Defines the `AgentCore` class, which manages the agent loop, tool calls, and message preparation.
+  - **`core/gateway_client.py`**: Defines the `MCPGatewayAPIClient` class, which is responsible for communicating with the MCP Gateway.
+  - **`core/registry.py`**: Defines the `MCPRegistry` class, which loads and provides information about available MCP servers.
+  - **`core/state_manager.py`**: Manages the state of the application, including user-specific data like active MCP servers and tools.
+- **`providers/`**: This directory contains the implementations of the LLM providers.
+  - **`providers/base.py`**: Defines the abstract base class `LLMProvider`.
+  - **`providers/factory.py`**: Defines the `LLMProviderFactory` for creating LLM provider instances.
+  - **`providers/openai.py`**: Implements the `LLMProvider` for OpenAI's API.
+  - **`providers/openrouter.py`**: Implements the `LLMProvider` for the OpenRouter API.
+- **`router/`**: This directory contains the API routers.
+  - **`router/chat_routes.py`**: Defines the chat-related API endpoints.
+  - **`router/mcp_routes.py`**: Defines the API endpoints for managing MCP servers.
+- **`services/`**: This directory contains services used by the application.
+  - **`services/docker_secrets.py`**: Manages Docker MCP secrets.
+  - **`services/langfuse_client.py`**: Initializes and provides a client for Langfuse.
+  - **`services/redis_client.py`**: Manages the Redis connection.
+  - **`services/secrets_manager.py`**: Interacts with the Infisical secret management service.
+- **`utils/`**: This directory contains utility scripts and modules.
+  - **`utils/catalog_yml_to_json.py`**: Converts a YAML catalog to JSON.
+  - **`utils/logger.py`**: Configures the logger.
+  - **`utils/prompts.py`**: Contains system messages and tool schemas for the LLM.
+- **`models.py`**: Contains the Pydantic models for the API requests and responses.
 
 ## Getting Started
 
 ### Prerequisites
 
-- Python 3.12+
-- Pip and a virtual environment tool (e.g., `venv`)
 - Docker
-- A running Docker MCP Host instance.
+- Python 3.12+
+- An account with a supported LLM provider (e.g., OpenAI)
+- An Infisical account for secret management
+- Redis (optional, for persistent state management)
 
 ### Installation
 
 1.  **Clone the repository:**
-    ```sh
-    git clone <your-repository-url>
-    cd api
+
+    ```bash
+    git clone <repository-url>
+    cd <repository-directory>
     ```
 
-2.  **Create and activate a virtual environment:**
-    ```sh
-    python -m venv .venv
-    source .venv/bin/activate
+2.  **Install the dependencies:**
+
+    ```bash
+    uv sync
     ```
 
-3.  **Populate dependencies:** Your `pyproject.toml` needs to be updated with the project's dependencies. Add the following to the `[project]` section:
-    ```toml
-    dependencies = [
-        "fastapi",
-        "uvicorn",
-        "httpx",
-        "openai",
-        "python-dotenv",
-        "pydantic"
-    ]
+3.  **Set up the environment variables:**
+
+    Create a `.env` file in the root of the project and add the following environment variables:
+
     ```
+    # LLM Provider API Keys
+    OPENAI_API_KEY=<your-openai-api-key>
+    OPENROUTER_API_KEY=<your-openrouter-api-key>
 
-4.  **Install the project:**
-    ```sh
-    pip install -e .
-    ```
+    # Infisical
+    INFISICAL_ENABLED=true
+    INFISICAL_URL=<your-infisical-url>
+    INFISICAL_TOKEN=<your-infisical-token>
+    INFISICAL_ENV=<your-infisical-environment>
+    INFISICAL_PROJ=<your-infisical-project>
 
-### Configuration
+    # Langfuse
+    LANGFUSE_ENABLED=true
+    LANGFUSE_BASE_URL=<your-langfuse-base-url>
+    LANGFUSE_PUBLIC_KEY=<your-langfuse-public-key>
+    LANGFUSE_SECRET_KEY=<your-langfuse-secret-key>
 
-1.  Create a `.env` file in the root of the project directory.
-2.  Add the necessary API keys for the LLM providers you intend to use.
-
-    ```env
-    # .env file
-
-    # For OpenAI
-    OPENAI_API_KEY=sk-proj-xxxxxxxx
+    # Redis
+    REDIS_ENABLED=true
+    REDIS_URL=<your-redis-url>
     ```
 
 ### Running the Application
 
-Once installed and configured, run the API using Uvicorn:
-```sh
-uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+```bash
+uv run uvicorn main:app --reload
 ```
-The API will be available at `http://localhost:8000`.
 
 ## API Endpoints
 
-### `POST /chat`
+The application exposes the following API endpoints:
 
-Executes a full, non-streaming conversation and returns the final result.
+### Chat
 
-**Example Request:**
-```json
-{
-    "messages": [{"role": "user", "content": "Find the MCP server for github and add it."}],
-    "model": "gpt-4-turbo",
-    "provider": "openai",
-    "mode": "dynamic",
-    "inital_servers": []
-}
-```
+-   `POST /chat`: Non-streaming chat endpoint.
+-   `POST /chat/resume`: Resume a conversation after a configuration interrupt.
+-   `POST /sse/chat`: Streaming chat endpoint using Server-Sent Events (SSE).
+-   `POST /sse/chat/resume`: Resume a streaming chat conversation after a configuration interrupt.
 
-**Example Success Response:**
-```json
-{
-    "content": "I have successfully found and added the GitHub MCP server.",
-    "active_servers": ["github"],
-    "available_tools": ["mcp-find", "mcp-add", "github-list-repos"],
-    "finish_reason": "stop"
-}
-```
+### MCP Server Management
 
-**Example Interrupt Response (`config_required`):**
-When a tool needs configuration from the user.
-```json
-{
-    "interrupt_type": "config_required",
-    "server": "github",
-    "required_configs": [
-        {"key": "token", "type": "string", "description": "GitHub PAT"}
-    ],
-    "conversation_state": [
-        //...full message history...
-    ],
-    "interrupt_id": "a1b2c3d4-e5f6-7890-g1h2-i3j4k5l6m7n8",
-    "instructions": "The 'github' server requires a 'token' to be configured."
-}
-```
+-   `POST /mcp/find`: Discover available MCP servers.
+-   `POST /mcp/add`: Add an MCP server.
+-   `POST /mcp/remove`: Remove an MCP server.
+-   `GET /mcp/servers`: List currently active MCP servers and available tools.
 
-### `POST /chat/resume`
-
-Resumes a conversation that was interrupted for configuration.
-
-**Example Request:**
-```json
-{
-    "interrupt_id": "a1b2c3d4-e5f6-7890-g1h2-i3j4k5l6m7n8",
-    "provided_configs": {
-        "token": "ghp_xxxxxxxxxxxx"
-    }
-}
-```
-
-### Streaming Endpoints
-
--   **`POST /sse/chat`**: Initiates a streaming chat session using Server-Sent Events.
--   **`POST /sse/chat/resume`**: Resumes a streaming chat session that was interrupted.
-
-These endpoints provide real-time events for `content`, `tool_call`, `tool_result`, and `interrupt` states.
-
-## Roadmap
-
-This project is currently in its initial version. Future improvements include:
-
--   **Improved Project Structure:** Refactoring into a more scalable, domain-driven structure.
--   **Persistent State Management:** Replacing the in-memory interrupt store with a robust solution like Redis.
--   **Secrets Management:** Integrating with a secrets vault (e.g., HashiCorp Vault, Infisical, AWS/GCP Secrets Manager) for securely handling tool secrets.
--   **Asynchronous Task Handling:** Using a task queue like Celery to manage long-running agent jobs out-of-band from web requests.
--   **Robust Error Handling:** Replacing fragile string parsing with a structured JSON contract for communication with the MCP server.
-
-## Contributing
-
-Contributions are welcome! Please feel free to open an issue or submit a pull request.
-
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](https://opensource.org/licenses/MIT) file for details.
+For detailed information about the request and response models, please refer to the `models.py` file and the OpenAPI documentation available at `/docs` when the application is running.

@@ -2,6 +2,8 @@ from fastapi import APIRouter, HTTPException, Header
 from fastapi.responses import StreamingResponse
 from utils.logger import logger
 import json
+import uuid
+from typing import Optional
 from core.core import AgentCore
 from models import (
     ChatRequest, 
@@ -23,20 +25,18 @@ from core.state_manager import (
 
 router = APIRouter()
 
-def get_user_id_from_header(x_user_id: str = Header(...)) -> str:
+def get_user_id_from_header(x_user_id: Optional[str] = Header(default=None)) -> str:
     """
     Extract and validate user ID from header
-    Raises HTTPException if missing or invalid
+    Or auto-provisions a new anonymous user.
     """
-    if not x_user_id or not x_user_id.strip():
-        raise HTTPException(
-            status_code=401, 
-            detail="Missing X-User-Id header. Please provide a valid user identifier."
-        )
-    return x_user_id.strip()
+    if x_user_id and x_user_id.strip():
+        return x_user_id.strip()
+
+    return f"anon-{uuid.uuid4().hex}"
 
 @router.post("/chat", response_model=ChatResponseUnion, tags=['chat'])
-async def chat(request: ChatRequest, x_user_id: str = Header(...)):
+async def chat(request: ChatRequest, x_user_id: Optional[str] = Header(default=None)):
     """
     Non-streaming chat endpoint with MCP tools
     
@@ -138,7 +138,7 @@ async def chat(request: ChatRequest, x_user_id: str = Header(...)):
         raise HTTPException(status_code=500, detail=str(e))
     
 @router.post("/chat/resume", response_model=ChatResponseUnion, tags=['chat'])
-async def chat_resume(request: ChatResumeRequest, x_user_id: str = Header(...)):
+async def chat_resume(request: ChatResumeRequest, x_user_id: Optional[str] = Header(default=None)):
     """
     Resume conversation after config interrupt
     
@@ -304,7 +304,7 @@ async def chat_resume(request: ChatResumeRequest, x_user_id: str = Header(...)):
         raise HTTPException(status_code=500, detail=str(e))
     
 @router.post("/sse/chat", tags=['chat'])
-async def chat_stream(request: ChatRequest, x_user_id: str = Header(...)):
+async def chat_stream(request: ChatRequest, x_user_id: Optional[str] = Header(default=None)):
     """
     Streaming chat endpoint using Server-Sent Events (SSE)
     
@@ -384,7 +384,7 @@ async def chat_stream(request: ChatRequest, x_user_id: str = Header(...)):
     return StreamingResponse(event_generator(), media_type="text/event-stream")
 
 @router.post("/sse/chat/resume", tags=['chat'])
-async def chat_stream_resume(request: ChatResumeRequest, x_user_id: str = Header(...)):
+async def chat_stream_resume(request: ChatResumeRequest, x_user_id: Optional[str] = Header(default=None)):
     """
     Resume streaming chat after config interrupt
     

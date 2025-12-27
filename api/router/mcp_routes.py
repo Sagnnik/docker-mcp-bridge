@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, Header
 from utils.logger import logger
-import json
+import uuid
+from typing import Optional
 from models import (
     MCPRemoveRequest,
     MCPServerConfig,
@@ -9,22 +10,20 @@ from models import (
 from core.gateway_client import MCPGatewayAPIClient
 from core.state_manager import get_user_stats
 
+
 router = APIRouter()
 
-def get_user_id_from_header(x_user_id: str = Header(...)) -> str:
+def get_user_id_from_header(x_user_id: Optional[str] = Header(default=None)) -> str:
     """
     Extract and validate user ID from header
-    Raises HTTPException if missing or invalid
+    Or auto-provisions a new anonymous user.
     """
-    if not x_user_id or not x_user_id.strip():
-        raise HTTPException(
-            status_code=401, 
-            detail="Missing X-User-Id header. Please provide a valid user identifier."
-        )
-    return x_user_id.strip()
+    if x_user_id and x_user_id.strip():
+        return x_user_id.strip()
+    return f"anon-{uuid.uuid4().hex}"
 
 @router.post("/mcp/find", tags=["mcp"])
-async def find_mcp_server(request: MCPFindRequest, x_user_id: str = Header(...)):
+async def find_mcp_server(request: MCPFindRequest, x_user_id: Optional[str] = Header(default=None)):
     """
     Discover available MCP servers using `mcp-find`.
 
@@ -55,7 +54,7 @@ async def find_mcp_server(request: MCPFindRequest, x_user_id: str = Header(...))
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/mcp/add", tags=['mcp'])
-async def add_mcp_server(config: MCPServerConfig, x_user_id: str = Header(...)):
+async def add_mcp_server(config: MCPServerConfig, x_user_id: Optional[str] = Header(default=None)):
     """
     Add an MCP server
     
@@ -125,7 +124,7 @@ async def add_mcp_server(config: MCPServerConfig, x_user_id: str = Header(...)):
         raise HTTPException(status_code=500, detail=str(e))
     
 @router.post("/mcp/remove", tags=["mcp"])
-async def remove_mcp_server(request: MCPRemoveRequest, x_user_id: str = Header(...)):
+async def remove_mcp_server(request: MCPRemoveRequest, x_user_id: Optional[str] = Header(default=None)):
     """
     Remove an MCP server
     
@@ -156,7 +155,7 @@ async def remove_mcp_server(request: MCPRemoveRequest, x_user_id: str = Header(.
         raise HTTPException(status_code=500, detail=str(e))
     
 @router.get("/mcp/servers", tags=["mcp"])
-async def list_servers(x_user_id: str = Header(...)):
+async def list_servers(x_user_id: Optional[str] = Header(default=None)):
     """
     List currently active MCP servers and available tools
 
