@@ -25,7 +25,6 @@ async def lifespan(app: FastAPI):
 
     logger.info("Shutting down MCP Gateway API...")
     flush_langfuse()
-    langfuse.flush()
     await close_redis()
 
 app = FastAPI(

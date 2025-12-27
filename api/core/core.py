@@ -4,7 +4,7 @@ from typing import Dict, Any, List, Optional, AsyncGenerator
 from utils.prompts import MCP_BRIDGE_MESSAGES
 from models import AgentResult
 from langfuse import observe
-import state_manager
+import core.state_manager as sm
 
 TOOL_CHANGE_TRIGGERS = {"mcp-add", "code-mode"}
 
@@ -60,12 +60,13 @@ class AgentCore:
                 return await self._handle_code_mode(tool_args)
             
             elif tool_name == "mcp-exec":
-                logger.info(f"\n[tool name]: {tool_name}\n[tool args]: {tool_args}\n")
+                logger.info(f"\n[User: {self.client.user_id}] \n[tool name]: {tool_name}")
+                logger.debug(f"\n[User: {self.client.user_id}] \n[tool_args]: {tool_args}\n")
                 result = await self.client.call_tool(tool_name, tool_args)
                 return {"status": "success", "result_text": json.dumps(result)}
             
             else:
-                logger.info(f"[tool name]: {tool_name}\n[tool args]: {tool_args}\n")
+                logger.info(f"\n[User: {self.client.user_id}] \n[tool name]: {tool_name}\n[tool args]: {tool_args}\n")
                 result = await self.client.call_tool(tool_name, tool_args)
                 if isinstance(result, dict) and 'content' in result:
                     result_text = self.client._parse_response(result['content'])
@@ -75,11 +76,11 @@ class AgentCore:
                 return {"status": "success", "result_text": result_text}
             
         except Exception as e:
-            logger.error(f"Tool call error: {str(e)}")
+            logger.error(f"[User: {self.client.user_id}] Tool call error: {str(e)}")
             return {"status": "error", "result_text": f"Error: {str(e)}"}
         
     async def _handle_mcp_find(self, tool_args: Dict[str, Any]) -> Dict[str, Any]:
-        logger.info(f"\n[tool name]: mcp-find\n[tool args]: {tool_args}\n")
+        logger.info(f"\n[User: {self.client.user_id}] \n[tool name]: mcp-find\n[tool args]: {tool_args}\n")
         result = await self.client.call_tool("mcp-find", tool_args)
         result_text = json.dumps(result)
 
@@ -98,7 +99,7 @@ class AgentCore:
         return {"status": "success", "result_text": result_text}
     
     async def _handle_mcp_add(self, tool_args: Dict[str, Any], tool_call_id: str) -> Dict[str, Any]:
-        logger.info(f"\n[tool name]: mcp-add\n[tool args]: {tool_args}\n")
+        logger.info(f"\n[User: {self.client.user_id}] \n[tool name]: mcp-add\n[tool args]: {tool_args}\n")
         server_name = tool_args.get('name', '').strip()
         cached_find = self.mcp_find_cache.get(server_name)
         mcp_find_result = [cached_find] if cached_find else None
@@ -156,7 +157,7 @@ class AgentCore:
             }
         
     async def _handle_code_mode(self, tool_args: Dict[str, Any]) -> Dict[str, Any]:
-        logger.info(f"\n[tool name]: code-mode\n[tool args]: {tool_args}\n")
+        logger.info(f"\n[User: {self.client.user_id}] \n[tool name]: code-mode\n[tool args]: {tool_args}\n")
         new_tool_name = "code-mode-"+tool_args.get("name").strip()
         result = await self.client.call_tool("code-mode", tool_args)
 
@@ -170,7 +171,7 @@ class AgentCore:
             tool_exists = any(tool.get('name') == new_tool_name for tool in all_tools)
 
             if tool_exists:
-                await state_manager.add_user_server(
+                await sm.add_user_server(
                     self.client.user_id,
                     f"code-mode:{tool_args.get('name')}",
                     {tool_args.get("name")}
@@ -207,7 +208,7 @@ class AgentCore:
         tools = await self.client.list_tools()
 
         for iteration in range(current_iteration, max_iterations):
-            logger.info(f"Iteration {iteration+1}/{max_iterations}")
+            logger.info(f"[User: {self.client.user_id}] ---> Iteration {iteration+1}/{max_iterations}")
 
             response, assistant_msg, finish_reason = await self.provider.generate(
                 messages=messages,
@@ -235,7 +236,7 @@ class AgentCore:
                     if tool_name in TOOL_CHANGE_TRIGGERS:
                         tools_changed = True
                     
-                    logger.info(f"Calling tool: {tool_name}")
+                    logger.info(f"[User: {self.client.user_id}] Calling tool: {tool_name}")
 
                     tool_result = await self.handle_tool_call(tool_name, tool_args, tc['id'])
 
@@ -269,11 +270,11 @@ class AgentCore:
                 
                 if tools_changed:
                     tools = await self.client.list_tools()
-                    logger.info(f"Tools refreshed, now have {len(tools)} tools")
+                    logger.info(f"[User: {self.client.user_id}] Tools refreshed, now have {len(tools)} tools")
                 
                 continue
             
-            logger.warning(f"Unexpected finish reason: {finish_reason}")
+            logger.warning(f"[User: {self.client.user_id}] Unexpected finish reason: {finish_reason}")
             break
         
         return AgentResult(
@@ -393,11 +394,11 @@ class AgentCore:
                 
                 if tools_changed:
                     tools = await self.client.list_tools()
-                    logger.info(f"Tools refreshed, now have {len(tools)} tools")
+                    logger.info(f"[User: {self.client.user_id}] Tools refreshed, now have {len(tools)} tools")
                 
                 continue
             
-            logger.warning(f"Unexpected finish reason: {finish_reason}")
+            logger.warning(f"[User: {self.client.user_id}] Unexpected finish reason: {finish_reason}")
             break
         
         yield {'type': 'done', 'finish_reason': 'max_iteration'}

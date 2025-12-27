@@ -4,8 +4,8 @@ import json
 import re
 from utils.logger import logger
 from models import AddServerResult
-import state_manager
-from registry import MCPRegistry
+import core.state_manager as sm
+from core.registry import MCPRegistry
 
 class MCPGatewayAPIClient:
     MCP_PROTOCOL_VERSION = "2024-11-05"
@@ -110,7 +110,7 @@ class MCPGatewayAPIClient:
             return all_tools
         
         # Get user's authorized tools from state manager
-        user_tool_names = await state_manager.get_user_tools(self.user_id)
+        user_tool_names = await sm.get_user_tools(self.user_id)
         allowed_tools = self.MCP_MANAGEMENT_TOOLS | user_tool_names
         
         filtered_tools = [
@@ -128,7 +128,7 @@ class MCPGatewayAPIClient:
         """Call an MCP tool with access control"""
         # Check access for non-management tools
         if name not in self.MCP_MANAGEMENT_TOOLS:
-            user_tool_names = await state_manager.get_user_tools(self.user_id)
+            user_tool_names = await sm.get_user_tools(self.user_id)
 
             if name not in user_tool_names:
                 raise PermissionError(
@@ -213,13 +213,13 @@ class MCPGatewayAPIClient:
             )
         
         if verified_tools:
-            await state_manager.add_user_server(self.user_id, server_name, verified_tools)
+            await sm.add_user_server(self.user_id, server_name, verified_tools)
             logger.info(
                 f"[User: {self.user_id}] Server '{server_name}' added with {len(verified_tools)} tools: "
                 f"{sorted(verified_tools)}"
             )
         else:
-            await state_manager.add_user_server(self.user_id, server_name, set())
+            await sm.add_user_server(self.user_id, server_name, set())
             logger.warning(
                 f"[User: {self.user_id}] Server '{server_name}' added but no tools verified"
             )
@@ -442,13 +442,13 @@ class MCPGatewayAPIClient:
                 )
             
             if verified_tools:
-                await state_manager.add_user_server(self.user_id, server_name, verified_tools)
+                await sm.add_user_server(self.user_id, server_name, verified_tools)
                 logger.info(
                     f"[User: {self.user_id}] Server '{server_name}' added with {len(verified_tools)} tools: "
                     f"{sorted(verified_tools)}"
                 )
             else:
-                await state_manager.add_user_server(self.user_id, server_name, set())
+                await sm.add_user_server(self.user_id, server_name, set())
                 logger.warning(
                     f"[User: {self.user_id}] Server '{server_name}' added but no tools verified"
                 )
@@ -471,11 +471,11 @@ class MCPGatewayAPIClient:
     async def remove_server(self, server_name: str):
         """Remove server"""
         logger.info(f"[User: {self.user_id}] Removing server '{server_name}'")
-        tools_to_remove = await state_manager.get_server_tools(self.user_id, server_name)
+        tools_to_remove = await sm.get_server_tools(self.user_id, server_name)
         result = await self.call_tool("mcp-remove", {"name": server_name})
         
         # Remove server entry
-        await state_manager.remove_user_server(self.user_id, server_name)
+        await sm.remove_user_server(self.user_id, server_name)
         
         logger.info(
             f"[User: {self.user_id}] Removed server '{server_name}' "
