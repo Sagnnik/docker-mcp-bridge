@@ -6,10 +6,11 @@ from utils.logger import logger
 from models import AddServerResult
 import core.state_manager as sm
 from core.registry import MCPRegistry
+from config import settings
 
 class MCPGatewayAPIClient:
     MCP_PROTOCOL_VERSION = "2024-11-05"
-    MCP_URL = "http://localhost:8811/mcp"
+    MCP_URL = settings.mcp_url
     MCP_MANAGEMENT_TOOLS = {
         "code-mode",
         "mcp-add",

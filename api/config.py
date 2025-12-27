@@ -8,8 +8,9 @@ class Settings(BaseSettings):
         case_sensitive=False,
         extra="allow"
     )
+    mcp_url: str = "http://localhost:8811/mcp"
     redis_enabled: bool = False
-    redis_url: Optional[str] = None
+    redis_url: Optional[str] = "redis://localhost:6379"
 
     # API keys
     openai_api_key: Optional[str] = None
@@ -17,13 +18,13 @@ class Settings(BaseSettings):
 
     # Langfuse settings
     langfuse_enabled: bool = False
-    langfuse_base_url: Optional[str] = None
+    langfuse_base_url: Optional[str] = "http://localhost:3000"
     langfuse_public_key: Optional[str] = None
     langfuse_secret_key: Optional[str] = None
 
     # Infisical settings
     infisical_enabled: bool = False
-    infisical_url: Optional[str] = None
+    infisical_url: Optional[str] = "http://localhost:8080"
     infisical_token: Optional[str] = None
     infisical_env: Optional[str] = 'dev'
     infisical_proj: Optional[str] = 'docker-mcp'

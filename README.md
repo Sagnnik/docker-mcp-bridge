@@ -68,6 +68,22 @@ This creates a truly dynamic and adaptive agent that can extend its own capabili
 
 ---
 
+| Approach | Tool Discovery | Execution Safety | Dynamic Tools |
+|--------|----------------|------------------|---------------|
+| Prompt-injected tools | ❌ | ❌ | ❌ |
+| LangChain-style tools | ⚠️ | ⚠️ | ❌ |
+| **Docker MCP Bridge** | ✅ | ✅ | ✅ |
+
+---
+
+### Who is Docker MCP Bridge for?
+
+- Developers building LLM agents that need **real tools**, not just function calls
+- Teams experimenting with MCP who want **safe execution**
+- Anyone hitting **context limits or tool sprawl** with existing agent frameworks
+
+---
+
 ## 🏗️ Architecture
 
 The system is designed as a central hub that manages tool discovery, dynamic registration, and secure execution.
@@ -457,17 +473,6 @@ All configuration is managed via environment variables in `api/.env`. Key variab
 -   `OPENAI_API_KEY`: Your API key for OpenAI.
 -   `OPENROUTER_API_KEY`: Your API key for OpenRouter.
 
-## 🙌 Contributing
-
-Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
-
-1.  Fork the Project
-2.  Run `uv sync` 
-3.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-4.  Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-5.  Push to the Branch (`git push origin feature/AmazingFeature`)
-6.  Open a Pull Request
-
 ## Upcoming Updates
 1. Support for other llm providers
 	- Ollama and Anthropic are next on the list
@@ -506,6 +511,17 @@ performance:
 ```
 
 </details>
+
+## 🙌 Contributing
+
+Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+
+1.  Fork the Project
+2.  Run `uv sync` 
+3.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+4.  Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+5.  Push to the Branch (`git push origin feature/AmazingFeature`)
+6.  Open a Pull Request
 
 ## 📄 License
 
