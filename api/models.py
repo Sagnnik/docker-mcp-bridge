@@ -18,8 +18,8 @@ class ChatRequest(BaseModel):
     provider: str = "openai"
     mode: str = Field("dynamic", description="dynamic, code or default")
     inital_servers: List[str] = []
-    max_iterations: int=5
-    stream: bool=False
+    max_iterations: int = 10
+    stream: bool = False
 
 class MCPServerConfig(BaseModel):
     name: str
@@ -32,12 +32,12 @@ class AddServerResult(BaseModel):
     server: str
     message: Optional[str] = None
     required_configs: Optional[List[Dict[str, Any]]] = None
-    required_secrets: Optional[List[str]] = None
+    required_secrets: Optional[List[Any]] = None
     instructions: Optional[str] = None
     raw_response: Optional[str] = None
 
 class MCPRemoveRequest(BaseModel):
-    name:str
+    name: str
 
 class MCPFindRequest(BaseModel):
     query: str
@@ -61,7 +61,7 @@ class ConfigInterruptResponse(BaseModel):
 class SecretsRequiredResponse(BaseModel):
     interrupt_type: Literal["secrets_required"]
     server: str
-    required_secrets: List[str]
+    required_secrets: List[Any]
     active_servers: List[str]
     available_tools: List[str]
     message: str
@@ -69,21 +69,18 @@ class SecretsRequiredResponse(BaseModel):
 
 class ChatResumeRequest(BaseModel):
     interrupt_id: str
-    provided_configs: Dict[str, Any]
-    active_servers: Optional[List[str]] = None
+    provided_configs: Optional[Dict[str, Any]] = None
     model: Optional[str] = None
     provider: Optional[str] = None
-    max_iterations: Optional[int] = None
 
 class AgentResult(BaseModel):
     finish_reason: str
     content: str
     messages: List[Dict[str, Any]]
-    interrupt_id: Optional[str] = None
     interrupt_type: Optional[str] = None
     server: Optional[str] = None
     required_configs: Optional[List[Dict[str, Any]]] = None
-    required_secrets: Optional[List[str]] = None
+    required_secrets: Optional[List[Any]] = None
     instructions: Optional[str] = None
 
 ChatResponseUnion = Union[ChatResponse, ConfigInterruptResponse, SecretsRequiredResponse]

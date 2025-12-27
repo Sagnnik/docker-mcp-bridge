@@ -4,8 +4,9 @@ from typing import Dict, Any, List, Optional, AsyncGenerator
 from utils.prompts import MCP_BRIDGE_MESSAGES
 from models import AgentResult
 from langfuse import observe
+import state_manager
 
-TOOL_CHANGE_TRIGGERS = {"mcp-add", "mcp-find", "mcp-exec", "code-mode"}
+TOOL_CHANGE_TRIGGERS = {"mcp-add", "code-mode"}
 
 class AgentCore:
     def __init__(self, client, provider, mode:str):
@@ -43,12 +44,11 @@ class AgentCore:
         return prepared
     
     @observe(name="handle_tool_call")
-    async def handle_tool_call(self, tool_name:str, tool_args: Dict[str, Any], tool_call_id:str)-> Dict[str, Any]:
+    async def handle_tool_call(self, tool_name: str, tool_args: Dict[str, Any], tool_call_id: str) -> Dict[str, Any]:
         """
         Returns:
         Dict with 'status', 'result_text' and optional interrupt info
         """
-
         try:
             if tool_name == "mcp-find":
                 return await self._handle_mcp_find(tool_args)
@@ -56,12 +56,16 @@ class AgentCore:
             elif tool_name == "mcp-add":
                 return await self._handle_mcp_add(tool_args, tool_call_id)
             
-            elif tool_name in ['code-mode', 'mcp-exec']:
-                logger.info(f"\n[tool name]: {tool_name}\n [tool args]: {tool_args}\n")
+            elif tool_name == "code-mode":
+                return await self._handle_code_mode(tool_args)
+            
+            elif tool_name == "mcp-exec":
+                logger.info(f"\n[tool name]: {tool_name}\n[tool args]: {tool_args}\n")
                 result = await self.client.call_tool(tool_name, tool_args)
                 return {"status": "success", "result_text": json.dumps(result)}
+            
             else:
-                logger.info(f"[tool name]: {tool_name}\n [tool args]: {tool_args}\n")
+                logger.info(f"[tool name]: {tool_name}\n[tool args]: {tool_args}\n")
                 result = await self.client.call_tool(tool_name, tool_args)
                 if isinstance(result, dict) and 'content' in result:
                     result_text = self.client._parse_response(result['content'])
@@ -75,7 +79,7 @@ class AgentCore:
             return {"status": "error", "result_text": f"Error: {str(e)}"}
         
     async def _handle_mcp_find(self, tool_args: Dict[str, Any]) -> Dict[str, Any]:
-        logger.info(f"\n[tool name]: mcp-find\n [tool args]: {tool_args}\n")
+        logger.info(f"\n[tool name]: mcp-find\n[tool args]: {tool_args}\n")
         result = await self.client.call_tool("mcp-find", tool_args)
         result_text = json.dumps(result)
 
@@ -151,7 +155,35 @@ class AgentCore:
                 })
             }
         
-    @observe(name="agent_loop")   
+    async def _handle_code_mode(self, tool_args: Dict[str, Any]) -> Dict[str, Any]:
+        logger.info(f"\n[tool name]: code-mode\n[tool args]: {tool_args}\n")
+        new_tool_name = "code-mode-"+tool_args.get("name").strip()
+        result = await self.client.call_tool("code-mode", tool_args)
+
+        if isinstance(result, dict) and 'content' in result:
+            result_text = self.client._parse_response(result['content'])
+        else:
+            result_text = json.dumps(result)
+
+        if new_tool_name:
+            all_tools = await self.client.list_tools(filter_by_user=False)
+            tool_exists = any(tool.get('name') == new_tool_name for tool in all_tools)
+
+            if tool_exists:
+                await state_manager.add_user_server(
+                    self.client.user_id,
+                    f"code-mode:{tool_args.get('name')}",
+                    {tool_args.get("name")}
+                )
+                logger.info(f"[User: {self.client.user_id}] Added dynamic tool '{new_tool_name}' ")
+            else:
+                logger.warning(
+                    f"[User: {self.client.user_id}] code-mode completed but tool "
+                    f"'{new_tool_name}' not found in gateway"
+                )
+        return {"status": "success", "result_text": result_text}
+    
+    @observe(name="agent_loop")
     async def run_agent_loop(
         self, 
         messages: List[Dict[str, Any]], 

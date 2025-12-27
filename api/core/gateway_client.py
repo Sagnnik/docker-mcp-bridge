@@ -5,6 +5,7 @@ import re
 from utils.logger import logger
 from models import AddServerResult
 import state_manager
+from registry import MCPRegistry
 
 class MCPGatewayAPIClient:
     MCP_PROTOCOL_VERSION = "2024-11-05"
@@ -23,6 +24,8 @@ class MCPGatewayAPIClient:
         self.session_id: Optional[str] = None
         self._next_id = 1
         self._client: Optional[httpx.AsyncClient] = None
+        self.registry = MCPRegistry()
+        self.registry.load()
         
 
     async def __aenter__(self):
@@ -106,9 +109,10 @@ class MCPGatewayAPIClient:
         if not filter_by_user:
             return all_tools
         
-        # Filter by user's active server tools
+        # Get user's authorized tools from state manager
         user_tool_names = await state_manager.get_user_tools(self.user_id)
         allowed_tools = self.MCP_MANAGEMENT_TOOLS | user_tool_names
+        
         filtered_tools = [
             tool for tool in all_tools 
             if tool.get("name") in allowed_tools
@@ -122,7 +126,7 @@ class MCPGatewayAPIClient:
     
     async def call_tool(self, name: str, arguments: Dict[str, Any]):
         """Call an MCP tool with access control"""
-        # No access check (excluding mangement tools)
+        # Check access for non-management tools
         if name not in self.MCP_MANAGEMENT_TOOLS:
             user_tool_names = await state_manager.get_user_tools(self.user_id)
 
@@ -182,33 +186,43 @@ class MCPGatewayAPIClient:
 
         logger.info(f"[User: {self.user_id}] Adding server '{server_name}'")
             
-        # Get the tools before adding
-        tools_before = await self.list_tools(filter_by_user=False)
-        tools_before_names = {tool["name"] for tool in tools_before}
-
+        # Get expected tools from registry
+        expected_tools = set(self.registry.get_tools(server_name))
+        
+        if not expected_tools:
+            logger.warning(f"[User: {self.user_id}] Server '{server_name}' has no tools in registry. ")
+        
+        # Call mcp-add
         result = await self.call_tool("mcp-add", {
             "name": server_name,
             "activate": activate
         })
 
-        # Get tools after adding
-        tools_after = await self.list_tools(filter_by_user=False)
-        tools_after_names = {tool["name"] for tool in tools_after}
-
-        new_tool_names = (tools_after_names - tools_before_names) - self.MCP_MANAGEMENT_TOOLS
-
-        if new_tool_names:
-            # Add these tools to user's available tools
-            await state_manager.add_user_tools(self.user_id, new_tool_names)
+        # Verify tools are now available in gateway
+        all_tools_after = await self.list_tools(filter_by_user=False)
+        available_tool_names = {tool["name"] for tool in all_tools_after}
+        
+        # Find which expected tools are actually present
+        verified_tools = expected_tools & available_tool_names
+        missing_tools = expected_tools - available_tool_names
+        
+        if missing_tools:
+            logger.warning(
+                f"[User: {self.user_id}] Server '{server_name}' expected tools not found in gateway: "
+                f"{sorted(missing_tools)}"
+            )
+        
+        if verified_tools:
+            await state_manager.add_user_server(self.user_id, server_name, verified_tools)
             logger.info(
-                f"[User: {self.user_id}] Server '{server_name}' added {len(new_tool_names)} "
-                f"tools: {sorted(new_tool_names)}"
+                f"[User: {self.user_id}] Server '{server_name}' added with {len(verified_tools)} tools: "
+                f"{sorted(verified_tools)}"
             )
         else:
-            logger.warning(f"[User: {self.user_id}] Server '{server_name}' added no new tools")
-        
-        # Track server activation
-        await state_manager.add_user_server(self.user_id, server_name)
+            await state_manager.add_user_server(self.user_id, server_name, set())
+            logger.warning(
+                f"[User: {self.user_id}] Server '{server_name}' added but no tools verified"
+            )
         
         return result
     
@@ -229,9 +243,13 @@ class MCPGatewayAPIClient:
         server_name = server_name.strip()
         logger.info(f"[User: {self.user_id}] LLM requesting server '{server_name}'")
         
-        # Get tools before adding
-        tools_before = await self.list_tools(filter_by_user=False)
-        tools_before_names = {tool["name"] for tool in tools_before}
+        # Get expected tools from registry
+        expected_tools = set(self.registry.get_tools(server_name))
+
+        # Get requirements from registry
+        requirements = self.registry.check_and_return_configs_secrets(server_name)
+        required_secrets_registry = requirements.get("secrets", [])
+        required_configs_registry = requirements.get("config", [])
 
         try:
             result = await self.call_tool(
@@ -256,7 +274,7 @@ class MCPGatewayAPIClient:
 
         response_text = response_text.strip()
 
-        # 1. Missing secrets (HARD STOP)
+        # 1. Check for missing secrets using regex pattern
         secret_match = re.search(
             r"Missing required secrets\s*\(([^)]+)\)",
             response_text,
@@ -264,29 +282,54 @@ class MCPGatewayAPIClient:
         )
 
         if secret_match:
-            required_secrets: List[str] = []
-
-            # Enrich from mcp-find (authoritative)
+            # Use registry as primary source for secrets
+            required_secrets: List[Dict[str, str]] = []
+            
+            if required_secrets_registry:
+                # Registry has structured secret info
+                for secret in required_secrets_registry:
+                    if isinstance(secret, dict):
+                        required_secrets.append({
+                            "name": secret.get("name", ""),
+                            "env": secret.get("env", ""),
+                            "description": secret.get("description", ""),
+                            "example": secret.get("example", "")
+                        })
+                    else:
+                        # Fallback for simple string format
+                        required_secrets.append({
+                            "name": str(secret),
+                            "env": str(secret).upper().replace(".", "_"),
+                            "description": "API key or secret required",
+                            "example": "YOUR_KEY_HERE"
+                        })
+            else:
+                # Fallback: parse from error message
+                raw_secrets = [s.strip() for s in secret_match.group(1).split(",")]
+                for secret_name in raw_secrets:
+                    required_secrets.append({
+                        "name": secret_name,
+                        "env": secret_name.upper().replace(".", "_"),
+                        "description": "API key or secret required",
+                        "example": "YOUR_KEY_HERE"
+                    })
+            
+            # Also check mcp-find result for additional context
             if mcp_find_result:
                 for res in mcp_find_result:
-                    if res.get("name") == server_name:
-                        required_secrets.extend(
-                            res.get("required_secrets", [])
-                        )
+                    if res.get("name") == server_name and "required_secrets" in res:
+                        mcp_secrets = res.get("required_secrets", [])
+                        # Merge with registry data
+                        existing_names = {s.get("name") for s in required_secrets}
+                        for mcp_secret in mcp_secrets:
+                            if isinstance(mcp_secret, dict):
+                                if mcp_secret.get("name") not in existing_names:
+                                    required_secrets.append(mcp_secret)
 
-            # Fallback if MCP metadata missing
-            if not required_secrets:
-                raw_match = re.search(
-                    r"Missing required secrets\s*\(([^)]+)\)",
-                    response_text,
-                    re.IGNORECASE
-                )
-                if raw_match:
-                    required_secrets = [
-                        s.strip() for s in raw_match.group(1).split(",")
-                    ]
-
-            logger.warning(f"[User: {self.user_id}] Server '{server_name}' requires secrets: {required_secrets}")
+            logger.warning(
+                f"[User: {self.user_id}] Server '{server_name}' requires secrets: "
+                f"{[s.get('name') for s in required_secrets]}"
+            )
 
             return AddServerResult(
                 status="secrets_required",
@@ -296,7 +339,7 @@ class MCPGatewayAPIClient:
                 raw_response=response_text
             )
         
-        # 2. Missing config (INTERRUPT)
+        # 2. Check for missing config using regex pattern
         config_match = re.search(
             r"Missing required config\s*\(([^)]+)\)",
             response_text,
@@ -304,40 +347,68 @@ class MCPGatewayAPIClient:
         )
 
         if config_match:
+            # Use registry as primary source for configs
             required_configs: List[Dict[str, Any]] = []
-
-            # Try to enrich config details from mcp-find (optional)
+            
+            if required_configs_registry:
+                # Registry has structured config schema
+                for config_schema in required_configs_registry:
+                    if isinstance(config_schema, dict):
+                        # Extract required fields from schema
+                        required_fields = config_schema.get("required", [])
+                        properties = config_schema.get("properties", {})
+                        
+                        for field in required_fields:
+                            prop = properties.get(field, {})
+                            required_configs.append({
+                                "key": field,
+                                "type": prop.get("type", "string"),
+                                "description": prop.get("description", "Configuration value required")
+                            })
+            else:
+                # Fallback: parse from error message
+                raw_configs = [c.strip() for c in config_match.group(1).split(",")]
+                for config_key in raw_configs:
+                    required_configs.append({
+                        "key": config_key,
+                        "type": "string",
+                        "description": "Configuration value required"
+                    })
+            
+            # Also check mcp-find result for additional context
             if mcp_find_result:
                 for res in mcp_find_result:
                     if res.get("name") == server_name and "config_schema" in res:
                         for schema in res["config_schema"]:
                             required = schema.get("required", [])
                             properties = schema.get("properties", {})
-
+                            
+                            existing_keys = {c.get("key") for c in required_configs}
                             for key in required:
-                                prop = properties.get(key, {})
-                                required_configs.append({
-                                    "key": key,
-                                    "type": prop.get("type", "string"),
-                                    "description": prop.get(
-                                        "description",
-                                        "Configuration value required"
-                                    )
-                                })
-
-            # Fallback when schema is unavailable
+                                if key not in existing_keys:
+                                    prop = properties.get(key, {})
+                                    required_configs.append({
+                                        "key": key,
+                                        "type": prop.get("type", "string"),
+                                        "description": prop.get("description", "Configuration value required")
+                                    })
+            
+            # Final fallback if nothing found
             if not required_configs:
                 required_configs.append({
                     "key": "unknown",
                     "type": "string",
                     "description": (
                         "This MCP server requires configuration, "
-                        "but no config_schema was returned. "
+                        "but no config_schema was found. "
                         "Refer to MCP documentation."
                     )
                 })
 
-            logger.warning(f"[User: {self.user_id}] Server '{server_name}' requires config: {required_configs}")
+            logger.warning(
+                f"[User: {self.user_id}] Server '{server_name}' requires config: "
+                f"{[c.get('key') for c in required_configs]}"
+            )
 
             return AddServerResult(
                 status="config_required",
@@ -357,30 +428,35 @@ class MCPGatewayAPIClient:
         is_success = any(indicator in response_text.lower() for indicator in success_indicators)
         
         if is_success:
-            # Get tools after adding
-            tools_after = await self.list_tools(filter_by_user=False)
-            tools_after_names = {tool["name"] for tool in tools_after}
+            # Verify tools using registry
+            all_tools_after = await self.list_tools(filter_by_user=False)
+            available_tool_names = {tool["name"] for tool in all_tools_after}
             
-            # Find NEW tools
-            new_tool_names = (tools_after_names - tools_before_names) - self.MCP_MANAGEMENT_TOOLS
+            verified_tools = expected_tools & available_tool_names
+            missing_tools = expected_tools - available_tool_names
             
-            if new_tool_names:
-                # Add to user's tool list
-                await state_manager.add_user_tools(self.user_id, new_tool_names)
+            if missing_tools:
+                logger.warning(
+                    f"[User: {self.user_id}] Server '{server_name}' expected tools not found: "
+                    f"{sorted(missing_tools)}"
+                )
+            
+            if verified_tools:
+                await state_manager.add_user_server(self.user_id, server_name, verified_tools)
                 logger.info(
-                    f"[User: {self.user_id}] Server '{server_name}' added {len(new_tool_names)} "
-                    f"tools: {sorted(new_tool_names)}"
+                    f"[User: {self.user_id}] Server '{server_name}' added with {len(verified_tools)} tools: "
+                    f"{sorted(verified_tools)}"
                 )
             else:
-                logger.warning(f"[User: {self.user_id}] Server '{server_name}' added no new tools")
-            
-            # Track server
-            await state_manager.add_user_server(self.user_id, server_name)
+                await state_manager.add_user_server(self.user_id, server_name, set())
+                logger.warning(
+                    f"[User: {self.user_id}] Server '{server_name}' added but no tools verified"
+                )
             
             return AddServerResult(
                 status="added",
                 server=server_name,
-                message=f"Server added with {len(new_tool_names)} tools"
+                message=f"Server added with {len(verified_tools)} tools"
             )
 
         # Failed
@@ -392,45 +468,19 @@ class MCPGatewayAPIClient:
             raw_response=response_text
         )
     
-    async def _rebuild_user_tools(self):
-        """
-        Rebuild user tool list from current gateway state
-        Called after removing a server
-        """
-        # Get current user's servers
-        user_servers = await state_manager.get_user_servers(self.user_id)
-
-        # Get all current tools from gateway
-        all_tools = await self.list_tools(filter_by_user=False)
-        current_tool_names = {tool["name"] for tool in all_tools} - self.MCP_MANAGEMENT_TOOLS
-
-        # Get user's current tool list
-        user_tool_names = await state_manager.get_user_tools(self.user_id)
-
-        # Keep only tools that still exist in gateway
-        valid_tools = user_tool_names & current_tool_names
-
-        await state_manager.set_user_tools(self.user_id, valid_tools)
-        
-        logger.debug(f"[User: {self.user_id}] Rebuilt tool list: {len(valid_tools)} tools remaining")
-
-    
     async def remove_server(self, server_name: str):
-        """
-        Remove server and clear its tools from user's list
-        We rebuild the user's tool list from scratch since we cannot know which tools belonged to this server
-        """
+        """Remove server"""
         logger.info(f"[User: {self.user_id}] Removing server '{server_name}'")
-        
+        tools_to_remove = await state_manager.get_server_tools(self.user_id, server_name)
         result = await self.call_tool("mcp-remove", {"name": server_name})
         
-        # Remove from user's servers
+        # Remove server entry
         await state_manager.remove_user_server(self.user_id, server_name)
         
-        # Rebuild user's tool list by checking what's still available
-        await self._rebuild_user_tools()
-        
-        logger.info(f"[User: {self.user_id}] Removed server '{server_name}'")
+        logger.info(
+            f"[User: {self.user_id}] Removed server '{server_name}' "
+            f"and {len(tools_to_remove)} associated tools: {sorted(tools_to_remove)}"
+        )
         return result
     
     def _parse_response(self, content) -> str:

@@ -9,12 +9,11 @@ INTERRUPT_KEY_PREFIX = "interrupt_state:"
 DEFAULT_TTL = 3600 # 1 hr
 _interrupt_states: Dict[str, Dict[str, Any]] = {}
 
-USER_SERVER_KEY_PREFIX = "user_servers:"
-USER_TOOLS_KEY_PREFIX = "user_tools:"
+USER_SERVER_TOOLS_KEY_PREFIX = "user_server_tools:"
 USER_DATA_TTL = 21600 # 6 hr
-# In-memory fallback
-_user_servers: Dict[str, Set[str]] = {}
-_user_tools: Dict[str, Set[str]] = {}
+
+# In-memory fallback: user_id -> {server_name: Set[tool_names]}
+_user_server_tools: Dict[str, Dict[str, Set[str]]] = {}
 
 # Interrupt Tracking
 
@@ -101,130 +100,131 @@ async def cleanup_interrupt_state(interrupt_id: str) -> None:
 def generate_interrupt_id() -> str:
     return str(uuid.uuid4())
 
-# Server Tracking
+# Server & Tools Tracking
 
-async def add_user_server(user_id: str, server_name:str) -> None:
-    """Register user activated server"""
-
+async def add_user_server(user_id: str, server_name: str, tool_names: Set[str]) -> None:
+    """
+    Register a server and its tools for a user
+    Stores server_name -> tools mapping in HSET
+    """
     if settings.redis_enabled:
         r = await get_redis_client()
-        key = f"{USER_SERVER_KEY_PREFIX}{user_id}"
-
-        await r.sadd(key, server_name)
+        key = f"{USER_SERVER_TOOLS_KEY_PREFIX}{user_id}"
+        
+        await r.hset(key, server_name, json.dumps(list(tool_names)))
         await r.expire(key, USER_DATA_TTL)
         return
     
-    if user_id not in _user_servers:
-        _user_servers[user_id] = set()
-    _user_servers[user_id].add(server_name)
+    if user_id not in _user_server_tools:
+        _user_server_tools[user_id] = {}
+    _user_server_tools[user_id][server_name] = tool_names.copy()
 
-async def remove_user_server(user_id:str, server_name:str) -> None:
-    """Remove server from user active server list"""
+async def remove_user_server(user_id: str, server_name: str) -> None:
+    """
+    Remove a server and all its tools from user's list
+    """
     if settings.redis_enabled:
         r = await get_redis_client()
-        key = f"{USER_SERVER_KEY_PREFIX}{user_id}"
-        await r.srem(key, server_name)
-        return 
+        key = f"{USER_SERVER_TOOLS_KEY_PREFIX}{user_id}"
+        await r.hdel(key, server_name)
+        return
     
-    if user_id in _user_servers:
-        _user_servers[user_id].discard(server_name)
+    if user_id in _user_server_tools:
+        _user_server_tools[user_id].pop(server_name, None)
 
 async def get_user_servers(user_id: str) -> Set[str]:
-    """Get all the active user servers"""
-    if settings.redis_enabled:
-        r = await get_redis_client()
-        key = f"{USER_SERVER_KEY_PREFIX}{user_id}"
-        servers = await r.smembers(key)
-
-        return servers
-    
-    return _user_servers.get(user_id, set())
-
-async def clear_user_servers(user_id:str) -> None:
-    """Clear all active servers for user"""
-    if settings.redis_enabled:
-        r = await get_redis_client()
-        key = f"{USER_SERVER_KEY_PREFIX}{user_id}"
-        await r.delete(key)
-        return
-    
-    _user_servers.pop(user_id, None)
-
-# Tracking per user tool list
-
-async def set_user_tools(user_id: str, tool_names: Set[str]) -> None:
     """
-    Set the complete list of tools available for the user
-    Replaces any existing tools for this user
+    Get all active server names for a user
     """
-
     if settings.redis_enabled:
         r = await get_redis_client()
-        key = f"{USER_TOOLS_KEY_PREFIX}{user_id}"
-        await r.delete(key)
-
-        if tool_names:
-            await r.sadd(key, *tool_names)
-            await r.expire(key, USER_DATA_TTL)
-        return
+        key = f"{USER_SERVER_TOOLS_KEY_PREFIX}{user_id}"
+        servers = await r.hkeys(key)
+        return set(servers) if servers else set()
     
-    _user_tools[user_id] = tool_names.copy()
+    return set(_user_server_tools.get(user_id, {}).keys())
 
-async def add_user_tools(user_id:str, tool_names: Set[str]) -> None:
-    """Add tools to user's available tool list"""
+async def get_user_tools(user_id: str) -> Set[str]:
+    """
+    Get all tools available to a user (flattened from all servers)
+    """
     if settings.redis_enabled:
         r = await get_redis_client()
-        key = f"{USER_TOOLS_KEY_PREFIX}{user_id}"
+        key = f"{USER_SERVER_TOOLS_KEY_PREFIX}{user_id}"
         
-        if tool_names:
-            await r.sadd(key, *tool_names)
-            await r.expire(key, USER_DATA_TTL)
-        return
+        # Get all server->tools mappings
+        server_tools_map = await r.hgetall(key)
+        
+        all_tools = set()
+        for server_name, tools_json in server_tools_map.items():
+            tools = json.loads(tools_json)
+            all_tools.update(tools)
+        
+        return all_tools
     
-    if user_id not in _user_tools:
-        _user_tools[user_id] = set()
-    _user_tools[user_id].update(tool_names)
+    all_tools = set()
+    for server_tools in _user_server_tools.get(user_id, {}).values():
+        all_tools.update(server_tools)
+    return all_tools
 
-async def remove_user_tools(user_id:str, tool_names: Set[str])-> None:
-    """Remove tools to user's available tool list"""
+async def get_server_tools(user_id: str, server_name: str) -> Set[str]:
+    """
+    Get tools for a specific server
+    """
     if settings.redis_enabled:
         r = await get_redis_client()
-        key = f"{USER_TOOLS_KEY_PREFIX}{user_id}"
-
-        if tool_names:
-            await r.srem(key, *tool_names)
-        return
+        key = f"{USER_SERVER_TOOLS_KEY_PREFIX}{user_id}"
+        
+        tools_json = await r.hget(key, server_name)
+        if not tools_json:
+            return set()
+        
+        return set(json.loads(tools_json))
     
-    if user_id in _user_tools:
-        _user_tools[user_id].difference_update(tool_names)
+    return _user_server_tools.get(user_id, {}).get(server_name, set()).copy()
 
-async def get_user_tools(user_id:str) -> Set[str]:
-    """Get all tools available for this user"""
+async def get_user_server_tools_map(user_id: str) -> Dict[str, Set[str]]:
+    """
+    Get complete mapping of server_name -> tools for a user
+    """
     if settings.redis_enabled:
         r = await get_redis_client()
-        key = f"{USER_TOOLS_KEY_PREFIX}{user_id}"
-        tools = await r.smembers(key)
-        return tools
+        key = f"{USER_SERVER_TOOLS_KEY_PREFIX}{user_id}"
+        
+        server_tools_map = await r.hgetall(key)
+        
+        result = {}
+        for server_name, tools_json in server_tools_map.items():
+            result[server_name] = set(json.loads(tools_json))
+        
+        return result
     
-    return _user_tools.get(user_id, set()).copy()
+    result = {}
+    for server_name, tools in _user_server_tools.get(user_id, {}).items():
+        result[server_name] = tools.copy()
+    return result
 
-async def clear_user_tools(user_id:str) -> None:
-    """Clear all tools for a user"""
+async def clear_user_servers(user_id: str) -> None:
+    """
+    Clear all servers and tools for a user
+    """
     if settings.redis_enabled:
         r = await get_redis_client()
-        key = f"{USER_TOOLS_KEY_PREFIX}{user_id}"
+        key = f"{USER_SERVER_TOOLS_KEY_PREFIX}{user_id}"
         await r.delete(key)
         return
     
-    _user_tools.pop(user_id, None)
+    _user_server_tools.pop(user_id, None)
 
 # Utility Functions
 
-async def get_user_stats(user_id:str) -> Dict:
-    """Get stats for a user's MCP usage"""
-
+async def get_user_stats(user_id: str) -> Dict:
+    """
+    Get stats for a user's MCP usage
+    """
     servers = await get_user_servers(user_id)
-    tools = await get_user_servers(user_id)
+    tools = await get_user_tools(user_id)
+    server_tools_map = await get_user_server_tools_map(user_id)
 
     return {
         "user_id": user_id,
@@ -232,6 +232,9 @@ async def get_user_stats(user_id:str) -> Dict:
         "server_count": len(servers),
         "available_tools": list(tools),
         "tool_count": len(tools),
+        "server_tools_info": {
+            server: list(tools) for server, tools in server_tools_map.items()
+        }
     }
 
       
