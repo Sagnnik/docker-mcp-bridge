@@ -1,0 +1,33 @@
+{
+  "name": "paper-search",
+  "title": "Paper Search",
+  "description": "A MCP for searching and downloading academic papers from multiple sources like arXiv, PubMed, bioRxiv, etc.",
+  "tools": [
+    "download_arxiv",
+    "download_biorxiv",
+    "download_crossref",
+    "download_iacr",
+    "download_medrxiv",
+    "download_pubmed",
+    "download_semantic",
+    "get_crossref_paper_by_doi",
+    "read_arxiv_paper",
+    "read_biorxiv_paper",
+    "read_crossref_paper",
+    "read_iacr_paper",
+    "read_medrxiv_paper",
+    "read_pubmed_paper",
+    "read_semantic_paper",
+    "search_arxiv",
+    "search_biorxiv",
+    "search_crossref",
+    "search_google_scholar",
+    "search_iacr",
+    "search_medrxiv",
+    "search_pubmed",
+    "search_semantic"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": []
+}

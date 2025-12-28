@@ -1,0 +1,110 @@
+{
+  "name": "cockroachdb",
+  "title": "CockroachDB",
+  "description": "Enable AI agents to manage, monitor, and query CockroachDB using natural language. Perform complex database operations, cluster management, and query execution seamlessly through AI-driven workflows. Integrate effortlessly with MCP clients for scalable and high-performance data operations.",
+  "tools": [
+    "analyze_performance",
+    "analyze_schema",
+    "bulk_import",
+    "connect",
+    "connect_database",
+    "create_database",
+    "create_index",
+    "create_table",
+    "create_view",
+    "describe_table",
+    "drop_database",
+    "drop_index",
+    "drop_table",
+    "drop_view",
+    "execute_query",
+    "execute_transaction",
+    "explain_query",
+    "get_active_connections",
+    "get_cluster_status",
+    "get_connection_status",
+    "get_database_settings",
+    "get_query_history",
+    "get_replication_status",
+    "get_table_relationships",
+    "list_databases",
+    "list_tables",
+    "list_views",
+    "show_running_queries",
+    "switch_database"
+  ],
+  "env": [
+    {
+      "name": "CRDB_HOST",
+      "value": "{{cockroachdb.host}}"
+    },
+    {
+      "name": "CRDB_PORT",
+      "value": "{{cockroachdb.port}}"
+    },
+    {
+      "name": "CRDB_DATABASE",
+      "value": "{{cockroachdb.database}}"
+    },
+    {
+      "name": "CRDB_USERNAME",
+      "value": "{{cockroachdb.username}}"
+    },
+    {
+      "name": "CRDB_SSL_MODE",
+      "value": "{{cockroachdb.ssl_mode}}"
+    },
+    {
+      "name": "CRDB_SSL_CA_PATH",
+      "value": "{{cockroachdb.ca_path}}"
+    },
+    {
+      "name": "CRDB_SSL_KEYFILE",
+      "value": "{{cockroachdb.ssl_keyfile}}"
+    },
+    {
+      "name": "CRDB_SSL_CERTFILE",
+      "value": "{{cockroachdb.ssl_certfile}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "cockroachdb.password",
+      "env": "CRDB_PWD",
+      "example": ""
+    }
+  ],
+  "config": [
+    {
+      "name": "cockroachdb",
+      "description": "Configure the connection to CockroachDB",
+      "type": "object",
+      "properties": {
+        "host": {
+          "type": "string"
+        },
+        "port": {
+          "type": "integer"
+        },
+        "database": {
+          "type": "string"
+        },
+        "username": {
+          "type": "string"
+        },
+        "ssl_mode": {
+          "type": "string"
+        },
+        "ca_path": {
+          "type": "string"
+        },
+        "ssl_keyfile": {
+          "type": "string"
+        },
+        "ssl_certfile": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "name": "vizro",
+  "title": "Vizro",
+  "description": "provides tools and templates to create a functioning Vizro chart or dashboard step by step.",
+  "tools": [
+    "get_model_json_schema",
+    "get_sample_data_info",
+    "get_vizro_chart_or_dashboard_plan",
+    "load_and_analyze_data",
+    "validate_chart_code",
+    "validate_dashboard_config"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": []
+}

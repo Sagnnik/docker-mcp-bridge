@@ -1,0 +1,17 @@
+{
+  "name": "ramparts",
+  "title": "Ramparts Security Scanner",
+  "description": "A comprehensive security scanner for MCP servers with YARA rules and static analysis capabilities.",
+  "tools": [
+    "scan",
+    "scan-config"
+  ],
+  "env": [
+    {
+      "name": "RUST_LOG",
+      "value": "info"
+    }
+  ],
+  "secrets": [],
+  "config": []
+}

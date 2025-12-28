@@ -1,0 +1,77 @@
+{
+  "name": "clickhouse",
+  "title": "Official ClickHouse",
+  "description": "Official ClickHouse MCP Server.",
+  "tools": [
+    "list_databases",
+    "list_tables",
+    "run_select_query"
+  ],
+  "env": [
+    {
+      "name": "CLICKHOUSE_HOST",
+      "value": "{{clickhouse.host}}"
+    },
+    {
+      "name": "CLICKHOUSE_PORT",
+      "value": "{{clickhouse.port}}"
+    },
+    {
+      "name": "CLICKHOUSE_USER",
+      "value": "{{clickhouse.user}}"
+    },
+    {
+      "name": "CLICKHOUSE_SECURE",
+      "value": "{{clickhouse.secure}}"
+    },
+    {
+      "name": "CLICKHOUSE_VERIFY",
+      "value": "{{clickhouse.verify}}"
+    },
+    {
+      "name": "CLICKHOUSE_CONNECT_TIMEOUT",
+      "value": "{{clickhouse.connect_timeout}}"
+    },
+    {
+      "name": "CLICKHOUSE_SEND_RECEIVE_TIMEOUT",
+      "value": "{{clickhouse.send_receive_timeout}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "clickhouse.password",
+      "env": "CLICKHOUSE_PASSWORD",
+      "example": "<YOUR_CLICKHOUSE_PASSWORD_HERE>"
+    }
+  ],
+  "config": [
+    {
+      "name": "clickhouse",
+      "description": "Configure the connection to ClickHouse",
+      "type": "object",
+      "properties": {
+        "host": {
+          "type": "string"
+        },
+        "port": {
+          "type": "string"
+        },
+        "user": {
+          "type": "string"
+        },
+        "secure": {
+          "type": "string"
+        },
+        "verify": {
+          "type": "string"
+        },
+        "connect_timeout": {
+          "type": "string"
+        },
+        "send_receive_timeout": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "name": "atlas-docs",
+  "title": "Atlas Docs",
+  "description": "Provide LLMs hosted, clean markdown documentation of libraries and frameworks.",
+  "tools": [
+    "get_docs_full",
+    "get_docs_index",
+    "get_docs_page",
+    "list_docs",
+    "search_docs"
+  ],
+  "env": [
+    {
+      "name": "ATLAS_API_URL",
+      "value": "{{atlas-docs.api_url}}"
+    }
+  ],
+  "secrets": [],
+  "config": [
+    {
+      "name": "atlas-docs",
+      "description": "Configure the connection to Atlas Docs",
+      "type": "object",
+      "properties": {
+        "api_url": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

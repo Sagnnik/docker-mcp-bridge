@@ -1,0 +1,45 @@
+{
+  "name": "line",
+  "title": "LINE",
+  "description": "MCP server that integrates the LINE Messaging API to connect an AI Agent to the LINE Official Account.",
+  "tools": [
+    "broadcast_flex_message",
+    "broadcast_text_message",
+    "cancel_rich_menu_default",
+    "delete_rich_menu",
+    "get_message_quota",
+    "get_profile",
+    "get_rich_menu_list",
+    "push_flex_message",
+    "push_text_message",
+    "set_rich_menu_default"
+  ],
+  "env": [
+    {
+      "name": "DESTINATION_USER_ID",
+      "value": "{{line.user_id}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "line.access_token",
+      "env": "CHANNEL_ACCESS_TOKEN",
+      "example": "FILL_HERE"
+    }
+  ],
+  "config": [
+    {
+      "name": "line",
+      "description": "Configure the connection to LINE",
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "user_id"
+      ]
+    }
+  ]
+}

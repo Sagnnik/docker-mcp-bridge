@@ -1,0 +1,11 @@
+{
+  "name": "databutton",
+  "title": "Databutton",
+  "description": "Databutton MCP Server.",
+  "tools": [
+    "submit_app_requirements"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": []
+}

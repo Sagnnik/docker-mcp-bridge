@@ -1,0 +1,64 @@
+{
+  "name": "aws-bedrock-custom-model-import",
+  "title": "AWS Bedrock Custom Model Import",
+  "description": "Manage custom models in Bedrock.",
+  "tools": [
+    "create_model_import_job",
+    "delete_imported_model",
+    "get_imported_model",
+    "get_model_import_job",
+    "list_imported_models",
+    "list_model_import_jobs"
+  ],
+  "env": [
+    {
+      "name": "AWS_REGION",
+      "value": "{{aws-bedrock-custom-model-import.aws_region}}"
+    },
+    {
+      "name": "AWS_PROFILE",
+      "value": "{{aws-bedrock-custom-model-import.aws_profile}}"
+    },
+    {
+      "name": "AWS_ACCESS_KEY_ID",
+      "value": "{{aws-bedrock-custom-model-import.aws_access_key_id}}"
+    },
+    {
+      "name": "BEDROCK_MODEL_IMPORT_S3_BUCKET",
+      "value": "{{aws-bedrock-custom-model-import.bedrock_model_import_s3_bucket}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "aws-bedrock-custom-model-import.aws_secret_access_key",
+      "env": "AWS_SECRET_ACCESS_KEY",
+      "example": "your-aws-secret-access-key"
+    },
+    {
+      "name": "aws-bedrock-custom-model-import.aws_session_token",
+      "env": "AWS_SESSION_TOKEN",
+      "example": "your-aws-session-token"
+    }
+  ],
+  "config": [
+    {
+      "name": "aws-bedrock-custom-model-import",
+      "description": "Configure AWS credentials and S3 bucket for model imports",
+      "type": "object",
+      "properties": {
+        "aws_region": {
+          "type": "string"
+        },
+        "aws_profile": {
+          "type": "string"
+        },
+        "aws_access_key_id": {
+          "type": "string"
+        },
+        "bedrock_model_import_s3_bucket": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

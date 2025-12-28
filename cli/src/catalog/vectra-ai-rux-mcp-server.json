@@ -1,0 +1,70 @@
+{
+  "name": "vectra-ai-rux-mcp-server",
+  "title": "Vectra AI RUX MCP Server",
+  "description": "Vectra AI\u00a0MCP Server\u00a0- An MCP server that connects AI assistants & agents to the Vectra AI security platform, enabling intelligent threat\u00a0analysis and automated incident response.",
+  "tools": [
+    "get_detection_details",
+    "list_detections_with_details",
+    "get_detection_count",
+    "get_detection_pcap",
+    "list_entity_detections",
+    "list_detections_with_basic_info",
+    "get_detection_summary",
+    "list_detection_ids",
+    "list_entities",
+    "get_account_details",
+    "lookup_entity_info_by_name",
+    "get_host_details",
+    "lookup_host_by_ip",
+    "list_assignments",
+    "list_assignments_for_user",
+    "get_assignment_detail_by_id",
+    "get_assignment_for_entity",
+    "create_assignment",
+    "create_entity_note",
+    "mark_detection_fixed",
+    "delete_assignment",
+    "list_platform_users",
+    "list_lockdown_entities",
+    "Summarize Detection",
+    "Visualize Entity Detections"
+  ],
+  "env": [
+    {
+      "name": "VECTRA_BASE_URL",
+      "value": "{{vectra-ai-rux-mcp-server.vectra_url}}"
+    },
+    {
+      "name": "VECTRA_CLIENT_ID",
+      "value": "{{vectra-ai-rux-mcp-server.vectra_client_id}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "vectra-ai-rux-mcp-server.vectra_client_secret",
+      "env": "VECTRA_CLIENT_SECRET",
+      "example": "<your service account token>"
+    }
+  ],
+  "config": [
+    {
+      "name": "vectra-ai-rux-mcp-server",
+      "description": "Configure the connection to Vectra AI RUX MCP Server",
+      "type": "object",
+      "properties": {
+        "vectra_url": {
+          "type": "string",
+          "description": "The base URL of the Vectra AI RUX MCP Server"
+        },
+        "VECTRA_CLIENT_ID": {
+          "type": "string",
+          "description": "The client ID of the Vectra AI RUX MCP Server"
+        }
+      },
+      "required": [
+        "VECTRA_BASE_URL",
+        "VECTRA_CLIENT_ID"
+      ]
+    }
+  ]
+}

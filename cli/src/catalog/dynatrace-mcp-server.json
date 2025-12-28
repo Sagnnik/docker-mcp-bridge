@@ -1,0 +1,53 @@
+{
+  "name": "dynatrace-mcp-server",
+  "title": "Dynatrace",
+  "description": "This MCP Server allows interaction with the Dynatrace observability platform, brining real-time observability data directly into your development workflow.",
+  "tools": [
+    "chat_with_davis_copilot",
+    "create_workflow_for_notification",
+    "execute_dql",
+    "explain_dql_in_natural_language",
+    "find_entity_by_name",
+    "generate_dql_from_natural_language",
+    "get_entity_details",
+    "get_environment_info",
+    "get_kubernetes_events",
+    "get_logs_for_entity",
+    "get_ownership",
+    "list_problems",
+    "list_vulnerabilities",
+    "make_workflow_public",
+    "send_slack_message",
+    "verify_dql"
+  ],
+  "env": [
+    {
+      "name": "DT_ENVIRONMENT",
+      "value": "{{dynatrace-mcp-server.url}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "dynatrace-mcp-server.oauth_client_id",
+      "env": "OAUTH_CLIENT_ID",
+      "example": "dt0s02.SAMPLE"
+    },
+    {
+      "name": "dynatrace-mcp-server.oauth_client_secret",
+      "env": "OAUTH_CLIENT_SECRET",
+      "example": "dt0s02.SAMPLE.abcd1234"
+    }
+  ],
+  "config": [
+    {
+      "name": "dynatrace-mcp-server",
+      "description": "Configure the connection to Dynatrace",
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

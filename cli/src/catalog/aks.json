@@ -1,0 +1,62 @@
+{
+  "name": "aks",
+  "title": "Azure Kubernetes Service (AKS)",
+  "description": "Azure Kubernetes Service (AKS) official MCP server.",
+  "tools": [
+    "az_advisor_recommendation",
+    "az_aks_operations",
+    "az_compute_operations",
+    "az_fleet",
+    "az_monitoring",
+    "az_network_resources",
+    "get_aks_vmss_info",
+    "inspektor_gadget_observability",
+    "kubectl_cluster",
+    "kubectl_config",
+    "kubectl_diagnostics",
+    "kubectl_resources",
+    "list_detectors",
+    "run_detector",
+    "run_detectors_by_category"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": [
+    {
+      "name": "aks",
+      "description": "Configuration for AKS-MCP server",
+      "type": "object",
+      "properties": {
+        "azure_dir": {
+          "type": "string",
+          "description": "Path to the Azure configuration directory (e.g. /home/azureuser/.azure). Used for Azure CLI authentication, you should be logged in (e.g. run `az login`) on the host before starting the MCP server."
+        },
+        "kubeconfig": {
+          "type": "string",
+          "description": "Path to the kubeconfig file for the AKS cluster (e.g. /home/azureuser/.kube/config). Used to connect to the AKS cluster."
+        },
+        "access_level": {
+          "type": "string",
+          "description": "Access level for the MCP server, One of [ readonly, readwrite, admin ]"
+        },
+        "allow_namespaces": {
+          "type": "string",
+          "description": "Comma-separated list of namespaces to allow access to. If not specified, all namespaces are allowed."
+        },
+        "additional_tools": {
+          "type": "string",
+          "description": "Comma-separated list of additional tools, One of [ helm, cilium ]"
+        },
+        "container_user": {
+          "type": "string",
+          "description": "Username or UID of the container user (format <name|uid>[:<group|gid>] e.g. 10000), ensuring correct permissions to access the Azure and kubeconfig files. Leave empty to use default user in the container."
+        }
+      },
+      "required": [
+        "azure_dir",
+        "kubeconfig",
+        "access_level"
+      ]
+    }
+  ]
+}

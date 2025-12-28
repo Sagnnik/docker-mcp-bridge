@@ -1,0 +1,47 @@
+{
+  "name": "cdata-connectcloud",
+  "title": "CData Connect Cloud",
+  "description": "This fully functional MCP Server allows you to connect to any data source in Connect Cloud from Claude Desktop.",
+  "tools": [
+    "execData",
+    "getCatalogs",
+    "getColumns",
+    "getExportedKeys",
+    "getImportedKeys",
+    "getIndexes",
+    "getPrimaryKeys",
+    "getProcedureParameters",
+    "getProcedures",
+    "getSchemas",
+    "getTables",
+    "queryData"
+  ],
+  "env": [
+    {
+      "name": "CDATA_USERNAME",
+      "value": "{{cdata-connectcloud.username}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "cdata-connectcloud.pat",
+      "env": "CDATA_PAT",
+      "example": "<your-cdata-pat>"
+    }
+  ],
+  "config": [
+    {
+      "name": "cdata-connectcloud",
+      "description": "Configure the connection to CData Connect Cloud",
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "username"
+      ]
+    }
+  ]
+}

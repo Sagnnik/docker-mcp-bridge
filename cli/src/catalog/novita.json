@@ -1,0 +1,35 @@
+{
+  "name": "novita",
+  "title": "Novita",
+  "description": "Seamless interaction with Novita AI platform resources.",
+  "tools": [
+    "create-container-registry-auth",
+    "create-gpu-instance",
+    "create-network-storage",
+    "create-template",
+    "delete-container-registry-auth",
+    "delete-gpu-instance",
+    "delete-network-storage",
+    "delete-template",
+    "get-gpu-instance",
+    "get-template",
+    "list-clusters",
+    "list-container-registry-auths",
+    "list-gpu-instances",
+    "list-network-storage",
+    "list-products",
+    "list-templates",
+    "restart-gpu-instance",
+    "start-gpu-instance",
+    "stop-gpu-instance",
+    "update-network-storage"
+  ],
+  "env": [
+    {
+      "name": "NOVITA_API_KEY",
+      "value": ""
+    }
+  ],
+  "secrets": [],
+  "config": []
+}

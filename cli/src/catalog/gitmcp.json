@@ -1,0 +1,15 @@
+{
+  "name": "gitmcp",
+  "title": "GitMCP",
+  "description": "Tools for interacting with Git repositories.",
+  "tools": [
+    "match_common_libs_owner_repo_mapping",
+    "fetch_generic_documentation",
+    "search_generic_documentation",
+    "search_generic_code",
+    "fetch_generic_url_content"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": []
+}

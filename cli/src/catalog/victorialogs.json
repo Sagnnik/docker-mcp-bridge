@@ -1,0 +1,87 @@
+{
+  "name": "victorialogs",
+  "title": "VictoriaLogs",
+  "description": "Provides access to your VictoriaLogs instance and seamless integration with VictoriaLogs APIs and documentation. It can give you a comprehensive interface for logs, observability, and debugging tasks related to your VictoriaLogs instances, enable advanced automation and interaction capabilities for engineers and tools.",
+  "tools": [
+    "documentation",
+    "field_names",
+    "field_values",
+    "flags",
+    "query",
+    "stats_query",
+    "stats_query_range",
+    "stream_field_names",
+    "stream_field_values",
+    "stream_ids",
+    "streams"
+  ],
+  "env": [
+    {
+      "name": "VL_INSTANCE_ENTRYPOINT",
+      "value": "{{victorialogs.vl_instance_entrypoint}}"
+    },
+    {
+      "name": "VL_INSTANCE_HEADERS",
+      "value": "{{victorialogs.vl_instance_headers}}"
+    },
+    {
+      "name": "MCP_SERVER_MODE",
+      "value": "{{victorialogs.mcp_server_mode}}"
+    },
+    {
+      "name": "MCP_LISTEN_ADDR",
+      "value": "{{victorialogs.mcp_listen_addr}}"
+    },
+    {
+      "name": "MCP_DISABLED_TOOLS",
+      "value": "{{victorialogs.mcp_disabled_tools}}"
+    },
+    {
+      "name": "MCP_HEARTBEAT_INTERVAL",
+      "value": "{{victorialogs.mcp_heartbeat_interval}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "victorialogs.vl_instance_bearer_token",
+      "env": "VL_INSTANCE_BEARER_TOKEN",
+      "example": "<instance_bearer_token_for_authentication>"
+    }
+  ],
+  "config": [
+    {
+      "name": "victorialogs",
+      "description": "Configure the connection to VictoriaLogs MCP Server",
+      "type": "object",
+      "properties": {
+        "vl_instance_entrypoint": {
+          "type": "string",
+          "description": "URL of VictoriaLogs instance (it should be root URL of vlsingle or vlselect)"
+        },
+        "vl_instance_headers": {
+          "type": "string",
+          "description": "Optional custom headers to include in requests to VictoriaLogs instance, formatted as 'header1=value1,header2=value2'"
+        },
+        "mcp_server_mode": {
+          "type": "string",
+          "description": "Mode in which the MCP server operates (possible values: stdio, http, sse)"
+        },
+        "mcp_listen_addr": {
+          "type": "string",
+          "description": "Address and port on which the MCP server listens for incoming connections (e.g., ':8081')"
+        },
+        "mcp_disabled_tools": {
+          "type": "string",
+          "description": "Comma-separated list of tools to disable (possible values: export, metric_statistics, test_rules)"
+        },
+        "mcp_heartbeat_interval": {
+          "type": "string",
+          "description": "Defines the heartbeat interval for the streamable-http protocol. It means the MCP server will send a heartbeat to the client through the GET connection, to keep the connection alive from being closed by the network infrastructure (e.g. gateways)"
+        }
+      },
+      "required": [
+        "vl_instance_entrypoint"
+      ]
+    }
+  ]
+}

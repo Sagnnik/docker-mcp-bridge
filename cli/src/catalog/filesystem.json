@@ -1,0 +1,38 @@
+{
+  "name": "filesystem",
+  "title": "Filesystem (Reference)",
+  "description": "Local filesystem access with configurable allowed paths.",
+  "tools": [
+    "create_directory",
+    "directory_tree",
+    "edit_file",
+    "get_file_info",
+    "list_allowed_directories",
+    "list_directory",
+    "move_file",
+    "read_file",
+    "read_multiple_files",
+    "search_files",
+    "write_file"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": [
+    {
+      "name": "filesystem",
+      "description": "The MCP server is allowed to access these paths",
+      "type": "object",
+      "properties": {
+        "paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "paths"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "name": "hdx",
+  "title": "Humanitarian Data Exchange",
+  "description": "HDX MCP Server provides access to humanitarian data through the Humanitarian Data Exchange (HDX) API - https://data.humdata.org/hapi. This server offers 33 specialized tools for retrieving humanitarian information including affected populations (refugees, IDPs, returnees), baseline demographics, food security indicators, conflict data, funding information, and operational presence across hundreds of countries and territories. See repository for instructions on getting a free HDX_APP_INDENTIFIER for access.",
+  "tools": [
+    "affected_people_humanitarian_needs_get",
+    "affected_people_idps_get",
+    "affected_people_refugees_get",
+    "affected_people_returnees_get",
+    "baseline_population_get",
+    "climate_rainfall_get",
+    "coordination_conflict_events_get",
+    "coordination_funding_get",
+    "coordination_national_risk_get",
+    "coordination_operational_presence_get",
+    "food_prices_get",
+    "food_security_get",
+    "hdx_get_dataset_info",
+    "hdx_search_locations",
+    "hdx_server_info",
+    "metadata_admin1_get",
+    "metadata_admin2_get",
+    "metadata_currency_get",
+    "metadata_data_availability_get",
+    "metadata_dataset_get",
+    "metadata_location_get",
+    "metadata_org_get",
+    "metadata_org_type_get",
+    "metadata_resource_get",
+    "metadata_sector_get",
+    "metadata_wfp_commodity_get",
+    "metadata_wfp_market_get",
+    "poverty_rate_get",
+    "util_version_get"
+  ],
+  "env": [],
+  "secrets": [
+    {
+      "name": "hdx.HDX_APP_IDENTIFIER",
+      "env": "HDX_APP_IDENTIFIER",
+      "example": "<HDX_APP_IDENTIFIER>"
+    }
+  ],
+  "config": []
+}

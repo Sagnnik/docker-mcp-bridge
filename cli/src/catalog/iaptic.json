@@ -1,0 +1,51 @@
+{
+  "name": "iaptic",
+  "title": "Iaptic",
+  "description": "Model Context Protocol server for interacting with iaptic.",
+  "tools": [
+    "customer_add_purchase",
+    "customer_get",
+    "customer_list",
+    "customer_subscription",
+    "customer_transactions",
+    "event_list",
+    "iaptic_current_app",
+    "iaptic_reset_app",
+    "iaptic_switch_app",
+    "purchase_get",
+    "purchase_list",
+    "stats_app",
+    "stats_get",
+    "stripe_prices",
+    "transaction_get",
+    "transaction_list"
+  ],
+  "env": [
+    {
+      "name": "IAPTIC_APP_NAME",
+      "value": "{{iaptic.app_name}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "iaptic.api_key",
+      "env": "IAPTIC_API_KEY",
+      "example": "your-api-key-here"
+    }
+  ],
+  "config": [
+    {
+      "name": "iaptic",
+      "description": "Configure the connection to iaptic",
+      "type": "object",
+      "properties": {
+        "app_name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "app_name"
+      ]
+    }
+  ]
+}

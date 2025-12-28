@@ -1,0 +1,16 @@
+{
+  "name": "osp_marketing_tools",
+  "title": "OSP Marketing Tools",
+  "description": "A Model Context Protocol (MCP) server that empowers LLMs to use some of Open Srategy Partners' core writing and product marketing techniques.",
+  "tools": [
+    "get_editing_codes",
+    "get_meta_guide",
+    "get_on_page_seo_guide",
+    "get_value_map_positioning_guide",
+    "get_writing_guide",
+    "health_check"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": []
+}

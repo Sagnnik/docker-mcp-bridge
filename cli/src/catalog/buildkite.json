@@ -1,0 +1,40 @@
+{
+  "name": "buildkite",
+  "title": "Buildkite",
+  "description": "Buildkite MCP lets agents interact with Buildkite Builds, Jobs, Logs, Packages and Test Suites.",
+  "tools": [
+    "access_token",
+    "create_build",
+    "create_pipeline",
+    "current_user",
+    "get_artifact",
+    "get_build",
+    "get_build_test_engine_runs",
+    "get_cluster",
+    "get_cluster_queue",
+    "get_failed_executions",
+    "get_job_logs",
+    "get_jobs",
+    "get_pipeline",
+    "get_test",
+    "get_test_run",
+    "list_annotations",
+    "list_artifacts",
+    "list_builds",
+    "list_cluster_queues",
+    "list_clusters",
+    "list_pipelines",
+    "list_test_runs",
+    "update_pipeline",
+    "user_token_organization"
+  ],
+  "env": [],
+  "secrets": [
+    {
+      "name": "buildkite.api_key",
+      "env": "BUILDKITE_API_TOKEN",
+      "example": "bkua_xxxxx"
+    }
+  ],
+  "config": []
+}

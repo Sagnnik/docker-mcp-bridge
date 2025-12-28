@@ -1,0 +1,29 @@
+{
+  "name": "chroma",
+  "title": "Chroma",
+  "description": "A Model Context Protocol (MCP) server implementation that provides database capabilities for Chroma.",
+  "tools": [
+    "chroma_add_documents",
+    "chroma_create_collection",
+    "chroma_delete_collection",
+    "chroma_delete_documents",
+    "chroma_fork_collection",
+    "chroma_get_collection_count",
+    "chroma_get_collection_info",
+    "chroma_get_documents",
+    "chroma_list_collections",
+    "chroma_modify_collection",
+    "chroma_peek_collection",
+    "chroma_query_documents",
+    "chroma_update_documents"
+  ],
+  "env": [],
+  "secrets": [
+    {
+      "name": "chroma.api_key",
+      "env": "CHROMA_API_KEY",
+      "example": "your-api-key"
+    }
+  ],
+  "config": []
+}

@@ -1,0 +1,17 @@
+{
+  "name": "wolfram-alpha",
+  "title": "WolframAlpha",
+  "description": "Connect your chat repl to wolfram alpha computational intelligence.",
+  "tools": [
+    "query-wolfram-alpha"
+  ],
+  "env": [],
+  "secrets": [
+    {
+      "name": "wolfram-alpha.api_key",
+      "env": "WOLFRAM_API_KEY",
+      "example": "your-app-id"
+    }
+  ],
+  "config": []
+}

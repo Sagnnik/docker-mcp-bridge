@@ -1,0 +1,73 @@
+{
+  "name": "okta-mcp-fctr",
+  "title": "Okta",
+  "description": "Secure Okta identity and access management via Model Context Protocol (MCP). Access Okta users, groups, applications, logs, and policies through AI assistants with enterprise-grade security.",
+  "tools": [
+    "analyze_login_risk",
+    "analyze_user_app_access",
+    "get_current_time",
+    "get_okta_application",
+    "get_okta_event_logs",
+    "get_okta_group",
+    "get_okta_policy_rule",
+    "get_okta_user",
+    "list_okta_application_groups",
+    "list_okta_application_users",
+    "list_okta_applications",
+    "list_okta_group_users",
+    "list_okta_groups",
+    "list_okta_network_zones",
+    "list_okta_policy_rules",
+    "list_okta_user_applications",
+    "list_okta_user_factors",
+    "list_okta_user_groups",
+    "list_okta_users",
+    "parse_relative_time"
+  ],
+  "env": [
+    {
+      "name": "OKTA_CLIENT_ORGURL",
+      "value": "{{okta-mcp-fctr.client_orgurl}}"
+    },
+    {
+      "name": "LOG_LEVEL",
+      "value": "{{okta-mcp-fctr.log_level}}"
+    },
+    {
+      "name": "OKTA_CONCURRENT_LIMIT",
+      "value": "{{okta-mcp-fctr.concurrent_limit}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "okta-mcp-fctr.api_token",
+      "env": "OKTA_API_TOKEN",
+      "example": "00aBcDeFGhIjkLmNoPqRsTuVwxYz",
+      "description": "Okta API token with read permissions for users, groups, apps, logs, and policies"
+    }
+  ],
+  "config": [
+    {
+      "name": "okta-mcp-fctr",
+      "description": "Configure the connection to Okta",
+      "type": "object",
+      "properties": {
+        "client_orgurl": {
+          "type": "string",
+          "description": "Okta organization URL (e.g., https://dev-123456.okta.com)"
+        },
+        "log_level": {
+          "type": "string",
+          "description": "Logging level for server output"
+        },
+        "concurrent_limit": {
+          "type": "string",
+          "description": "Maximum concurrent requests to Okta API"
+        }
+      },
+      "required": [
+        "client_orgurl"
+      ]
+    }
+  ]
+}

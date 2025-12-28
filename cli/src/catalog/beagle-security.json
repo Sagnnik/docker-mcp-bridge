@@ -1,0 +1,33 @@
+{
+  "name": "beagle-security",
+  "title": "Beagle Security",
+  "description": "Connects with the Beagle Security backend using a user token to manage applications, run automated security tests, track vulnerabilities across environments, and gain intelligence from Application and API vulnerability data.",
+  "tools": [
+    "beagle_create_application",
+    "beagle_create_project",
+    "beagle_delete_application",
+    "beagle_delete_project",
+    "beagle_get_application",
+    "beagle_get_domain_signature",
+    "beagle_get_test_result",
+    "beagle_get_test_status",
+    "beagle_list_applications",
+    "beagle_list_projects",
+    "beagle_list_running_tests",
+    "beagle_list_test_sessions",
+    "beagle_modify_application",
+    "beagle_modify_project",
+    "beagle_start_test",
+    "beagle_stop_test",
+    "beagle_verify_domain"
+  ],
+  "env": [],
+  "secrets": [
+    {
+      "name": "beagle-security.Beagle-Security-Personal-access-token",
+      "env": "BEAGLE_SECURITY_API_TOKEN",
+      "example": "your_personal_access_token"
+    }
+  ],
+  "config": []
+}

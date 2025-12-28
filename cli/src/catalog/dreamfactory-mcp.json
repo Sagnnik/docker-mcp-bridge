@@ -1,0 +1,41 @@
+{
+  "name": "dreamfactory-mcp",
+  "title": "DreamFactory",
+  "description": "DreamFactory is a REST API generation platform with support for hundreds of data sources, including Microsoft SQL Server, MySQL, PostgreSQL, and MongoDB. The DreamFactory MCP Server makes it easy for users to securely interact with their data sources via an MCP client.",
+  "tools": [
+    "call-stored-function",
+    "call-stored-procedure",
+    "get-stored-functions",
+    "get-stored-procedures",
+    "get-table-data",
+    "get-table-schema",
+    "get-tables",
+    "list-tools"
+  ],
+  "env": [
+    {
+      "name": "DREAMFACTORY_URL",
+      "value": "{{dreamfactory-mcp.dreamfactoryurl}}"
+    },
+    {
+      "name": "DREAMFACTORY_API_KEY",
+      "value": "{{dreamfactory-mcp.dreamfactoryapikey}}"
+    }
+  ],
+  "secrets": [],
+  "config": [
+    {
+      "name": "dreamfactory-mcp",
+      "description": "Configure the connection to DreamFactory MCP Server",
+      "type": "object",
+      "properties": {
+        "dreamfactoryurl": {
+          "type": "string"
+        },
+        "dreamfactoryapikey": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

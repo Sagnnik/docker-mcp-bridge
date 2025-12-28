@@ -1,0 +1,39 @@
+{
+  "name": "awslabs-redshift",
+  "title": "Amazon Redshift",
+  "description": "Data warehouse operations and queries.",
+  "tools": [
+    "execute_query",
+    "list_clusters",
+    "list_columns",
+    "list_databases",
+    "list_schemas",
+    "list_tables"
+  ],
+  "env": [
+    {
+      "name": "AWS_REGION",
+      "value": "{{awslabs-redshift.aws_region}}"
+    },
+    {
+      "name": "AWS_PROFILE",
+      "value": "{{awslabs-redshift.aws_profile}}"
+    }
+  ],
+  "secrets": [],
+  "config": [
+    {
+      "name": "awslabs-redshift",
+      "description": "Configure AWS credentials for Redshift access",
+      "type": "object",
+      "properties": {
+        "aws_region": {
+          "type": "string"
+        },
+        "aws_profile": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

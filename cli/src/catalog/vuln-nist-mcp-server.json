@@ -1,0 +1,16 @@
+{
+  "name": "vuln-nist-mcp-server",
+  "title": "Vuln NIST",
+  "description": "This MCP server exposes tools to query the NVD/CVE REST API and return formatted text results suitable for LLM consumption via the MCP protocol. It includes automatic query chunking for large date ranges and parallel processing for improved performance.",
+  "tools": [
+    "cve_change_history",
+    "cves_by_cpe",
+    "get_cve_by_id",
+    "get_temporal_context",
+    "kevs_between",
+    "search_cves"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": []
+}

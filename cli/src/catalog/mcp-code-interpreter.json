@@ -1,0 +1,11 @@
+{
+  "name": "mcp-code-interpreter",
+  "title": "Python Interpreter",
+  "description": "A Python-based execution tool that mimics a Jupyter notebook environment. It accepts code snippets, executes them, and maintains state across sessions \u2014 preserving variables, imports, and past results. Ideal for iterative development, debugging, or code execution.",
+  "tools": [
+    "execute_code"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": []
+}

@@ -1,0 +1,65 @@
+{
+  "name": "aws-dataprocessing",
+  "title": "AWS Data Processing",
+  "description": "Data processing and transformation services.",
+  "tools": [
+    "add_inline_policy",
+    "analyze_s3_usage_for_data_processing",
+    "create_data_processing_role",
+    "get_policies_for_role",
+    "get_roles_for_service",
+    "list_s3_buckets",
+    "manage_aws_athena_data_catalogs",
+    "manage_aws_athena_databases_and_tables",
+    "manage_aws_athena_named_queries",
+    "manage_aws_athena_query_executions",
+    "manage_aws_athena_workgroups",
+    "manage_aws_emr_clusters",
+    "manage_aws_emr_ec2_instances",
+    "manage_aws_emr_ec2_steps",
+    "manage_aws_glue_catalog",
+    "manage_aws_glue_classifiers",
+    "manage_aws_glue_connections",
+    "manage_aws_glue_crawler_management",
+    "manage_aws_glue_crawlers",
+    "manage_aws_glue_databases",
+    "manage_aws_glue_encryption",
+    "manage_aws_glue_jobs",
+    "manage_aws_glue_partitions",
+    "manage_aws_glue_resource_policies",
+    "manage_aws_glue_security_configurations",
+    "manage_aws_glue_sessions",
+    "manage_aws_glue_statements",
+    "manage_aws_glue_tables",
+    "manage_aws_glue_triggers",
+    "manage_aws_glue_usage_profiles",
+    "manage_aws_glue_workflows",
+    "upload_to_s3"
+  ],
+  "env": [
+    {
+      "name": "AWS_REGION",
+      "value": "{{aws-dataprocessing.aws_region}}"
+    },
+    {
+      "name": "AWS_PROFILE",
+      "value": "{{aws-dataprocessing.aws_profile}}"
+    }
+  ],
+  "secrets": [],
+  "config": [
+    {
+      "name": "aws-dataprocessing",
+      "description": "Configure AWS credentials for data processing access",
+      "type": "object",
+      "properties": {
+        "aws_region": {
+          "type": "string"
+        },
+        "aws_profile": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

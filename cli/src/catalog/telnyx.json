@@ -1,0 +1,15 @@
+{
+  "name": "telnyx",
+  "title": "Telnyx",
+  "description": "Enables interaction with powerful telephony, messaging, and AI assistant APIs.",
+  "tools": [],
+  "env": [],
+  "secrets": [
+    {
+      "name": "telnyx.api_key",
+      "env": "TELNYX_API_KEY",
+      "example": "<YOUR_API_KEY>"
+    }
+  ],
+  "config": []
+}

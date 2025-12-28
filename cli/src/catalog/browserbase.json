@@ -1,0 +1,35 @@
+{
+  "name": "browserbase",
+  "title": "Browserbase",
+  "description": "Allow LLMs to control a browser with Browserbase and Stagehand for AI-powered web automation, intelligent data extraction, and screenshot capture.",
+  "tools": [
+    "browserbase_screenshot",
+    "browserbase_session_close",
+    "browserbase_session_create",
+    "browserbase_stagehand_act",
+    "browserbase_stagehand_agent",
+    "browserbase_stagehand_extract",
+    "browserbase_stagehand_get_url",
+    "browserbase_stagehand_navigate",
+    "browserbase_stagehand_observe"
+  ],
+  "env": [],
+  "secrets": [
+    {
+      "name": "browserbase.browserbase_api_key",
+      "env": "BROWSERBASE_API_KEY",
+      "example": "YOUR_BROWSERBASE_API_KEY_HERE"
+    },
+    {
+      "name": "browserbase.browserbase_project_id",
+      "env": "BROWSERBASE_PROJECT_ID",
+      "example": "YOUR_BROWSERBASE_PROJECT_ID_HERE"
+    },
+    {
+      "name": "browserbase.gemini_api_key",
+      "env": "GEMINI_API_KEY",
+      "example": "YOUR_GEMINI_API_KEY_HERE"
+    }
+  ],
+  "config": []
+}

@@ -1,0 +1,37 @@
+{
+  "name": "awslabs-dynamodb",
+  "title": "Amazon DynamoDB",
+  "description": "Complete DynamoDB operations and table management.",
+  "tools": [
+    "dynamodb_data_model_validation",
+    "dynamodb_data_modeling",
+    "execute_dynamodb_command",
+    "source_db_analyzer"
+  ],
+  "env": [
+    {
+      "name": "AWS_REGION",
+      "value": "{{awslabs-dynamodb.aws_region}}"
+    },
+    {
+      "name": "AWS_PROFILE",
+      "value": "{{awslabs-dynamodb.aws_profile}}"
+    }
+  ],
+  "secrets": [],
+  "config": [
+    {
+      "name": "awslabs-dynamodb",
+      "description": "Configure AWS credentials for DynamoDB access",
+      "type": "object",
+      "properties": {
+        "aws_region": {
+          "type": "string"
+        },
+        "aws_profile": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

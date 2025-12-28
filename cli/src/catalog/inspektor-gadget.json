@@ -1,0 +1,66 @@
+{
+  "name": "inspektor-gadget",
+  "title": "Inspektor Gadget",
+  "description": "AI interface to troubleshoot and observe Kubernetes/Container workloads.",
+  "tools": [
+    "gadget_advise_networkpolicy",
+    "gadget_advise_seccomp",
+    "gadget_audit_seccomp",
+    "gadget_bpfstats",
+    "gadget_deadlock",
+    "gadget_fdpass",
+    "gadget_fsnotify",
+    "gadget_profile_blockio",
+    "gadget_profile_cpu",
+    "gadget_profile_qdisc_latency",
+    "gadget_profile_tcprtt",
+    "gadget_snapshot_process",
+    "gadget_snapshot_socket",
+    "gadget_tcpdump",
+    "gadget_top_blockio",
+    "gadget_top_file",
+    "gadget_top_process",
+    "gadget_top_tcp",
+    "gadget_trace_bind",
+    "gadget_trace_capabilities",
+    "gadget_trace_dns",
+    "gadget_trace_exec",
+    "gadget_trace_fsslower",
+    "gadget_trace_lsm",
+    "gadget_trace_malloc",
+    "gadget_trace_mount",
+    "gadget_trace_oomkill",
+    "gadget_trace_open",
+    "gadget_trace_signal",
+    "gadget_trace_sni",
+    "gadget_trace_ssl",
+    "gadget_trace_tcp",
+    "gadget_trace_tcpdrop",
+    "gadget_trace_tcpretrans",
+    "gadget_traceloop",
+    "ig_deploy",
+    "ig_gadgets"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": [
+    {
+      "name": "inspektor-gadget",
+      "description": "Configuration for the Inspektor Gadget MCP Server",
+      "type": "object",
+      "properties": {
+        "kubeconfig": {
+          "type": "string",
+          "description": "Path to the kubeconfig file for accessing Kubernetes clusters"
+        },
+        "gadget-images": {
+          "type": "string",
+          "description": "Comma-separated list of gadget images (trace_dns, trace_tcp, etc) to use, allowing control over which gadgets are available as MCP tools"
+        }
+      },
+      "required": [
+        "kubeconfig"
+      ]
+    }
+  ]
+}

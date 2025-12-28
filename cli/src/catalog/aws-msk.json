@@ -1,0 +1,60 @@
+{
+  "name": "aws-msk",
+  "title": "Amazon MSK",
+  "description": "Managed Kafka cluster operations.",
+  "tools": [
+    "describe_cluster_operation",
+    "describe_vpc_connection",
+    "get_cluster_best_practices",
+    "get_cluster_info",
+    "get_cluster_telemetry",
+    "get_configuration_info",
+    "get_global_info",
+    "list_customer_iam_access",
+    "list_tags_for_resource"
+  ],
+  "env": [
+    {
+      "name": "AWS_REGION",
+      "value": "{{aws-msk.aws_region}}"
+    },
+    {
+      "name": "AWS_PROFILE",
+      "value": "{{aws-msk.aws_profile}}"
+    },
+    {
+      "name": "AWS_ACCESS_KEY_ID",
+      "value": "{{aws-msk.aws_access_key_id}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "aws-msk.aws_secret_access_key",
+      "env": "AWS_SECRET_ACCESS_KEY",
+      "example": "your-aws-secret-access-key"
+    },
+    {
+      "name": "aws-msk.aws_session_token",
+      "env": "AWS_SESSION_TOKEN",
+      "example": "your-aws-session-token"
+    }
+  ],
+  "config": [
+    {
+      "name": "aws-msk",
+      "description": "Configure AWS credentials for MSK access",
+      "type": "object",
+      "properties": {
+        "aws_region": {
+          "type": "string"
+        },
+        "aws_profile": {
+          "type": "string"
+        },
+        "aws_access_key_id": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

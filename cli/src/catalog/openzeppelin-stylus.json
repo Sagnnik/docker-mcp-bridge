@@ -1,0 +1,13 @@
+{
+  "name": "openzeppelin-stylus",
+  "title": "OpenZeppelin Stylus Contracts",
+  "description": "Access to OpenZeppelin Stylus Contracts.",
+  "tools": [
+    "stylus-erc20",
+    "stylus-erc721",
+    "stylus-erc1155"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": []
+}

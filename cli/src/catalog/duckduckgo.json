@@ -1,0 +1,12 @@
+{
+  "name": "duckduckgo",
+  "title": "DuckDuckGo",
+  "description": "A Model Context Protocol (MCP) server that provides web search capabilities through DuckDuckGo, with additional features for content fetching and parsing.",
+  "tools": [
+    "fetch_content",
+    "search"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": []
+}

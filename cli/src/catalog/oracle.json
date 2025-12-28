@@ -1,0 +1,45 @@
+{
+  "name": "oracle",
+  "title": "Oracle Database",
+  "description": "Connect to Oracle databases via MCP, providing secure read-only access with support for schema exploration, query execution, and metadata inspection.",
+  "tools": [
+    "describe_table",
+    "execute_query",
+    "get_table_constraints",
+    "get_table_indexes",
+    "list_schemas",
+    "list_tables"
+  ],
+  "env": [
+    {
+      "name": "ORACLE_CONNECTION_STRING",
+      "value": "{{oracle.oracle_connection_string}}"
+    },
+    {
+      "name": "ORACLE_USER",
+      "value": "{{oracle.oracle_user}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "oracle.password",
+      "env": "ORACLE_PASSWORD",
+      "example": "<ORACLE_PASSWORD>"
+    }
+  ],
+  "config": [
+    {
+      "name": "oracle",
+      "description": "Configure the connection to Oracle Database",
+      "type": "object",
+      "properties": {
+        "oracle_connection_string": {
+          "type": "string"
+        },
+        "oracle_user": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

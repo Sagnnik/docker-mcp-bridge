@@ -1,0 +1,79 @@
+{
+  "name": "n8n",
+  "title": "n8n",
+  "description": "Bridges n8n's workflow automation platform with AI models, providing access to 543 n8n nodes, workflow templates, and AI-capable automation tools.",
+  "tools": [
+    "get_database_statistics",
+    "get_node_as_tool_info",
+    "get_node_documentation",
+    "get_node_essentials",
+    "get_node_info",
+    "get_property_dependencies",
+    "get_template",
+    "get_templates_for_task",
+    "list_ai_tools",
+    "list_node_templates",
+    "list_nodes",
+    "list_tasks",
+    "list_templates",
+    "n8n_autofix_workflow",
+    "n8n_create_workflow",
+    "n8n_delete_execution",
+    "n8n_delete_workflow",
+    "n8n_diagnostic",
+    "n8n_get_execution",
+    "n8n_get_workflow",
+    "n8n_get_workflow_details",
+    "n8n_get_workflow_minimal",
+    "n8n_get_workflow_structure",
+    "n8n_health_check",
+    "n8n_list_available_tools",
+    "n8n_list_executions",
+    "n8n_list_workflows",
+    "n8n_trigger_webhook_workflow",
+    "n8n_update_full_workflow",
+    "n8n_update_partial_workflow",
+    "n8n_validate_workflow",
+    "n8n_workflow_versions",
+    "search_node_properties",
+    "search_nodes",
+    "search_templates",
+    "search_templates_by_metadata",
+    "tools_documentation",
+    "validate_node_minimal",
+    "validate_node_operation",
+    "validate_workflow",
+    "validate_workflow_connections",
+    "validate_workflow_expressions"
+  ],
+  "env": [
+    {
+      "name": "N8N_API_URL",
+      "value": "{{n8n.api_url}}"
+    },
+    {
+      "name": "MCP_MODE",
+      "value": "stdio"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "n8n.api_key",
+      "env": "N8N_API_KEY",
+      "example": "n8n_api_****"
+    }
+  ],
+  "config": [
+    {
+      "name": "n8n",
+      "description": "Optional n8n API credentials for accessing live n8n instances. Use host.docker.internal to connect to n8n running locally on your host machine.",
+      "type": "object",
+      "properties": {
+        "api_url": {
+          "type": "string",
+          "description": "The URL of your n8n instance (use http://host.docker.internal:5678 for local instances)"
+        }
+      }
+    }
+  ]
+}

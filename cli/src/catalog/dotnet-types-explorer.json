@@ -1,0 +1,15 @@
+{
+  "name": "dotnet-types-explorer",
+  "title": ".NET Types Explorer",
+  "description": "Provides detailed type information from .NET projects including assembly exploration, namespace discovery, type reflection, and NuGet integration for AI coding agents.",
+  "tools": [
+    "ReferencedAssembliesExplorer",
+    "NamespacesExplorer",
+    "NamespaceTypes",
+    "NuGetPackageSearch",
+    "NuGetPackageVersions"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": []
+}

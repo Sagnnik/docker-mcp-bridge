@@ -1,0 +1,28 @@
+{
+  "name": "pia",
+  "title": "Program Integrity Alliance",
+  "description": "An MCP server to help make U.S. Government open datasets AI-friendly.",
+  "tools": [
+    "fetch",
+    "pia_search_content",
+    "pia_search_content_congress",
+    "pia_search_content_crs",
+    "pia_search_content_doj",
+    "pia_search_content_executive_orders",
+    "pia_search_content_facets",
+    "pia_search_content_gao",
+    "pia_search_content_oig",
+    "pia_search_titles",
+    "pia_search_titles_facets",
+    "search"
+  ],
+  "env": [],
+  "secrets": [
+    {
+      "name": "pia.api-key",
+      "env": "PIA_API_KEY",
+      "example": "pia_5cFd9jtG3zbY4VpREewTP17uzdfnvMt8_3m778O2dv8"
+    }
+  ],
+  "config": []
+}

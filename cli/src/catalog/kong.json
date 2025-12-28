@@ -1,0 +1,42 @@
+{
+  "name": "kong",
+  "title": "Kong Konnect",
+  "description": "A Model Context Protocol (MCP) server for interacting with Kong Konnect APIs, allowing AI assistants to query and analyze Kong Gateway configurations, traffic, and analytics.",
+  "tools": [
+    "check_control_plane_group_membership",
+    "get_consumer_requests",
+    "get_control_plane",
+    "list_consumers",
+    "list_control_plane_group_memberships",
+    "list_control_planes",
+    "list_plugins",
+    "list_routes",
+    "list_services",
+    "query_api_requests"
+  ],
+  "env": [
+    {
+      "name": "KONNECT_REGION",
+      "value": "{{kong.region}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "kong.access_token",
+      "env": "KONNECT_ACCESS_TOKEN",
+      "example": "kpat_api_key_here"
+    }
+  ],
+  "config": [
+    {
+      "name": "kong",
+      "description": "Configure the connection to Kong Konnect",
+      "type": "object",
+      "properties": {
+        "region": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

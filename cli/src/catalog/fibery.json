@@ -1,0 +1,39 @@
+{
+  "name": "fibery",
+  "title": "Fibery",
+  "description": "Interact with your Fibery workspace.",
+  "tools": [
+    "create_entities_batch",
+    "create_entity",
+    "current_date",
+    "describe_database",
+    "list_databases",
+    "query_database",
+    "update_entity"
+  ],
+  "env": [
+    {
+      "name": "FIBERY_HOST",
+      "value": "{{fibery.host}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "fibery.api_token",
+      "env": "FIBERY_API_TOKEN",
+      "example": "your-api-token"
+    }
+  ],
+  "config": [
+    {
+      "name": "fibery",
+      "description": "Configure the connection to Fibery",
+      "type": "object",
+      "properties": {
+        "host": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

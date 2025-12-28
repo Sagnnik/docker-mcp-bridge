@@ -1,0 +1,49 @@
+{
+  "name": "zen",
+  "title": "Zen",
+  "description": "Bridges multiple AI models and CLIs, enabling orchestrated workflows across Claude Code, Gemini CLI, Codex CLI, and other AI development tools.",
+  "tools": [
+    "analyze",
+    "apilookup",
+    "challenge",
+    "chat",
+    "clink",
+    "codereview",
+    "consensus",
+    "debug",
+    "docgen",
+    "listmodels",
+    "planner",
+    "precommit",
+    "refactor",
+    "secaudit",
+    "testgen",
+    "thinkdeep",
+    "tracer",
+    "version"
+  ],
+  "env": [],
+  "secrets": [
+    {
+      "name": "zen.openrouter_api_key",
+      "env": "OPENROUTER_API_KEY",
+      "example": "sk-or-v1-****"
+    },
+    {
+      "name": "zen.gemini_api_key",
+      "env": "GEMINI_API_KEY",
+      "example": "AIza****"
+    },
+    {
+      "name": "zen.openai_api_key",
+      "env": "OPENAI_API_KEY",
+      "example": "sk-proj-****"
+    },
+    {
+      "name": "zen.xai_api_key",
+      "env": "XAI_API_KEY",
+      "example": "xai-****"
+    }
+  ],
+  "config": []
+}

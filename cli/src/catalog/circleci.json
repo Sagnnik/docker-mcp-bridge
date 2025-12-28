@@ -1,0 +1,44 @@
+{
+  "name": "circleci",
+  "title": "CircleCI",
+  "description": "A specialized server implementation for the Model Context Protocol (MCP) designed to integrate with CircleCI's development workflow. This project serves as a bridge between CircleCI's infrastructure and the Model Context Protocol, enabling enhanced AI-powered development experiences.",
+  "tools": [
+    "analyze_diff",
+    "config_helper",
+    "create_prompt_template",
+    "find_flaky_tests",
+    "get_build_failure_logs",
+    "get_job_test_results",
+    "get_latest_pipeline_status",
+    "list_followed_projects",
+    "recommend_prompt_template_tests",
+    "rerun_workflow",
+    "run_evaluation_tests",
+    "run_pipeline"
+  ],
+  "env": [
+    {
+      "name": "CIRCLECI_BASE_URL",
+      "value": "{{circleci.url}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "circleci.token",
+      "env": "CIRCLECI_TOKEN",
+      "example": "your-circleci-token"
+    }
+  ],
+  "config": [
+    {
+      "name": "circleci",
+      "description": "Configure the connection to CircleCI",
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "name": "kubectl-mcp-server",
+  "title": "Kubectl",
+  "description": "MCP Server that enables AI assistants to interact with Kubernetes clusters via kubectl operations.",
+  "tools": [
+    "check_pod_health",
+    "create_deployment",
+    "delete_resource",
+    "get_api_resources",
+    "get_cluster_roles",
+    "get_configmaps",
+    "get_current_context",
+    "get_deployments",
+    "get_events",
+    "get_logs",
+    "get_namespaces",
+    "get_nodes",
+    "get_pod_events",
+    "get_pods",
+    "get_rbac_roles",
+    "get_resource_usage",
+    "get_secrets",
+    "get_services",
+    "health_check",
+    "install_helm_chart",
+    "kubectl_explain",
+    "port_forward",
+    "scale_deployment",
+    "switch_context",
+    "uninstall_helm_chart",
+    "upgrade_helm_chart"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": [
+    {
+      "name": "kubectl-mcp-server",
+      "description": "The MCP server is allowed to access this path",
+      "type": "object",
+      "properties": {
+        "kubeconfig": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "kubeconfig"
+      ]
+    }
+  ]
+}

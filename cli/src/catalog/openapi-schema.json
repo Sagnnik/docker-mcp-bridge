@@ -1,0 +1,31 @@
+{
+  "name": "openapi-schema",
+  "title": "OpenAPI Schema",
+  "description": "OpenAPI Schema Model Context Protocol Server.",
+  "tools": [
+    "get-component",
+    "get-endpoint",
+    "get-examples",
+    "get-path-parameters",
+    "get-request-body",
+    "get-response-schema",
+    "list-components",
+    "list-endpoints",
+    "list-security-schemes",
+    "search-schema"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": [
+    {
+      "name": "openapi-schema",
+      "description": "Expose OpenAPI schema information to Large Language Models",
+      "type": "object",
+      "properties": {
+        "SchemaPath": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

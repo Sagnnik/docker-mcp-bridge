@@ -1,0 +1,15 @@
+{
+  "name": "dodo-payments",
+  "title": "Dodo Payments",
+  "description": "Tools for cross-border payments, taxes, and compliance.",
+  "tools": [],
+  "env": [],
+  "secrets": [
+    {
+      "name": "dodo-payments.api_key",
+      "env": "DODO_PAYMENTS_API_KEY",
+      "example": "<YOUR_API_KEY>"
+    }
+  ],
+  "config": []
+}

@@ -1,0 +1,11 @@
+{
+  "name": "docker",
+  "title": "Docker",
+  "description": "Use the Docker CLI.",
+  "tools": [
+    "docker"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": []
+}

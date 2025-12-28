@@ -1,0 +1,18 @@
+{
+  "name": "github-chat",
+  "title": "GitHub Chat",
+  "description": "A Model Context Protocol (MCP) for analyzing and querying GitHub repositories using the GitHub Chat API.",
+  "tools": [
+    "index_repository",
+    "query_repository"
+  ],
+  "env": [],
+  "secrets": [
+    {
+      "name": "github-chat.api_key",
+      "env": "GITHUB_API_KEY",
+      "example": "YOUR_GITHUB_API_KEY"
+    }
+  ],
+  "config": []
+}

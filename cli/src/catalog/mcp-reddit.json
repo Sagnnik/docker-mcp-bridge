@@ -1,0 +1,48 @@
+{
+  "name": "mcp-reddit",
+  "title": "Reddit",
+  "description": "This server provides AI agents with tools to fetch, post and search on Reddit.",
+  "tools": [
+    "fetchPosts",
+    "getComments",
+    "getSubredditInfo",
+    "postComment",
+    "postToSubreddit",
+    "searchPosts"
+  ],
+  "env": [
+    {
+      "name": "USERNAME",
+      "value": "{{mcp-reddit.username}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "mcp-reddit.reddit_client_id",
+      "env": "REDDIT_CLIENT_ID",
+      "example": "<REDDIT_CLIENT_ID>"
+    },
+    {
+      "name": "mcp-reddit.reddit_client_secret",
+      "env": "REDDIT_CLIENT_SECRET",
+      "example": "<REDDIT_CLIENT_SECRET>"
+    },
+    {
+      "name": "mcp-reddit.reddit_password",
+      "env": "REDDIT_PASSWORD",
+      "example": "<REDDIT_PASSWORD>"
+    }
+  ],
+  "config": [
+    {
+      "name": "mcp-reddit",
+      "description": "Configure the connection to Mcp reddit",
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

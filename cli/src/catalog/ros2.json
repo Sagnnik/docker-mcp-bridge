@@ -1,0 +1,24 @@
+{
+  "name": "ros2",
+  "title": "WiseVision ROS2",
+  "description": "Python server implementing Model Context Protocol (MCP) for ROS2.",
+  "tools": [
+    "ros2_action_request_result",
+    "ros2_action_subscribe_feedback",
+    "ros2_action_subscribe_status",
+    "ros2_cancel_action_goal",
+    "ros2_get_message_fields",
+    "ros2_get_messages_stored_in_influx_data_base",
+    "ros2_interface_list",
+    "ros2_list_actions",
+    "ros2_send_action_goal",
+    "ros2_service_call",
+    "ros2_service_list",
+    "ros2_topic_list",
+    "ros2_topic_publish",
+    "ros2_topic_subscribe"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": []
+}

@@ -1,0 +1,21 @@
+{
+  "name": "cyreslab-ai-shodan",
+  "title": "Shodan",
+  "description": "A Model Context Protocol server that provides access to Shodan API functionality.",
+  "tools": [
+    "get_host_info",
+    "get_ssl_info",
+    "scan_network_range",
+    "search_iot_devices",
+    "search_shodan"
+  ],
+  "env": [],
+  "secrets": [
+    {
+      "name": "cyreslab-ai-shodan.api_key",
+      "env": "SHODAN_API_KEY",
+      "example": "YOUR_SHODAN_API_KEY"
+    }
+  ],
+  "config": []
+}

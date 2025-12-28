@@ -1,0 +1,24 @@
+{
+  "name": "scrapegraph",
+  "title": "ScrapeGraph",
+  "description": "ScapeGraph MCP Server.",
+  "tools": [
+    "agentic_scrapper",
+    "markdownify",
+    "scrape",
+    "searchscraper",
+    "sitemap",
+    "smartcrawler_fetch_results",
+    "smartcrawler_initiate",
+    "smartscraper"
+  ],
+  "env": [],
+  "secrets": [
+    {
+      "name": "scrapegraph.api_key",
+      "env": "SGAI_API_KEY",
+      "example": "YOUR_SGAI_API_KEY"
+    }
+  ],
+  "config": []
+}

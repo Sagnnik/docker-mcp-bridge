@@ -1,0 +1,58 @@
+{
+  "name": "awslabs-cost-explorer",
+  "title": "AWS Cost Explorer",
+  "description": "Detailed cost analysis and reporting.",
+  "tools": [
+    "get_cost_and_usage",
+    "get_cost_and_usage_comparisons",
+    "get_cost_comparison_drivers",
+    "get_cost_forecast",
+    "get_dimension_values",
+    "get_tag_values",
+    "get_today_date"
+  ],
+  "env": [
+    {
+      "name": "AWS_REGION",
+      "value": "{{awslabs-cost-explorer.aws_region}}"
+    },
+    {
+      "name": "AWS_PROFILE",
+      "value": "{{awslabs-cost-explorer.aws_profile}}"
+    },
+    {
+      "name": "AWS_ACCESS_KEY_ID",
+      "value": "{{awslabs-cost-explorer.aws_access_key_id}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "awslabs-cost-explorer.aws_secret_access_key",
+      "env": "AWS_SECRET_ACCESS_KEY",
+      "example": "your-aws-secret-access-key"
+    },
+    {
+      "name": "awslabs-cost-explorer.aws_session_token",
+      "env": "AWS_SESSION_TOKEN",
+      "example": "your-aws-session-token"
+    }
+  ],
+  "config": [
+    {
+      "name": "awslabs-cost-explorer",
+      "description": "Configure AWS credentials for Cost Explorer access",
+      "type": "object",
+      "properties": {
+        "aws_region": {
+          "type": "string"
+        },
+        "aws_profile": {
+          "type": "string"
+        },
+        "aws_access_key_id": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

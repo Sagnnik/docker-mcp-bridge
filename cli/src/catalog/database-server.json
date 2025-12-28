@@ -1,0 +1,37 @@
+{
+  "name": "database-server",
+  "title": "MCP Database Server",
+  "description": "Comprehensive database server supporting PostgreSQL, MySQL, and SQLite with natural language SQL query capabilities. Enables AI agents to interact with databases through both direct SQL and natural language queries.",
+  "tools": [
+    "query_database",
+    "list_tables",
+    "describe_table",
+    "execute_sql",
+    "connect_to_database",
+    "get_connection_examples",
+    "get_current_database_info"
+  ],
+  "env": [
+    {
+      "name": "DATABASE_URL",
+      "value": "{{database-server.database_url}}"
+    }
+  ],
+  "secrets": [],
+  "config": [
+    {
+      "name": "database-server",
+      "description": "Configure the database connection. Supports SQLite, PostgreSQL, and MySQL databases with comprehensive querying capabilities.",
+      "type": "object",
+      "properties": {
+        "database_url": {
+          "type": "string",
+          "description": "Connection string for your database. Examples: SQLite: sqlite+aiosqlite:///data/mydb.db, PostgreSQL: postgresql+asyncpg://user:password@localhost:5432/mydb, MySQL: mysql+aiomysql://user:password@localhost:3306/mydb"
+        }
+      },
+      "required": [
+        "database_url"
+      ]
+    }
+  ]
+}

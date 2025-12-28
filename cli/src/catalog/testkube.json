@@ -1,0 +1,63 @@
+{
+  "name": "testkube",
+  "title": "Testkube",
+  "description": "The Testkube MCP Server exposes continuous testing capabilities (test orchestration, execution, troubleshooting and anlysis) to AI tools and workflows.",
+  "tools": [
+    "abort_workflow_execution",
+    "build_dashboard_url",
+    "create_workflow",
+    "fetch_execution_logs",
+    "get_execution_info",
+    "get_workflow",
+    "get_workflow_definition",
+    "get_workflow_execution_metrics",
+    "get_workflow_metrics",
+    "list_agents",
+    "list_artifacts",
+    "list_executions",
+    "list_labels",
+    "list_resource_groups",
+    "list_workflows",
+    "lookup_execution_id",
+    "read_artifact",
+    "run_workflow",
+    "update_workflow",
+    "wait_for_executions"
+  ],
+  "env": [
+    {
+      "name": "TK_CONTROL_PLANE_URL",
+      "value": "{{testkube.tk_control_plane_url}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "testkube.api_key",
+      "env": "TK_ACCESS_TOKEN",
+      "example": "tkcapi_xxxxxxx"
+    },
+    {
+      "name": "testkube.org_id",
+      "env": "TK_ORG_ID",
+      "example": "tkcorg_xxxxxxx"
+    },
+    {
+      "name": "testkube.env_id",
+      "env": "TK_ENV_ID",
+      "example": "tkcenv_xxxxxxx"
+    }
+  ],
+  "config": [
+    {
+      "name": "testkube",
+      "description": "Configure the connection to the Testkube Control Plane",
+      "type": "object",
+      "properties": {
+        "tk_control_plane_url": {
+          "type": "string",
+          "description": "The URL of the Testkube Control Plane"
+        }
+      }
+    }
+  ]
+}

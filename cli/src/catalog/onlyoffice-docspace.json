@@ -1,0 +1,55 @@
+{
+  "name": "onlyoffice-docspace",
+  "title": "ONLYOFFICE DocSpace",
+  "description": "ONLYOFFICE DocSpace is a room-based collaborative platform which allows organizing a clear file structure depending on users' needs or project goals.",
+  "tools": [
+    "archive_room",
+    "copy_batch_items",
+    "create_folder",
+    "create_room",
+    "delete_file",
+    "delete_folder",
+    "download_file_as_text",
+    "get_all_people",
+    "get_file_info",
+    "get_folder_content",
+    "get_folder_info",
+    "get_my_folder",
+    "get_room_access_levels",
+    "get_room_info",
+    "get_room_security_info",
+    "get_room_types",
+    "get_rooms_folder",
+    "move_batch_items",
+    "rename_folder",
+    "set_room_security",
+    "update_file",
+    "update_room",
+    "upload_file"
+  ],
+  "env": [
+    {
+      "name": "DOCSPACE_BASE_URL",
+      "value": "{{onlyoffice-docspace.base_url}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "onlyoffice-docspace.api_key",
+      "env": "DOCSPACE_API_KEY",
+      "example": "sk-a499e..."
+    }
+  ],
+  "config": [
+    {
+      "name": "onlyoffice-docspace",
+      "description": "Configure the connection to ONLYOFFICE DocSpace",
+      "type": "object",
+      "properties": {
+        "base_url": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

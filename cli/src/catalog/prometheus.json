@@ -1,0 +1,36 @@
+{
+  "name": "prometheus",
+  "title": "Prometheus",
+  "description": "A Model Context Protocol (MCP) server that enables AI assistants to query and analyze Prometheus metrics through standardized interfaces. Connect to your Prometheus instance to retrieve metrics, perform queries, and gain insights into your system's performance and health.",
+  "tools": [
+    "execute_query",
+    "execute_range_query",
+    "get_metric_metadata",
+    "get_targets",
+    "health_check",
+    "list_metrics"
+  ],
+  "env": [
+    {
+      "name": "PROMETHEUS_URL",
+      "value": "{{prometheus.prometheus_url}}"
+    }
+  ],
+  "secrets": [],
+  "config": [
+    {
+      "name": "prometheus",
+      "description": "Configure the connection to your Prometheus server",
+      "type": "object",
+      "properties": {
+        "prometheus_url": {
+          "type": "string",
+          "description": "The URL of your Prometheus server"
+        }
+      },
+      "required": [
+        "prometheus_url"
+      ]
+    }
+  ]
+}

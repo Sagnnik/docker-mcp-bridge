@@ -1,0 +1,28 @@
+{
+  "name": "markitdown",
+  "title": "Markitdown",
+  "description": "A lightweight MCP server for calling MarkItDown.",
+  "tools": [
+    "convert_to_markdown"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": [
+    {
+      "name": "markitdown",
+      "description": "The MCP server is allowed to access these paths",
+      "type": "object",
+      "properties": {
+        "paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "paths"
+      ]
+    }
+  ]
+}

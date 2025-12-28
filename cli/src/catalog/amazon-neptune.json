@@ -1,0 +1,47 @@
+{
+  "name": "amazon-neptune",
+  "title": "Amazon Neptune",
+  "description": "Graph database queries with Cypher and Gremlin.",
+  "tools": [
+    "get_graph_schema",
+    "get_graph_status",
+    "run_gremlin_query",
+    "run_opencypher_query"
+  ],
+  "env": [
+    {
+      "name": "NEPTUNE_ENDPOINT",
+      "value": "{{amazon-neptune.neptune_endpoint}}"
+    },
+    {
+      "name": "AWS_REGION",
+      "value": "{{amazon-neptune.aws_region}}"
+    },
+    {
+      "name": "AWS_PROFILE",
+      "value": "{{amazon-neptune.aws_profile}}"
+    }
+  ],
+  "secrets": [],
+  "config": [
+    {
+      "name": "amazon-neptune",
+      "description": "Configure AWS credentials and Neptune endpoint",
+      "type": "object",
+      "properties": {
+        "neptune_endpoint": {
+          "type": "string"
+        },
+        "aws_region": {
+          "type": "string"
+        },
+        "aws_profile": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "neptune_endpoint"
+      ]
+    }
+  ]
+}

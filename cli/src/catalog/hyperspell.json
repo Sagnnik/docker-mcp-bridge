@@ -1,0 +1,42 @@
+{
+  "name": "hyperspell",
+  "title": "Hyperspell",
+  "description": "Hyperspell MCP Server.",
+  "tools": [
+    "Add File",
+    "Add Memory",
+    "Search Hyperspell"
+  ],
+  "env": [
+    {
+      "name": "USE_RESOURCES",
+      "value": "{{hyperspell.use_resources}}"
+    },
+    {
+      "name": "HYPERSPELL_COLLECTION",
+      "value": "{{hyperspell.collection}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "hyperspell.token",
+      "env": "HYPERSPELL_TOKEN",
+      "example": "<app or user token>"
+    }
+  ],
+  "config": [
+    {
+      "name": "hyperspell",
+      "description": "Configure the connection to Hyperspell",
+      "type": "object",
+      "properties": {
+        "collection": {
+          "type": "string"
+        },
+        "use_resources": {
+          "type": "boolean"
+        }
+      }
+    }
+  ]
+}

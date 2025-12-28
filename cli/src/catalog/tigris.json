@@ -1,0 +1,53 @@
+{
+  "name": "tigris",
+  "title": "Tigris Data",
+  "description": "Tigris is a globally distributed S3-compatible object storage service that provides low latency anywhere in the world, enabling developers to store and access any amount of data for a wide range of use cases.",
+  "tools": [
+    "tigris_create_bucket",
+    "tigris_delete_bucket",
+    "tigris_delete_object",
+    "tigris_get_object",
+    "tigris_get_signed_url_object",
+    "tigris_list_buckets",
+    "tigris_list_objects",
+    "tigris_put_object",
+    "tigris_put_object_from_path",
+    "tigris_upload_file_and_get_url"
+  ],
+  "env": [
+    {
+      "name": "AWS_ACCESS_KEY_ID",
+      "value": "{{tigris.aws_access_key_id}}"
+    },
+    {
+      "name": "AWS_ENDPOINT_URL_S3",
+      "value": "{{tigris.aws_endpoint_url_s3}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "tigris.aws_secret_access_key",
+      "env": "AWS_SECRET_ACCESS_KEY",
+      "example": "tsec_xxxxxxxxxxxxxxxxxxx"
+    }
+  ],
+  "config": [
+    {
+      "name": "tigris",
+      "description": "Configure the connection to Tigris",
+      "type": "object",
+      "properties": {
+        "aws_access_key_id": {
+          "type": "string"
+        },
+        "aws_endpoint_url_s3": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "aws_access_key_id",
+        "aws_endpoint_url_s3"
+      ]
+    }
+  ]
+}

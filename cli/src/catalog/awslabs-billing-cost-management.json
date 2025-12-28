@@ -1,0 +1,54 @@
+{
+  "name": "awslabs-billing-cost-management",
+  "title": "AWS Billing and Cost Management",
+  "description": "Billing and cost management.",
+  "tools": [
+    "aws-pricing",
+    "bcm-pricing-calc",
+    "budgets",
+    "compute-optimizer",
+    "cost-anomaly",
+    "cost-comparison",
+    "cost-explorer",
+    "cost-optimization",
+    "free-tier-usage",
+    "rec-details",
+    "ri-performance",
+    "session-sql",
+    "sp-performance",
+    "storage-lens"
+  ],
+  "env": [
+    {
+      "name": "AWS_REGION",
+      "value": "{{awslabs-billing-cost-management.aws_region}}"
+    },
+    {
+      "name": "AWS_PROFILE",
+      "value": "{{awslabs-billing-cost-management.aws_profile}}"
+    },
+    {
+      "name": "STORAGE_LENS_MANIFEST_LOCATION",
+      "value": "{{awslabs-billing-cost-management.storage_lens_manifest_location}}"
+    }
+  ],
+  "secrets": [],
+  "config": [
+    {
+      "name": "awslabs-billing-cost-management",
+      "description": "Configure AWS credentials and Storage Lens settings",
+      "type": "object",
+      "properties": {
+        "aws_region": {
+          "type": "string"
+        },
+        "aws_profile": {
+          "type": "string"
+        },
+        "storage_lens_manifest_location": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

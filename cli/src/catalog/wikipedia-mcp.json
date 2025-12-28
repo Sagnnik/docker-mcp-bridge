@@ -1,0 +1,21 @@
+{
+  "name": "wikipedia-mcp",
+  "title": "Wikipedia",
+  "description": "A Model Context Protocol (MCP) server that retrieves information from Wikipedia to provide context to LLMs.",
+  "tools": [
+    "extract_key_facts",
+    "get_article",
+    "get_coordinates",
+    "get_links",
+    "get_related_topics",
+    "get_sections",
+    "get_summary",
+    "search_wikipedia",
+    "summarize_article_for_query",
+    "summarize_article_section",
+    "test_wikipedia_connectivity"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": []
+}

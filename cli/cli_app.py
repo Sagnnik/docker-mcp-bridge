@@ -11,8 +11,10 @@ from rich.rule import Rule
 from rich import box
 import json
 from typing import Optional, List
-from mcp_host import MCPGatewayClient
-from cli_chat import cli_chat_llm
+from src.mcp_catalog import MCPCatalogManager
+from src.state_manager import MCPStateManager
+from src.mcp_host import MCPGatewayClient
+from src.cli_chat import cli_chat_llm
 import questionary
 from datetime import datetime
 import subprocess
@@ -23,7 +25,7 @@ from dataclasses import dataclass, asdict
 @dataclass
 class ChatConfig:
     provider_name: str = "openai"
-    model: str = "gpt-5-mini"
+    model: str = "gpt-4o-mini"
     mode: str = "dynamic"
     max_iterations: int = 10
     verbose: bool = True
@@ -143,10 +145,9 @@ async def execute_shell_command(command: str):
             print_error("No command provided")
             return
         
-        console.print(f"\n[bold cyan] Executing:[/bold cyan] [yellow]{shell_cmd}[/yellow]\n")
+        console.print(f"\n[bold cyan]⚡ Executing:[/bold cyan] [yellow]{shell_cmd}[/yellow]\n")
         
         # Execute the command
-        # Use shlex.split for proper argument parsing, but keep as string for shell=True
         process = await asyncio.create_subprocess_shell(
             shell_cmd,
             stdout=asyncio.subprocess.PIPE,
@@ -308,7 +309,7 @@ async def handle_config():
 
 async def handle_add(client: MCPGatewayClient):
     """Add server workflow"""
-    from configs_secrets import hil_configs, handle_secrets_interactive
+    from src.configs_secrets import hil_configs, handle_secrets_interactive
     
     console.print("\n[bold cyan]🔍 Searching for servers...[/bold cyan]")
     query = Prompt.ask("Search query (or press Enter for all)", default="")
@@ -319,7 +320,7 @@ async def handle_add(client: MCPGatewayClient):
         console=console,
     ) as progress:
         task = progress.add_task("Searching...", total=None)
-        servers = await client.find_mcp_servers(query or "mcp")
+        servers = await client.find_servers(query or "mcp")
     
     if not servers:
         print_error("No servers found")
@@ -359,7 +360,7 @@ async def handle_add(client: MCPGatewayClient):
         config_server, config_keys, config_values = hil_configs(server)
         with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}")) as progress:
             task = progress.add_task("Configuring...", total=None)
-            await client.add_mcp_configs(config_server, config_keys, config_values)
+            await client.set_configs(config_server, dict(zip(config_keys, config_values)))
     
     if needs_secrets:
         handle_secrets_interactive(server)
@@ -367,7 +368,7 @@ async def handle_add(client: MCPGatewayClient):
     # Add server
     with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}")) as progress:
         task = progress.add_task("Adding server...", total=None)
-        result = await client.add_mcp_servers(server_name, activate=True)
+        result = await client.add_server(server_name, activate=True)
     
     if result:
         print_success(f"🎉 '{server_name}' added successfully!")
@@ -379,7 +380,7 @@ async def handle_find(client: MCPGatewayClient, query: str):
     """Search servers"""
     with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}")) as progress:
         task = progress.add_task(f"Searching for '{query}'...", total=None)
-        servers = await client.find_mcp_servers(query)
+        servers = await client.find_servers(query)
     
     if not servers:
         print_error(f"No servers found matching '{query}'")
@@ -411,7 +412,7 @@ async def handle_find(client: MCPGatewayClient, query: str):
 
 async def handle_add_selected(client: MCPGatewayClient, server: dict):
     """Add a pre-selected server"""
-    from configs_secrets import hil_configs, handle_secrets_interactive
+    from src.configs_secrets import hil_configs, handle_secrets_interactive
     
     server_name = server['name']
     
@@ -424,7 +425,7 @@ async def handle_add_selected(client: MCPGatewayClient, server: dict):
         config_server, config_keys, config_values = hil_configs(server)
         with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}")) as progress:
             task = progress.add_task("Configuring...", total=None)
-            await client.add_mcp_configs(config_server, config_keys, config_values)
+            await client.set_configs(config_server, dict(zip(config_keys, config_values)))
     
     if needs_secrets:
         handle_secrets_interactive(server)
@@ -432,7 +433,7 @@ async def handle_add_selected(client: MCPGatewayClient, server: dict):
     # Add server
     with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}")) as progress:
         task = progress.add_task("Adding server...", total=None)
-        result = await client.add_mcp_servers(server_name, activate=True)
+        result = await client.add_server(server_name, activate=True)
     
     if result:
         print_success(f"🎉 '{server_name}' added!")
@@ -444,18 +445,24 @@ async def handle_list(client: MCPGatewayClient):
     """List servers and tools"""
     console.print("\n[bold cyan]📊 Current Status[/bold cyan]\n")
     
+    # Get active servers from state
+    active_servers = [
+        name for name, data in client.state.servers.items() 
+        if data['status'] == 'active'
+    ]
+    
     # Active servers
-    if client.active_servers:
+    if active_servers:
         console.print("[bold green]Active Servers:[/bold green]")
-        for server in client.active_servers:
+        for server in active_servers:
             console.print(f"  • {server}")
     else:
         console.print("[dim]No active servers[/dim]")
     
     console.print()
     
-    # Tools
-    tools = list(client.available_tools.values())
+    # Tools from state
+    tools = list(client.state.tools.values())
     if tools:
         console.print(f"[bold green]Available Tools:[/bold green] [cyan]{len(tools)} tools[/cyan]\n")
         
@@ -481,12 +488,18 @@ async def handle_list(client: MCPGatewayClient):
 
 async def handle_remove(client: MCPGatewayClient):
     """Remove server"""
-    if not client.active_servers:
+    # Get active servers from state
+    active_servers = [
+        name for name, data in client.state.servers.items() 
+        if data['status'] == 'active'
+    ]
+    
+    if not active_servers:
         print_error("No active servers to remove")
         return
     
     # Create list for selection
-    server_list = [{'name': s, 'description': ''} for s in client.active_servers]
+    server_list = [{'name': s, 'description': ''} for s in active_servers]
     server = await select_from_list(server_list, "Select Server to Remove")
     
     if not server:
@@ -501,7 +514,7 @@ async def handle_remove(client: MCPGatewayClient):
     
     with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}")) as progress:
         task = progress.add_task("Removing...", total=None)
-        result = await client.remove_mcp_servers(server_name)
+        result = await client.remove_server(server_name)
     
     if result:
         print_success(f"Removed '{server_name}'")
@@ -545,7 +558,13 @@ async def chat_loop():
     """Main interactive chat loop"""
     print_welcome()
     
-    async with MCPGatewayClient() as client:
+    # Initialize catalog and state
+    catalog = MCPCatalogManager("catalog")
+    catalog.load_catalog()
+    
+    state = MCPStateManager(catalog)
+    
+    async with MCPGatewayClient(catalog, state, verbose=CHAT_CONFIG.verbose) as client:
         with Progress(
             SpinnerColumn(style="cyan"),
             TextColumn("[bold cyan]{task.description}"),

@@ -1,0 +1,13 @@
+{
+  "name": "ffmpeg",
+  "title": "FFmpeg",
+  "description": "Use ffmpeg to process video files.",
+  "tools": [
+    "imagemagick",
+    "file-exists",
+    "ffmpeg"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": []
+}

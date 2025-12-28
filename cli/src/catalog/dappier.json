@@ -1,0 +1,18 @@
+{
+  "name": "dappier",
+  "title": "Dappier",
+  "description": "Enable fast, free real-time web search and access premium data from trusted media brands\u2014news, financial markets, sports, entertainment, weather, and more. Build powerful AI agents with Dappier.",
+  "tools": [
+    "dappier_ai_recommendations",
+    "dappier_real_time_search"
+  ],
+  "env": [],
+  "secrets": [
+    {
+      "name": "dappier.api_key",
+      "env": "DAPPIER_API_KEY",
+      "example": "YOUR_API_KEY_HERE"
+    }
+  ],
+  "config": []
+}

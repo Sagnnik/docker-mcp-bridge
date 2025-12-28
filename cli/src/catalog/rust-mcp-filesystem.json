@@ -1,0 +1,66 @@
+{
+  "name": "rust-mcp-filesystem",
+  "title": "Rust Filesystem",
+  "description": "The Rust MCP Filesystem is a high-performance, asynchronous, and lightweight Model Context Protocol (MCP) server built in Rust for secure and efficient filesystem operations. Designed with security in mind, it operates in read-only mode by default and restricts clients from updating allowed directories via MCP Roots unless explicitly enabled, ensuring robust protection against unauthorized access. Leveraging asynchronous I/O, it delivers blazingly fast performance with a minimal resource footprint. Optimized for token efficiency, the Rust MCP Filesystem enables large language models (LLMs) to precisely target searches and edits within specific sections of large files and restrict operations by file size range, making it ideal for efficient file exploration, automation, and system integration.",
+  "tools": [
+    "calculate_directory_size",
+    "create_directory",
+    "directory_tree",
+    "edit_file",
+    "find_duplicate_files",
+    "find_empty_directories",
+    "get_file_info",
+    "head_file",
+    "list_allowed_directories",
+    "list_directory",
+    "list_directory_with_sizes",
+    "move_file",
+    "read_file_lines",
+    "read_media_file",
+    "read_multiple_media_files",
+    "read_multiple_text_files",
+    "read_text_file",
+    "search_files",
+    "search_files_content",
+    "tail_file",
+    "unzip_file",
+    "write_file",
+    "zip_directory",
+    "zip_files"
+  ],
+  "env": [
+    {
+      "name": "ENABLE_ROOTS",
+      "value": "{{rust-mcp-filesystem.enable_roots}}"
+    },
+    {
+      "name": "ALLOW_WRITE",
+      "value": "{{rust-mcp-filesystem.allow_write}}"
+    }
+  ],
+  "secrets": [],
+  "config": [
+    {
+      "name": "rust-mcp-filesystem",
+      "description": "Configure rust-mcp-filesystem to allow access only to permitted directories.",
+      "type": "object",
+      "properties": {
+        "allow_write": {
+          "type": "boolean",
+          "description": "Enable read/write mode. If false, the app operates in read-only mode."
+        },
+        "enable_roots": {
+          "type": "boolean",
+          "description": "Enable dynamic directory access control via MCP client-side Roots."
+        },
+        "allowed_directories": {
+          "type": "array",
+          "description": "List of directories that rust-mcp-filesystem can access.",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  ]
+}

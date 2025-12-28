@@ -1,0 +1,17 @@
+{
+  "name": "everart",
+  "title": "EverArt (Archived)",
+  "description": "Image generation server using EverArt's API.",
+  "tools": [
+    "generate_image"
+  ],
+  "env": [],
+  "secrets": [
+    {
+      "name": "everart.api_key",
+      "env": "EVERART_API_KEY",
+      "example": "your_key_here"
+    }
+  ],
+  "config": []
+}

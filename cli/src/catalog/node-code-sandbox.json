@@ -1,0 +1,17 @@
+{
+  "name": "node-code-sandbox",
+  "title": "Node.js Sandbox",
+  "description": "A Node.js\u2013based Model Context Protocol server that spins up disposable Docker containers to execute arbitrary JavaScript.",
+  "tools": [
+    "get_dependency_types",
+    "run_js",
+    "run_js_ephemeral",
+    "sandbox_exec",
+    "sandbox_initialize",
+    "sandbox_stop",
+    "search_npm_packages"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": []
+}

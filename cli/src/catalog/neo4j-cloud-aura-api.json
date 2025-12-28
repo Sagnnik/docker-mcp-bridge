@@ -1,0 +1,89 @@
+{
+  "name": "neo4j-cloud-aura-api",
+  "title": "Neo4j Cloud Aura Api",
+  "description": "Manage Neo4j Aura database instances through the Neo4j Aura API.",
+  "tools": [
+    "create_instance",
+    "delete_instance",
+    "get_instance_by_name",
+    "get_instance_details",
+    "get_tenant_details",
+    "list_instances",
+    "list_tenants",
+    "pause_instance",
+    "resume_instance",
+    "update_instance_memory",
+    "update_instance_name",
+    "update_instance_vector_optimization"
+  ],
+  "env": [
+    {
+      "name": "NEO4J_AURA_CLIENT_ID",
+      "value": "{{neo4j-cloud-aura-api.client_id}}"
+    },
+    {
+      "name": "NEO4J_TRANSPORT",
+      "value": "{{neo4j-cloud-aura-api.transport}}"
+    },
+    {
+      "name": "NEO4J_MCP_SERVER_HOST",
+      "value": "{{neo4j-cloud-aura-api.server_host}}"
+    },
+    {
+      "name": "NEO4J_MCP_SERVER_PORT",
+      "value": "{{neo4j-cloud-aura-api.server_port}}"
+    },
+    {
+      "name": "NEO4J_MCP_SERVER_PATH",
+      "value": "{{neo4j-cloud-aura-api.server_path}}"
+    },
+    {
+      "name": "NEO4J_MCP_SERVER_ALLOW_ORIGINS",
+      "value": "{{neo4j-cloud-aura-api.server_allow_origins}}"
+    },
+    {
+      "name": "NEO4J_MCP_SERVER_ALLOWED_HOSTS",
+      "value": "{{neo4j-cloud-aura-api.server_allowed_hosts}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "neo4j-cloud-aura-api.client_secret",
+      "env": "NEO4J_AURA_CLIENT_SECRET",
+      "example": "<your-client-secret>"
+    }
+  ],
+  "config": [
+    {
+      "name": "neo4j-cloud-aura-api",
+      "description": "Configure the connection to Neo4j Aura",
+      "type": "object",
+      "properties": {
+        "client_id": {
+          "type": "string"
+        },
+        "transport": {
+          "type": "string"
+        },
+        "server_host": {
+          "type": "string"
+        },
+        "server_port": {
+          "type": "string"
+        },
+        "server_path": {
+          "type": "string"
+        },
+        "server_allow_origins": {
+          "type": "string"
+        },
+        "server_allowed_hosts": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "client_id"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "name": "unreal-engine-mcp-server",
+  "title": "Unreal Engine",
+  "description": "A comprehensive Model Context Protocol (MCP) server that enables AI assistants to control Unreal Engine via Remote Control API. Built with TypeScript and designed for game development automation.",
+  "tools": [
+    "animation_physics",
+    "build_environment",
+    "console_command",
+    "control_actor",
+    "control_editor",
+    "create_effect",
+    "inspect",
+    "manage_asset",
+    "manage_blueprint",
+    "manage_level",
+    "manage_rc",
+    "manage_sequence",
+    "system_control"
+  ],
+  "env": [
+    {
+      "name": "UE_HOST",
+      "value": "{{unreal-engine-mcp-server.ue_host}}"
+    },
+    {
+      "name": "UE_RC_HTTP_PORT",
+      "value": "{{unreal-engine-mcp-server.ue_rc_http_port}}"
+    },
+    {
+      "name": "UE_RC_WS_PORT",
+      "value": "{{unreal-engine-mcp-server.ue_rc_ws_port}}"
+    },
+    {
+      "name": "LOG_LEVEL",
+      "value": "{{unreal-engine-mcp-server.log_level}}"
+    }
+  ],
+  "secrets": [],
+  "config": [
+    {
+      "name": "unreal-engine-mcp-server",
+      "description": "Configure the connection to Unreal Engine Remote Control API",
+      "type": "object",
+      "properties": {
+        "ue_host": {
+          "type": "string",
+          "description": "Unreal Engine host address. Use: host.docker.internal for local UE on Windows/Mac Docker, 127.0.0.1 for Linux without Docker, or actual IP address (e.g., 192.168.1.100) for remote UE"
+        },
+        "ue_rc_http_port": {
+          "type": "string",
+          "description": "Remote Control HTTP port"
+        },
+        "ue_rc_ws_port": {
+          "type": "string",
+          "description": "Remote Control WebSocket port"
+        },
+        "log_level": {
+          "type": "string",
+          "description": "Logging level"
+        }
+      },
+      "required": [
+        "ue_host",
+        "ue_rc_http_port",
+        "ue_rc_ws_port"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "name": "awslabs-cfn",
+  "title": "AWS CloudFormation",
+  "description": "CloudFormation resource management via Cloud Control API.",
+  "tools": [
+    "create_resource",
+    "create_template",
+    "delete_resource",
+    "get_resource",
+    "get_resource_request_status",
+    "get_resource_schema_information",
+    "list_resources",
+    "update_resource"
+  ],
+  "env": [
+    {
+      "name": "AWS_REGION",
+      "value": "{{awslabs-cfn.aws_region}}"
+    },
+    {
+      "name": "AWS_PROFILE",
+      "value": "{{awslabs-cfn.aws_profile}}"
+    },
+    {
+      "name": "AWS_ACCESS_KEY_ID",
+      "value": "{{awslabs-cfn.aws_access_key_id}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "awslabs-cfn.aws_secret_access_key",
+      "env": "AWS_SECRET_ACCESS_KEY",
+      "example": "your-aws-secret-access-key"
+    },
+    {
+      "name": "awslabs-cfn.aws_session_token",
+      "env": "AWS_SESSION_TOKEN",
+      "example": "your-aws-session-token"
+    }
+  ],
+  "config": [
+    {
+      "name": "awslabs-cfn",
+      "description": "Configure AWS credentials for CloudFormation access",
+      "type": "object",
+      "properties": {
+        "aws_region": {
+          "type": "string"
+        },
+        "aws_profile": {
+          "type": "string"
+        },
+        "aws_access_key_id": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

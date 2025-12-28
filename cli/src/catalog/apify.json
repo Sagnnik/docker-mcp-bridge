@@ -1,0 +1,15 @@
+{
+  "name": "apify",
+  "title": "Apify Remote",
+  "description": "Apify is the world's largest marketplace of tools for web scraping, data extraction, and web automation. You can extract structured data from social media, e-commerce, search engines, maps, travel sites, or any other website.",
+  "tools": [],
+  "env": [],
+  "secrets": [
+    {
+      "name": "apify.api_key",
+      "env": "APIFY_API_KEY",
+      "example": "<YOUR_API_KEY>"
+    }
+  ],
+  "config": []
+}

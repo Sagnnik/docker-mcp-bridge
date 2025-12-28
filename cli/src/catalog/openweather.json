@@ -1,0 +1,17 @@
+{
+  "name": "openweather",
+  "title": "Openweather",
+  "description": "A simple MCP service that provides current weather and 5-day forecast using the free OpenWeatherMap API.",
+  "tools": [
+    "weather"
+  ],
+  "env": [],
+  "secrets": [
+    {
+      "name": "openweather.owm_api_key",
+      "env": "OWM_API_KEY",
+      "example": "<OWM_API_KEY>"
+    }
+  ],
+  "config": []
+}

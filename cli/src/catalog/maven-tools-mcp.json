@@ -1,0 +1,20 @@
+{
+  "name": "maven-tools-mcp",
+  "title": "Maven Tools",
+  "description": "JVM dependency intelligence for any build tool using Maven Central Repository. Includes Context7 integration for upgrade documentation and guidance.",
+  "tools": [
+    "analyze_dependency_age",
+    "analyze_project_health",
+    "analyze_release_patterns",
+    "check_multiple_dependencies",
+    "check_version_exists",
+    "compare_dependency_versions",
+    "get_latest_version",
+    "get_library_docs",
+    "get_version_timeline",
+    "resolve_library_id"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": []
+}

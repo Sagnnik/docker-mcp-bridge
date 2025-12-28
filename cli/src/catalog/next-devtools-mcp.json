@@ -1,0 +1,15 @@
+{
+  "name": "next-devtools-mcp",
+  "title": "Next.js DevTools",
+  "description": "next-devtools-mcp is a Model Context Protocol (MCP) server that provides Next.js development tools and utilities for AI coding assistants.",
+  "tools": [
+    "browser_eval",
+    "enable_cache_components",
+    "nextjs_docs",
+    "nextjs_runtime",
+    "upgrade_nextjs_16"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": []
+}

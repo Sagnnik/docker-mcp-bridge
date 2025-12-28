@@ -1,0 +1,113 @@
+{
+  "name": "victoriametrics",
+  "title": "VictoriaMetrics",
+  "description": "Provides access to your VictoriaMetrics instance and seamless integration with VictoriaMetrics APIs and documentation. It can give you a comprehensive interface for monitoring, observability, and debugging tasks related to your VictoriaMetrics instances, enable advanced automation and interaction capabilities for engineers and tools.",
+  "tools": [
+    "active_queries",
+    "alerts",
+    "documentation",
+    "downsampling_filters_debug",
+    "explain_query",
+    "flags",
+    "label_values",
+    "labels",
+    "metric_relabel_debug",
+    "metrics",
+    "metrics_metadata",
+    "prettify_query",
+    "query",
+    "query_range",
+    "retention_filters_debug",
+    "rules",
+    "series",
+    "tenants",
+    "top_queries",
+    "tsdb_status"
+  ],
+  "env": [
+    {
+      "name": "VM_INSTANCE_ENTRYPOINT",
+      "value": "{{victoriametrics.vm_instance_entrypoint}}"
+    },
+    {
+      "name": "VM_INSTANCE_TYPE",
+      "value": "{{victoriametrics.vm_instance_type}}"
+    },
+    {
+      "name": "VM_INSTANCE_HEADERS",
+      "value": "{{victoriametrics.vm_instance_headers}}"
+    },
+    {
+      "name": "MCP_SERVER_MODE",
+      "value": "{{victoriametrics.mcp_server_mode}}"
+    },
+    {
+      "name": "MCP_LISTEN_ADDR",
+      "value": "{{victoriametrics.mcp_listen_addr}}"
+    },
+    {
+      "name": "MCP_DISABLED_TOOLS",
+      "value": "{{victoriametrics.mcp_disabled_tools}}"
+    },
+    {
+      "name": "MCP_DISABLE_RESOURCES",
+      "value": "{{victoriametrics.mcp_disable_resources}}"
+    },
+    {
+      "name": "MCP_HEARTBEAT_INTERVAL",
+      "value": "{{victoriametrics.mcp_heartbeat_interval}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "victoriametrics.vm_instance_bearer_token",
+      "env": "VM_INSTANCE_BEARER_TOKEN",
+      "example": "<instance_bearer_token_for_authentication>"
+    }
+  ],
+  "config": [
+    {
+      "name": "victoriametrics",
+      "description": "Configure the connection to VictoriaMetrics MCP Server",
+      "type": "object",
+      "properties": {
+        "vm_instance_entrypoint": {
+          "type": "string",
+          "description": "URL of VictoriaMetrics instance (it should be root URL of vmsingle or vmselect)"
+        },
+        "vm_instance_type": {
+          "type": "string",
+          "description": "Type of VictoriaMetrics instance (possible values: single, cluster)"
+        },
+        "vm_instance_headers": {
+          "type": "string",
+          "description": "Optional custom headers to include in requests to VictoriaMetrics instance, formatted as 'header1=value1,header2=value2'"
+        },
+        "mcp_server_mode": {
+          "type": "string",
+          "description": "Mode in which the MCP server operates (possible values: stdio, http, sse)"
+        },
+        "mcp_listen_addr": {
+          "type": "string",
+          "description": "Address and port on which the MCP server listens for incoming connections (e.g., ':8080')"
+        },
+        "mcp_disabled_tools": {
+          "type": "string",
+          "description": "Comma-separated list of tools to disable (possible values: export, metric_statistics, test_rules)"
+        },
+        "mcp_disable_resources": {
+          "type": "string",
+          "description": "Set to 'true' to disable all resource endpoints"
+        },
+        "mcp_heartbeat_interval": {
+          "type": "string",
+          "description": "Defines the heartbeat interval for the streamable-http protocol. It means the MCP server will send a heartbeat to the client through the GET connection, to keep the connection alive from being closed by the network infrastructure (e.g. gateways)"
+        }
+      },
+      "required": [
+        "vm_instance_entrypoint",
+        "vm_instance_type"
+      ]
+    }
+  ]
+}

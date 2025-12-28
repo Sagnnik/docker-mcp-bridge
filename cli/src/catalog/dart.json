@@ -1,0 +1,48 @@
+{
+  "name": "dart",
+  "title": "Dart AI",
+  "description": "Dart AI Model Context Protocol (MCP) server.",
+  "tools": [
+    "add_task_comment",
+    "create_doc",
+    "create_task",
+    "delete_doc",
+    "delete_task",
+    "get_config",
+    "get_dartboard",
+    "get_doc",
+    "get_folder",
+    "get_task",
+    "get_view",
+    "list_docs",
+    "list_task_comments",
+    "list_tasks",
+    "update_doc",
+    "update_task"
+  ],
+  "env": [
+    {
+      "name": "DART_HOST",
+      "value": "{{dart.host}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "dart.token",
+      "env": "DART_TOKEN",
+      "example": "dsa_..."
+    }
+  ],
+  "config": [
+    {
+      "name": "dart",
+      "description": "Configure the connection to Dart",
+      "type": "object",
+      "properties": {
+        "host": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

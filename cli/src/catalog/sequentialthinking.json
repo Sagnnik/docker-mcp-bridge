@@ -1,0 +1,11 @@
+{
+  "name": "sequentialthinking",
+  "title": "Sequential Thinking (Reference)",
+  "description": "Dynamic and reflective problem-solving through thought sequences.",
+  "tools": [
+    "sequentialthinking"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": []
+}

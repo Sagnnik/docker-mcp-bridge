@@ -1,0 +1,72 @@
+{
+  "name": "metabase",
+  "title": "Metabase",
+  "description": "A comprehensive MCP server for Metabase with 70+ tools.",
+  "tools": [
+    "add_card_to_dashboard",
+    "create_card",
+    "create_collection",
+    "create_dashboard",
+    "create_database_connection",
+    "create_permission_group",
+    "create_user",
+    "delete_card",
+    "delete_dashboard",
+    "execute_card",
+    "execute_query",
+    "get_dashboard_cards",
+    "get_database_schema",
+    "get_database_sync_status",
+    "get_database_tables",
+    "list_cards",
+    "list_collections",
+    "list_dashboards",
+    "list_databases",
+    "list_permission_groups",
+    "list_users",
+    "remove_card_from_dashboard",
+    "search_content",
+    "sync_database_schema",
+    "test_database_connection",
+    "update_card",
+    "update_dashboard",
+    "update_dashboard_card"
+  ],
+  "env": [
+    {
+      "name": "METABASE_URL",
+      "value": "{{metabase.metabaseurl}}"
+    },
+    {
+      "name": "METABASE_USERNAME",
+      "value": "{{metabase.metabaseusername}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "metabase.MetaBaseAPIKey",
+      "env": "METABASE_API_KEY",
+      "example": "metabase api key"
+    },
+    {
+      "name": "metabase.MetaBasePassword",
+      "env": "METABASE_PASSWORD",
+      "example": "yourpassword"
+    }
+  ],
+  "config": [
+    {
+      "name": "metabase",
+      "description": "Configure the connection to MetaBase MCP",
+      "type": "object",
+      "properties": {
+        "metabaseurl": {
+          "type": "string"
+        },
+        "metabaseusername": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

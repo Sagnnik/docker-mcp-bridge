@@ -1,0 +1,12 @@
+{
+  "name": "effect-mcp",
+  "title": "Effect",
+  "description": "Tools and resources for writing Effect code in Typescript.",
+  "tools": [
+    "effect_docs_search",
+    "get_effect_doc"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": []
+}

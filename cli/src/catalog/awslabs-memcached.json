@@ -1,0 +1,58 @@
+{
+  "name": "awslabs-memcached",
+  "title": "Amazon ElastiCache for Memcached",
+  "description": "High-speed caching with Memcached.",
+  "tools": [
+    "cache_add",
+    "cache_append",
+    "cache_cas",
+    "cache_decr",
+    "cache_delete",
+    "cache_delete_many",
+    "cache_delete_multi",
+    "cache_flush_all",
+    "cache_get",
+    "cache_get_many",
+    "cache_get_multi",
+    "cache_gets",
+    "cache_incr",
+    "cache_prepend",
+    "cache_quit",
+    "cache_replace",
+    "cache_set",
+    "cache_set_many",
+    "cache_set_multi",
+    "cache_stats",
+    "cache_touch",
+    "cache_version"
+  ],
+  "env": [
+    {
+      "name": "MEMCACHED_HOST",
+      "value": "{{awslabs-memcached.memcached_host}}"
+    },
+    {
+      "name": "MEMCACHED_PORT",
+      "value": "{{awslabs-memcached.memcached_port}}"
+    }
+  ],
+  "secrets": [],
+  "config": [
+    {
+      "name": "awslabs-memcached",
+      "description": "Configure Memcached connection",
+      "type": "object",
+      "properties": {
+        "memcached_host": {
+          "type": "string"
+        },
+        "memcached_port": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "memcached_host"
+      ]
+    }
+  ]
+}

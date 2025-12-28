@@ -1,0 +1,15 @@
+{
+  "name": "dappier-remote",
+  "title": "Dappier Remote",
+  "description": "Enable fast, free real-time web search and access premium data from trusted media brands\u2014news, financial markets, sports, entertainment, weather, and more. Build powerful AI agents with Dappier.",
+  "tools": [],
+  "env": [],
+  "secrets": [
+    {
+      "name": "dappier-remote.api_key",
+      "env": "DAPPIER_REMOTE_API_KEY",
+      "example": "<YOUR_API_KEY>"
+    }
+  ],
+  "config": []
+}

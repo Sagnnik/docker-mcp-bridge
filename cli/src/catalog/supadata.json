@@ -1,0 +1,22 @@
+{
+  "name": "supadata",
+  "title": "Supadata",
+  "description": "Official Supadata MCP Server - Adds powerful video & web scraping to Cursor, Claude and any other LLM clients.",
+  "tools": [
+    "supadata_check_crawl_status",
+    "supadata_check_transcript_status",
+    "supadata_crawl",
+    "supadata_map",
+    "supadata_scrape",
+    "supadata_transcript"
+  ],
+  "env": [],
+  "secrets": [
+    {
+      "name": "supadata.api_key",
+      "env": "SUPADATA_API_KEY",
+      "example": "YOUR-API-KEY"
+    }
+  ],
+  "config": []
+}

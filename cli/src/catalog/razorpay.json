@@ -1,0 +1,77 @@
+{
+  "name": "razorpay",
+  "title": "Razorpay",
+  "description": "Razorpay's Official MCP Server.",
+  "tools": [
+    "capture_payment",
+    "close_qr_code",
+    "create_instant_settlement",
+    "create_order",
+    "create_payment_link",
+    "create_qr_code",
+    "create_refund",
+    "fetch_all_instant_settlements",
+    "fetch_all_orders",
+    "fetch_all_payment_links",
+    "fetch_all_payments",
+    "fetch_all_payouts",
+    "fetch_all_qr_codes",
+    "fetch_all_refunds",
+    "fetch_all_settlements",
+    "fetch_instant_settlement_with_id",
+    "fetch_multiple_refunds_for_payment",
+    "fetch_order",
+    "fetch_order_payments",
+    "fetch_payment",
+    "fetch_payment_card_details",
+    "fetch_payment_link",
+    "fetch_payments_for_qr_code",
+    "fetch_payout_with_id",
+    "fetch_qr_code",
+    "fetch_qr_codes_by_customer_id",
+    "fetch_qr_codes_by_payment_id",
+    "fetch_refund",
+    "fetch_settlement_recon_details",
+    "fetch_settlement_with_id",
+    "fetch_specific_refund_for_payment",
+    "fetch_tokens",
+    "initiate_payment",
+    "payment_link_notify",
+    "payment_link_upi_create",
+    "resend_otp",
+    "revoke_token",
+    "submit_otp",
+    "update_order",
+    "update_payment",
+    "update_payment_link",
+    "update_refund"
+  ],
+  "env": [
+    {
+      "name": "RAZORPAY_KEY_ID",
+      "value": "{{razorpay.key_id}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "razorpay.key_secret",
+      "env": "RAZORPAY_KEY_SECRET",
+      "example": "your_razorpay_key_secret"
+    }
+  ],
+  "config": [
+    {
+      "name": "razorpay",
+      "description": "Configure the connection to Razorpay",
+      "type": "object",
+      "properties": {
+        "key_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "key_id"
+      ]
+    }
+  ]
+}

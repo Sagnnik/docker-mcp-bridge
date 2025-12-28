@@ -1,0 +1,57 @@
+{
+  "name": "flexprice",
+  "title": "FlexPrice",
+  "description": "Official flexprice MCP Server.",
+  "tools": [
+    "getCustomerById",
+    "getCustomerByLookupKey",
+    "getCustomerEntitlements",
+    "getCustomerSubscriptions",
+    "getCustomerUsageSummary",
+    "getCustomers",
+    "getEventsByCustomer",
+    "getInvoiceById",
+    "getInvoiceByNumber",
+    "getInvoices",
+    "getInvoicesByCustomerId",
+    "getPaymentById",
+    "getPayments",
+    "getPlanById",
+    "getPlans",
+    "getPriceById",
+    "getPrices",
+    "getSubscriptionById",
+    "getSubscriptionPauses",
+    "getSubscriptionUsage",
+    "getSubscriptions",
+    "getWalletBalance",
+    "getWalletById",
+    "getWalletTransactions",
+    "getWalletsByCustomerId"
+  ],
+  "env": [
+    {
+      "name": "BASE_URL",
+      "value": "{{flexprice.base_url}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "flexprice.api_key",
+      "env": "API_KEY",
+      "example": "your_api_key_here"
+    }
+  ],
+  "config": [
+    {
+      "name": "flexprice",
+      "description": "Configure the connection to Redis",
+      "type": "object",
+      "properties": {
+        "base_url": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

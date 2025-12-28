@@ -1,0 +1,29 @@
+{
+  "name": "atlan",
+  "title": "Atlan",
+  "description": "MCP server for interacting with Atlan services including asset search, updates, and lineage traversal for comprehensive data governance and discovery.",
+  "tools": [
+    "create_glossaries",
+    "create_glossary_categories",
+    "create_glossary_terms",
+    "get_assets_by_dsl_tool",
+    "query_asset_tool",
+    "search_assets_tool",
+    "traverse_lineage_tool",
+    "update_assets_tool"
+  ],
+  "env": [],
+  "secrets": [
+    {
+      "name": "atlan.atlan_api_key",
+      "env": "ATLAN_API_KEY",
+      "example": "<YOUR_ATLAN_API_KEY>"
+    },
+    {
+      "name": "atlan.atlan_base_url",
+      "env": "ATLAN_BASE_URL",
+      "example": "https://your-instance.atlan.com"
+    }
+  ],
+  "config": []
+}

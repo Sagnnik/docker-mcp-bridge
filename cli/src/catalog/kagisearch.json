@@ -1,0 +1,34 @@
+{
+  "name": "kagisearch",
+  "title": "Kagi Search",
+  "description": "The Official Model Context Protocol (MCP) server for Kagi search & other tools.",
+  "tools": [
+    "kagi_search_fetch",
+    "kagi_summarizer"
+  ],
+  "env": [
+    {
+      "name": "KAGI_SUMMARIZER_ENGINE",
+      "value": "{{kagisearch.engine}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "kagisearch.api_key",
+      "env": "KAGI_API_KEY",
+      "example": "YOUR_API_KEY_HERE"
+    }
+  ],
+  "config": [
+    {
+      "name": "kagisearch",
+      "description": "Configure the connection to Kagi search",
+      "type": "object",
+      "properties": {
+        "engine": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "name": "box",
+  "title": "Box",
+  "description": "An MCP server capable of interacting with the Box API.",
+  "tools": [
+    "box_ai_extract_data",
+    "box_ask_ai_tool",
+    "box_ask_ai_tool_multi_file",
+    "box_authorize_app_tool",
+    "box_download_file_tool",
+    "box_list_folder_content_by_folder_id",
+    "box_manage_folder_tool",
+    "box_read_tool",
+    "box_search_folder_by_name",
+    "box_search_tool",
+    "box_upload_file_tool",
+    "box_who_am_i"
+  ],
+  "env": [
+    {
+      "name": "BOX_CLIENT_ID",
+      "value": "{{box.client_id}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "box.client_secret",
+      "env": "BOX_CLIENT_SECRET",
+      "example": "your_client_secret"
+    }
+  ],
+  "config": [
+    {
+      "name": "box",
+      "description": "Configure the connection to Box",
+      "type": "object",
+      "properties": {
+        "client_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "client_id"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,101 @@
+{
+  "name": "neo4j-memory",
+  "title": "Neo4j Memory",
+  "description": "Provide persistent memory capabilities through Neo4j graph database integration.",
+  "tools": [
+    "add_observations",
+    "create_entities",
+    "create_relations",
+    "delete_entities",
+    "delete_observations",
+    "delete_relations",
+    "find_memories_by_name",
+    "read_graph",
+    "search_memories"
+  ],
+  "env": [
+    {
+      "name": "NEO4J_URL",
+      "value": "{{neo4j-memory.url}}"
+    },
+    {
+      "name": "NEO4J_USERNAME",
+      "value": "{{neo4j-memory.username}}"
+    },
+    {
+      "name": "NEO4J_DATABASE",
+      "value": "{{neo4j-memory.database}}"
+    },
+    {
+      "name": "NEO4J_TRANSPORT",
+      "value": "{{neo4j-memory.transport}}"
+    },
+    {
+      "name": "NEO4J_MCP_SERVER_HOST",
+      "value": "{{neo4j-memory.server_host}}"
+    },
+    {
+      "name": "NEO4J_MCP_SERVER_PORT",
+      "value": "{{neo4j-memory.server_port}}"
+    },
+    {
+      "name": "NEO4J_MCP_SERVER_PATH",
+      "value": "{{neo4j-memory.server_path}}"
+    },
+    {
+      "name": "NEO4J_MCP_SERVER_ALLOW_ORIGINS",
+      "value": "{{neo4j-memory.server_allow_origins}}"
+    },
+    {
+      "name": "NEO4J_MCP_SERVER_ALLOWED_HOSTS",
+      "value": "{{neo4j-memory.server_allowed_hosts}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "neo4j-memory.password",
+      "env": "NEO4J_PASSWORD",
+      "example": "password"
+    }
+  ],
+  "config": [
+    {
+      "name": "neo4j-memory",
+      "description": "Configure the connection to Neo4j",
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string"
+        },
+        "username": {
+          "type": "string"
+        },
+        "database": {
+          "type": "string"
+        },
+        "transport": {
+          "type": "string"
+        },
+        "server_host": {
+          "type": "string"
+        },
+        "server_port": {
+          "type": "string"
+        },
+        "server_path": {
+          "type": "string"
+        },
+        "server_allow_origins": {
+          "type": "string"
+        },
+        "server_allowed_hosts": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "url",
+        "username"
+      ]
+    }
+  ]
+}

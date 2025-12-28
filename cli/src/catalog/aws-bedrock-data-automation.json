@@ -1,0 +1,46 @@
+{
+  "name": "aws-bedrock-data-automation",
+  "title": "AWS Bedrock Data Automation",
+  "description": "Analyze documents, images, videos, and audio.",
+  "tools": [
+    "analyzeasset",
+    "getprojectdetails",
+    "getprojects"
+  ],
+  "env": [
+    {
+      "name": "AWS_BUCKET_NAME",
+      "value": "{{aws-bedrock-data-automation.aws_bucket_name}}"
+    },
+    {
+      "name": "AWS_REGION",
+      "value": "{{aws-bedrock-data-automation.aws_region}}"
+    },
+    {
+      "name": "AWS_PROFILE",
+      "value": "{{aws-bedrock-data-automation.aws_profile}}"
+    }
+  ],
+  "secrets": [],
+  "config": [
+    {
+      "name": "aws-bedrock-data-automation",
+      "description": "Configure AWS credentials and S3 bucket for data automation",
+      "type": "object",
+      "properties": {
+        "aws_bucket_name": {
+          "type": "string"
+        },
+        "aws_region": {
+          "type": "string"
+        },
+        "aws_profile": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "aws_bucket_name"
+      ]
+    }
+  ]
+}

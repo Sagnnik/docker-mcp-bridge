@@ -1,0 +1,45 @@
+{
+  "name": "amazon-kendra-index",
+  "title": "Amazon Kendra Index",
+  "description": "Enterprise search and RAG enhancement.",
+  "tools": [
+    "KendraListIndexesTool",
+    "KendraQueryTool"
+  ],
+  "env": [
+    {
+      "name": "AWS_REGION",
+      "value": "{{amazon-kendra-index.aws_region}}"
+    },
+    {
+      "name": "AWS_PROFILE",
+      "value": "{{amazon-kendra-index.aws_profile}}"
+    },
+    {
+      "name": "KENDRA_INDEX_ID",
+      "value": "{{amazon-kendra-index.kendra_index_id}}"
+    }
+  ],
+  "secrets": [],
+  "config": [
+    {
+      "name": "amazon-kendra-index",
+      "description": "Configure AWS credentials and Kendra Index settings",
+      "type": "object",
+      "properties": {
+        "aws_region": {
+          "type": "string"
+        },
+        "aws_profile": {
+          "type": "string"
+        },
+        "kendra_index_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "kendra_index_id"
+      ]
+    }
+  ]
+}

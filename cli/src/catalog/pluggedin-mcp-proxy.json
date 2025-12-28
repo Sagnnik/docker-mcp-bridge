@@ -1,0 +1,39 @@
+{
+  "name": "pluggedin-mcp-proxy",
+  "title": "Plugged.in Proxy",
+  "description": "A unified MCP proxy that aggregates multiple MCP servers into one interface, enabling seamless tool discovery and management across all your AI interactions. Manage all your MCP servers from a single connection point with RAG capabilities and real-time notifications.",
+  "tools": [
+    "pluggedin_ask_knowledge_base",
+    "pluggedin_delete_notification",
+    "pluggedin_discover_tools",
+    "pluggedin_list_notifications",
+    "pluggedin_mark_notification_done",
+    "pluggedin_send_notification"
+  ],
+  "env": [
+    {
+      "name": "PLUGGEDIN_API_BASE_URL",
+      "value": "{{pluggedin-mcp-proxy.pluggedin_api_base_url}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "pluggedin-mcp-proxy.pluggedin_api_key",
+      "env": "PLUGGEDIN_API_KEY",
+      "example": "YOUR_PLUGGEDIN_API_KEY"
+    }
+  ],
+  "config": [
+    {
+      "name": "pluggedin-mcp-proxy",
+      "description": "Configure your Plugged.in API connection. Get your API key from https://plugged.in in the API Keys section.",
+      "type": "object",
+      "properties": {
+        "pluggedin_api_base_url": {
+          "type": "string",
+          "description": "Base URL for the Plugged.in API (optional, defaults to https://plugged.in for cloud or http://localhost:12005 for self-hosted)"
+        }
+      }
+    }
+  ]
+}

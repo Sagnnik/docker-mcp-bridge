@@ -1,0 +1,38 @@
+{
+  "name": "mongodb",
+  "title": "MongoDB",
+  "description": "A Model Context Protocol server to connect to MongoDB databases and MongoDB Atlas Clusters.",
+  "tools": [
+    "aggregate",
+    "collection-indexes",
+    "collection-schema",
+    "collection-storage-size",
+    "connect",
+    "count",
+    "create-collection",
+    "create-index",
+    "db-stats",
+    "delete-many",
+    "drop-collection",
+    "drop-database",
+    "drop-index",
+    "explain",
+    "export",
+    "find",
+    "insert-many",
+    "list-collections",
+    "list-databases",
+    "mongodb-logs",
+    "rename-collection",
+    "update-many"
+  ],
+  "env": [],
+  "secrets": [
+    {
+      "name": "mongodb.connection_string",
+      "env": "MDB_MCP_CONNECTION_STRING",
+      "example": "mongodb+srv://username:password@cluster.mongodb.net/myDatabase"
+    }
+  ],
+  "config": []
+}

@@ -1,0 +1,17 @@
+{
+  "name": "exa",
+  "title": "Exa",
+  "description": "Exa MCP for web search and web crawling!.",
+  "tools": [
+    "web_search_exa"
+  ],
+  "env": [],
+  "secrets": [
+    {
+      "name": "exa.api_key",
+      "env": "EXA_API_KEY",
+      "example": "your-api-key-here"
+    }
+  ],
+  "config": []
+}

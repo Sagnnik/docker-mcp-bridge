@@ -1,0 +1,67 @@
+{
+  "name": "zerodha-kite",
+  "title": "Zerodha Kite Connect",
+  "description": "MCP server for Zerodha Kite Connect API - India's leading stock broker trading platform. Execute trades, manage portfolios, and access real-time market data for NSE, BSE, and other Indian exchanges.",
+  "tools": [
+    "place_order",
+    "modify_order",
+    "cancel_order",
+    "get_positions",
+    "get_holdings",
+    "get_margins",
+    "get_quote",
+    "get_historical_data",
+    "get_instruments",
+    "get_orders",
+    "get_trades",
+    "get_order_history",
+    "get_profile",
+    "get_ltp",
+    "get_market_status"
+  ],
+  "env": [
+    {
+      "name": "KITE_API_KEY",
+      "value": "{{zerodha-kite.kite_api_key}}"
+    },
+    {
+      "name": "KITE_ACCESS_TOKEN",
+      "value": "{{zerodha-kite.kite_access_token}}"
+    },
+    {
+      "name": "KITE_REDIRECT_URL",
+      "value": "{{zerodha-kite.kite_redirect_url}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "zerodha-kite.api_secret",
+      "env": "KITE_API_SECRET",
+      "example": "your_api_secret_here"
+    }
+  ],
+  "config": [
+    {
+      "name": "zerodha-kite",
+      "description": "Configure your Zerodha Kite Connect API credentials. Requires an active Zerodha trading account and Kite Connect developer app.",
+      "type": "object",
+      "properties": {
+        "kite_api_key": {
+          "type": "string",
+          "description": "Your Kite Connect API key from the developer console"
+        },
+        "kite_access_token": {
+          "type": "string",
+          "description": "Access token obtained after OAuth authentication (optional - can be generated at runtime)"
+        },
+        "kite_redirect_url": {
+          "type": "string",
+          "description": "OAuth redirect URL configured in your Kite Connect app"
+        }
+      },
+      "required": [
+        "kite_api_key"
+      ]
+    }
+  ]
+}

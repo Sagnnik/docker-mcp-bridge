@@ -1,0 +1,11 @@
+{
+  "name": "remote-mcp",
+  "title": "Remote MCP",
+  "description": "Tools for finding remote MCP servers.",
+  "tools": [
+    "ListRemoteMCPServers"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": []
+}

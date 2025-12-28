@@ -1,0 +1,59 @@
+{
+  "name": "temporal",
+  "title": "Temporal",
+  "description": "MCP support for Temporal. A comprehensive set of tools for interacting with workflows and their adjacent configurations.",
+  "tools": [
+    "batch_cancel",
+    "batch_signal",
+    "batch_terminate",
+    "cancel_workflow",
+    "continue_as_new",
+    "create_schedule",
+    "delete_schedule",
+    "describe_workflow",
+    "get_workflow_history",
+    "get_workflow_result",
+    "list_schedules",
+    "list_workflows",
+    "pause_schedule",
+    "query_workflow",
+    "signal_workflow",
+    "start_workflow",
+    "terminate_workflow",
+    "trigger_schedule",
+    "unpause_schedule"
+  ],
+  "env": [
+    {
+      "name": "TEMPORAL_HOST",
+      "value": "{{temporal.temporal_host}}"
+    },
+    {
+      "name": "TEMPORAL_NAMESPACE",
+      "value": "{{temporal.temporal_namespace}}"
+    },
+    {
+      "name": "TEMPORAL_TLS_ENABLED",
+      "value": "{{temporal.temporal_tls_enabled}}"
+    }
+  ],
+  "secrets": [],
+  "config": [
+    {
+      "name": "temporal",
+      "description": "Configure your temporal server address. Temporal is usually listening on port 7233 by default. For new Temporal users, the namespace should be set to 'default' and TLS should be disabled. Do not use other values unless you know what you are doing.",
+      "type": "object",
+      "properties": {
+        "temporal_host": {
+          "type": "string"
+        },
+        "temporal_namespace": {
+          "type": "string"
+        },
+        "temporal_tls_enabled": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

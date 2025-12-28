@@ -1,0 +1,15 @@
+{
+  "name": "securenote-link-mcp-server",
+  "title": "Securenote.link",
+  "description": "SecureNote.link MCP Server - allowing AI agents to securely share sensitive information through end-to-end encrypted notes.",
+  "tools": [
+    "check_api_health",
+    "get_instructions",
+    "retrieve_and_decrypt_secret",
+    "send_secure_note",
+    "send_secure_note_return_api_url_and_key"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": []
+}

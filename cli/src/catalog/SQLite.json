@@ -1,0 +1,16 @@
+{
+  "name": "SQLite",
+  "title": "SQLite (Archived)",
+  "description": "Database interaction and business intelligence capabilities.",
+  "tools": [
+    "append_insight",
+    "create_table",
+    "describe_table",
+    "list_tables",
+    "read_query",
+    "write_query"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": []
+}

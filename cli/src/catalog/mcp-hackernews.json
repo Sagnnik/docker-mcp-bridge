@@ -1,0 +1,14 @@
+{
+  "name": "mcp-hackernews",
+  "title": "Hacker News",
+  "description": "A Model Context Protocol (MCP) server that provides access to Hacker News stories, comments, and user data, with support for search and content retrieval.",
+  "tools": [
+    "get_stories",
+    "get_story_info",
+    "get_user_info",
+    "search_stories"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": []
+}

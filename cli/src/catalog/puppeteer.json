@@ -1,0 +1,22 @@
+{
+  "name": "puppeteer",
+  "title": "Puppeteer (Archived)",
+  "description": "Browser automation and web scraping using Puppeteer.",
+  "tools": [
+    "puppeteer_click",
+    "puppeteer_evaluate",
+    "puppeteer_fill",
+    "puppeteer_hover",
+    "puppeteer_navigate",
+    "puppeteer_screenshot",
+    "puppeteer_select"
+  ],
+  "env": [
+    {
+      "name": "DOCKER_CONTAINER",
+      "value": "true"
+    }
+  ],
+  "secrets": [],
+  "config": []
+}

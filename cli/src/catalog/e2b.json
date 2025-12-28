@@ -1,0 +1,17 @@
+{
+  "name": "e2b",
+  "title": "E2B",
+  "description": "Giving Claude ability to run code with E2B via MCP (Model Context Protocol).",
+  "tools": [
+    "run_code"
+  ],
+  "env": [],
+  "secrets": [
+    {
+      "name": "e2b.api_key",
+      "env": "E2B_API_KEY",
+      "example": "YOUR_API_KEY_HERE"
+    }
+  ],
+  "config": []
+}

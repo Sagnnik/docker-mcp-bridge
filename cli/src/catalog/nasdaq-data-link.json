@@ -1,0 +1,21 @@
+{
+  "name": "nasdaq-data-link",
+  "title": "Nasdaq Data Link",
+  "description": "MCP server to interact with the data feeds provided by the Nasdaq Data Link. Developed by the community and maintained by Stefano Amorelli.",
+  "tools": [
+    "export_dataset",
+    "get_dataset",
+    "get_dataset_metadata",
+    "list_databases",
+    "search_datasets"
+  ],
+  "env": [],
+  "secrets": [
+    {
+      "name": "nasdaq_data_link_api_key",
+      "env": "NASDAQ_DATA_LINK_API_KEY",
+      "example": "<YOUR_API_KEY>"
+    }
+  ],
+  "config": []
+}

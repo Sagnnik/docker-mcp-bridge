@@ -1,0 +1,28 @@
+{
+  "name": "explorium",
+  "title": "Explorium B2B Data",
+  "description": "Discover companies, contacts, and business insights\u2014powered by dozens of trusted external data sources.",
+  "tools": [
+    "match-business",
+    "fetch-businesses",
+    "fetch-businesses-statistics",
+    "fetch-businesses-events",
+    "enrich-business",
+    "match-prospects",
+    "fetch-prospects",
+    "fetch-prospects-events",
+    "fetch-prospects-statistics",
+    "enrich-prospects",
+    "autocomplete",
+    "web-search"
+  ],
+  "env": [],
+  "secrets": [
+    {
+      "name": "explorium.api_key",
+      "env": "API_ACCESS_TOKEN",
+      "example": "<API_TOKEN>"
+    }
+  ],
+  "config": []
+}

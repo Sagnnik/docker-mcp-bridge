@@ -1,0 +1,19 @@
+{
+  "name": "minecraft-wiki",
+  "title": "Minecraft Wiki",
+  "description": "A MCP Server for browsing the official Minecraft Wiki!.",
+  "tools": [
+    "MinecraftWiki_getCategoriesForPage",
+    "MinecraftWiki_getPageContent",
+    "MinecraftWiki_getPageSection",
+    "MinecraftWiki_getPageSummary",
+    "MinecraftWiki_getSectionsInPage",
+    "MinecraftWiki_listAllCategories",
+    "MinecraftWiki_listCategoryMembers",
+    "MinecraftWiki_resolveRedirect",
+    "MinecraftWiki_searchWiki"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": []
+}

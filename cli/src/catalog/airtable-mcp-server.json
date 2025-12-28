@@ -1,0 +1,47 @@
+{
+  "name": "airtable-mcp-server",
+  "title": "Airtable",
+  "description": "Provides AI assistants with direct access to Airtable bases, allowing them to read schemas, query records, and interact with your Airtable data. Supports listing bases, retrieving table structures, and searching through records to help automate workflows and answer questions about your organized data.",
+  "tools": [
+    "create_comment",
+    "create_field",
+    "create_record",
+    "create_table",
+    "delete_records",
+    "describe_table",
+    "get_record",
+    "list_bases",
+    "list_comments",
+    "list_records",
+    "list_tables",
+    "search_records",
+    "update_field",
+    "update_records",
+    "update_table"
+  ],
+  "env": [
+    {
+      "name": "NODE_ENV",
+      "value": "{{airtable-mcp-server.nodeenv}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "airtable-mcp-server.api_key",
+      "env": "AIRTABLE_API_KEY",
+      "example": "patABC123.def456ghi789jkl012mno345pqr678stu901vwx"
+    }
+  ],
+  "config": [
+    {
+      "name": "airtable-mcp-server",
+      "description": "Configure the connection to Airtable mcp server",
+      "type": "object",
+      "properties": {
+        "nodeenv": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

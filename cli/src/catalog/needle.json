@@ -1,0 +1,15 @@
+{
+  "name": "needle",
+  "title": "Needle Remote",
+  "description": "Production-ready RAG service to search and retrieve data from your documents.",
+  "tools": [],
+  "env": [],
+  "secrets": [
+    {
+      "name": "needle.api_key",
+      "env": "NEEDLE_API_KEY",
+      "example": "<YOUR_API_KEY>"
+    }
+  ],
+  "config": []
+}

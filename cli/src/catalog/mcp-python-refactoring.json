@@ -1,0 +1,19 @@
+{
+  "name": "mcp-python-refactoring",
+  "title": "Python Refactoring Assistant",
+  "description": "Educational Python refactoring assistant that provides guided suggestions for AI assistants.",
+  "tools": [
+    "analyze_python_file",
+    "analyze_python_package",
+    "analyze_security_and_patterns",
+    "analyze_test_coverage",
+    "find_long_functions",
+    "find_package_issues",
+    "get_extraction_guidance",
+    "get_package_metrics",
+    "tdd_refactoring_guidance"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": []
+}

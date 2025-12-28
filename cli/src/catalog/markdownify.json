@@ -1,0 +1,37 @@
+{
+  "name": "markdownify",
+  "title": "Markdownify",
+  "description": "A Model Context Protocol server for converting almost anything to Markdown.",
+  "tools": [
+    "audio-to-markdown",
+    "bing-search-to-markdown",
+    "docx-to-markdown",
+    "get-markdown-file",
+    "image-to-markdown",
+    "pdf-to-markdown",
+    "pptx-to-markdown",
+    "webpage-to-markdown",
+    "xlsx-to-markdown",
+    "youtube-to-markdown"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": [
+    {
+      "name": "markdownify",
+      "description": "The MCP server is allowed to access these paths",
+      "type": "object",
+      "properties": {
+        "paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "paths"
+      ]
+    }
+  ]
+}

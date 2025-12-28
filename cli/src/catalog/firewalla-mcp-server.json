@@ -1,0 +1,105 @@
+{
+  "name": "firewalla-mcp-server",
+  "title": "Firewalla",
+  "description": "Real-time network monitoring, security analysis, and firewall management through 28 specialized tools. Access security alerts, network flows, device status, and firewall rules directly from your Firewalla device.",
+  "tools": [
+    "create_target_list",
+    "delete_target_list",
+    "get_active_alarms",
+    "get_alarm_trends",
+    "get_bandwidth_usage",
+    "get_boxes",
+    "get_device_status",
+    "get_flow_data",
+    "get_flow_insights",
+    "get_network_rules",
+    "get_network_rules_summary",
+    "get_offline_devices",
+    "get_recent_flow_activity",
+    "get_rule_trends",
+    "get_simple_statistics",
+    "get_specific_alarm",
+    "get_specific_target_list",
+    "get_statistics_by_box",
+    "get_statistics_by_region",
+    "get_target_lists",
+    "pause_rule",
+    "resume_rule",
+    "search_alarms",
+    "search_devices",
+    "search_flows",
+    "search_rules",
+    "search_target_lists",
+    "update_target_list"
+  ],
+  "env": [
+    {
+      "name": "FIREWALLA_MSP_ID",
+      "value": "{{firewalla-mcp-server.msp_id}}"
+    },
+    {
+      "name": "FIREWALLA_BOX_ID",
+      "value": "{{firewalla-mcp-server.box_id}}"
+    },
+    {
+      "name": "MCP_WAVE0_ENABLED",
+      "value": "true"
+    },
+    {
+      "name": "MCP_READ_ONLY_MODE",
+      "value": "false"
+    },
+    {
+      "name": "MCP_CACHE_ENABLED",
+      "value": "true"
+    },
+    {
+      "name": "MCP_DEBUG_MODE",
+      "value": "false"
+    },
+    {
+      "name": "NODE_ENV",
+      "value": "production"
+    },
+    {
+      "name": "LOG_LEVEL",
+      "value": "info"
+    },
+    {
+      "name": "MCP_CACHE_TTL",
+      "value": "300"
+    },
+    {
+      "name": "MCP_RATE_LIMIT_WINDOW",
+      "value": "60000"
+    },
+    {
+      "name": "MCP_RATE_LIMIT_MAX_REQUESTS",
+      "value": "100"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "firewalla-mcp-server.msp_token",
+      "env": "FIREWALLA_MSP_TOKEN",
+      "example": "your_msp_access_token_here"
+    }
+  ],
+  "config": [
+    {
+      "name": "firewalla-mcp-server",
+      "description": "Configure your Firewalla MSP connection credentials",
+      "type": "object",
+      "properties": {
+        "msp_id": {
+          "type": "string",
+          "description": "Your Firewalla MSP domain (e.g., yourdomain.firewalla.net)"
+        },
+        "box_id": {
+          "type": "string",
+          "description": "Your Firewalla Box Global ID"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "name": "notion",
+  "title": "Notion",
+  "description": "Official Notion MCP Server.",
+  "tools": [
+    "API-create-a-comment",
+    "API-create-a-database",
+    "API-delete-a-block",
+    "API-get-block-children",
+    "API-get-self",
+    "API-get-user",
+    "API-get-users",
+    "API-patch-block-children",
+    "API-patch-page",
+    "API-post-database-query",
+    "API-post-page",
+    "API-post-search",
+    "API-retrieve-a-block",
+    "API-retrieve-a-comment",
+    "API-retrieve-a-database",
+    "API-retrieve-a-page",
+    "API-retrieve-a-page-property",
+    "API-update-a-block",
+    "API-update-a-database"
+  ],
+  "env": [
+    {
+      "name": "OPENAPI_MCP_HEADERS",
+      "value": "{\"Authorization\": \"Bearer $INTERNAL_INTEGRATION_TOKEN\", \"Notion-Version\": \"2022-06-28\"}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "notion.internal_integration_token",
+      "env": "INTERNAL_INTEGRATION_TOKEN",
+      "example": "ntn_****"
+    }
+  ],
+  "config": []
+}

@@ -1,0 +1,55 @@
+{
+  "name": "awslabs-timestream-for-influxdb",
+  "title": "Amazon Timestream for InfluxDB",
+  "description": "Time-series database operations.",
+  "tools": [
+    "CreateDbCluster",
+    "CreateDbInstance",
+    "CreateDbParamGroup",
+    "DeleteDbCluster",
+    "DeleteDbInstance",
+    "GetDbCluster",
+    "GetDbInstance",
+    "GetDbParameterGroup",
+    "InfluxDBQuery",
+    "InfluxDBWriteLP",
+    "InfluxDBWritePoints",
+    "ListClustersByStatus",
+    "ListDbClusters",
+    "ListDbInstances",
+    "ListDbParamGroups",
+    "ListTagsForResource",
+    "LsInstancesByStatus",
+    "LsInstancesOfCluster",
+    "TagResource",
+    "UntagResource",
+    "UpdateDbCluster",
+    "UpdateDbInstance"
+  ],
+  "env": [
+    {
+      "name": "AWS_REGION",
+      "value": "{{awslabs-timestream-for-influxdb.aws_region}}"
+    },
+    {
+      "name": "AWS_PROFILE",
+      "value": "{{awslabs-timestream-for-influxdb.aws_profile}}"
+    }
+  ],
+  "secrets": [],
+  "config": [
+    {
+      "name": "awslabs-timestream-for-influxdb",
+      "description": "Configure AWS credentials for Timestream access",
+      "type": "object",
+      "properties": {
+        "aws_region": {
+          "type": "string"
+        },
+        "aws_profile": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

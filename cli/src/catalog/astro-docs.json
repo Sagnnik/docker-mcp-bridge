@@ -1,0 +1,11 @@
+{
+  "name": "astro-docs",
+  "title": "Astro Docs",
+  "description": "Access the latest Astro web framework documentation, guides, and API references.",
+  "tools": [
+    "search_astro_docs"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": []
+}

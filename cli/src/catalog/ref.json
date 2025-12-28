@@ -1,0 +1,18 @@
+{
+  "name": "ref",
+  "title": "Ref - Up-To-Date Docs",
+  "description": "Ref powerful search tool connets your coding tools with documentation context. It includes an up-to-date index of public documentation and it can ingest your private documentation (eg. GitHub repos, PDFs) as well.",
+  "tools": [
+    "ref_read_url",
+    "ref_search_documentation"
+  ],
+  "env": [],
+  "secrets": [
+    {
+      "name": "ref.REF_API_KEY",
+      "env": "REF_API_KEY",
+      "example": "ref-abcdefghi123"
+    }
+  ],
+  "config": []
+}

@@ -1,0 +1,138 @@
+{
+  "name": "atlassian",
+  "title": "Atlassian",
+  "description": "Tools for Atlassian products (Confluence and Jira). This integration supports both Atlassian Cloud and Jira Server/Data Center deployments.",
+  "tools": [
+    "confluence_add_comment",
+    "confluence_add_label",
+    "confluence_create_page",
+    "confluence_delete_page",
+    "confluence_get_comments",
+    "confluence_get_labels",
+    "confluence_get_page",
+    "confluence_get_page_children",
+    "confluence_search",
+    "confluence_search_user",
+    "confluence_update_page",
+    "jira_add_comment",
+    "jira_add_worklog",
+    "jira_batch_create_issues",
+    "jira_batch_create_versions",
+    "jira_batch_get_changelogs",
+    "jira_create_issue",
+    "jira_create_issue_link",
+    "jira_create_remote_issue_link",
+    "jira_create_sprint",
+    "jira_create_version",
+    "jira_delete_issue",
+    "jira_download_attachments",
+    "jira_get_agile_boards",
+    "jira_get_all_projects",
+    "jira_get_board_issues",
+    "jira_get_issue",
+    "jira_get_link_types",
+    "jira_get_project_issues",
+    "jira_get_project_versions",
+    "jira_get_sprint_issues",
+    "jira_get_sprints_from_board",
+    "jira_get_transitions",
+    "jira_get_user_profile",
+    "jira_get_worklog",
+    "jira_link_to_epic",
+    "jira_remove_issue_link",
+    "jira_search",
+    "jira_search_fields",
+    "jira_transition_issue",
+    "jira_update_issue",
+    "jira_update_sprint"
+  ],
+  "env": [
+    {
+      "name": "CONFLUENCE_URL",
+      "value": "{{atlassian.confluence.url}}"
+    },
+    {
+      "name": "CONFLUENCE_USERNAME",
+      "value": "{{atlassian.confluence.username}}"
+    },
+    {
+      "name": "JIRA_URL",
+      "value": "{{atlassian.jira.url}}"
+    },
+    {
+      "name": "JIRA_USERNAME",
+      "value": "{{atlassian.jira.username}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "atlassian.confluence.api_token",
+      "env": "CONFLUENCE_API_TOKEN",
+      "example": "your_api_token"
+    },
+    {
+      "name": "atlassian.confluence.personal_token",
+      "env": "CONFLUENCE_PERSONAL_TOKEN",
+      "example": "your_api_token"
+    },
+    {
+      "name": "atlassian.jira.api_token",
+      "env": "JIRA_API_TOKEN",
+      "example": "your_api_token"
+    },
+    {
+      "name": "atlassian.jira.personal_token",
+      "env": "JIRA_PERSONAL_TOKEN",
+      "example": "your_api_token"
+    }
+  ],
+  "config": [
+    {
+      "name": "atlassian",
+      "description": "The MCP server is allowed to access these paths",
+      "type": "object",
+      "properties": {
+        "confluence": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string"
+            },
+            "username": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "url"
+          ]
+        },
+        "jira": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string"
+            },
+            "username": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "url"
+          ]
+        }
+      },
+      "anyOf": [
+        {
+          "required": [
+            "confluence"
+          ]
+        },
+        {
+          "required": [
+            "jira"
+          ]
+        }
+      ]
+    }
+  ]
+}

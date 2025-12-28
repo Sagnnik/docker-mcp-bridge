@@ -1,0 +1,33 @@
+{
+  "name": "cylera-mcp-server",
+  "title": "Cylera",
+  "description": "Brings context about device inventory, threats, risks and utilization powered by the Cylera Partner API into an LLM.",
+  "tools": [
+    "get_device",
+    "get_procedures",
+    "get_device_attributes",
+    "get_risk_mitigations",
+    "get_subnets",
+    "get_vulnerabilities",
+    "search_for_devices"
+  ],
+  "env": [],
+  "secrets": [
+    {
+      "name": "cylera-mcp-server.cylera.base_url",
+      "env": "CYLERA_BASE_URL",
+      "example": "https://partner.us1.cylera.com Or https://partner.uk1.cylera.com/ Or https://partner.demo.cylera.com"
+    },
+    {
+      "name": "cylera-mcp-server.cylera.username",
+      "env": "CYLERA_USERNAME",
+      "example": "Your username you use to login to Cylera"
+    },
+    {
+      "name": "cylera-mcp-server.cylera.password",
+      "env": "CYLERA_PASSWORD",
+      "example": "Your password you use to login to Cylera"
+    }
+  ],
+  "config": []
+}

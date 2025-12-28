@@ -1,0 +1,17 @@
+{
+  "name": "context7",
+  "title": "Context7",
+  "description": "Context7 MCP Server -- Up-to-date code documentation for LLMs and AI code editors.",
+  "tools": [
+    "get-library-docs",
+    "resolve-library-id"
+  ],
+  "env": [
+    {
+      "name": "MCP_TRANSPORT",
+      "value": "stdio"
+    }
+  ],
+  "secrets": [],
+  "config": []
+}

@@ -1,0 +1,45 @@
+{
+  "name": "lara",
+  "title": "Lara Translate",
+  "description": "Connect to Lara Translate API, enabling powerful translation capabilities with support for language detection and context-aware translations.",
+  "tools": [
+    "add_translation",
+    "check_import_status",
+    "create_memory",
+    "delete_memory",
+    "delete_translation",
+    "import_tmx",
+    "list_languages",
+    "list_memories",
+    "translate",
+    "update_memory"
+  ],
+  "env": [
+    {
+      "name": "LARA_ACCESS_KEY_ID",
+      "value": "{{lara.key_id}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "lara.key_secret",
+      "env": "LARA_ACCESS_KEY_SECRET",
+      "example": "YOUR_LARA_ACCESS_KEY_SECRET"
+    }
+  ],
+  "config": [
+    {
+      "name": "lara",
+      "description": "Configure the connection to Lara Translate",
+      "type": "object",
+      "properties": {
+        "key_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "key_id"
+      ]
+    }
+  ]
+}

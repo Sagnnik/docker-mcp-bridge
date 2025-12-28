@@ -1,0 +1,25 @@
+{
+  "name": "google-maps-comprehensive",
+  "title": "Google Maps Comprehensive",
+  "description": "Complete Google Maps integration with 8 tools including geocoding, places search, directions, elevation data, and more using Google's latest APIs.",
+  "tools": [
+    "maps_directions",
+    "maps_distance_matrix",
+    "maps_elevation",
+    "maps_geocode",
+    "maps_ping",
+    "maps_place_details",
+    "maps_reverse_geocode",
+    "maps_search_places"
+  ],
+  "env": [],
+  "secrets": [
+    {
+      "name": "google-maps-comprehensive.api_key",
+      "env": "GOOGLE_MAPS_API_KEY",
+      "example": "<YOUR_GOOGLE_MAPS_API_KEY>",
+      "description": "Google Maps API key with Places API, Routes API, Geocoding API, and Elevation API enabled"
+    }
+  ],
+  "config": []
+}

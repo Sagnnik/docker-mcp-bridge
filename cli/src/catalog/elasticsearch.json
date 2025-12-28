@@ -1,0 +1,40 @@
+{
+  "name": "elasticsearch",
+  "title": "Elasticsearch",
+  "description": "Interact with your Elasticsearch indices through natural language conversations.",
+  "tools": [
+    "esql",
+    "get_mappings",
+    "get_shards",
+    "list_indices",
+    "search"
+  ],
+  "env": [
+    {
+      "name": "ES_URL",
+      "value": "{{elasticsearch.url}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "elasticsearch.api_key",
+      "env": "ES_API_KEY",
+      "example": "your-api-key"
+    }
+  ],
+  "config": [
+    {
+      "name": "elasticsearch",
+      "description": "Configure the connection to Elasticsearch",
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "url"
+      ]
+    }
+  ]
+}

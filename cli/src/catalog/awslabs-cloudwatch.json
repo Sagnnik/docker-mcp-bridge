@@ -1,0 +1,44 @@
+{
+  "name": "awslabs-cloudwatch",
+  "title": "Amazon CloudWatch",
+  "description": "Metrics, alarms, and logs analysis.",
+  "tools": [
+    "analyze_log_group",
+    "analyze_metric",
+    "cancel_logs_insight_query",
+    "describe_log_groups",
+    "execute_log_insights_query",
+    "get_active_alarms",
+    "get_alarm_history",
+    "get_logs_insight_query_results",
+    "get_metric_data",
+    "get_metric_metadata",
+    "get_recommended_metric_alarms"
+  ],
+  "env": [
+    {
+      "name": "AWS_REGION",
+      "value": "{{awslabs-cloudwatch.aws_region}}"
+    },
+    {
+      "name": "AWS_PROFILE",
+      "value": "{{awslabs-cloudwatch.aws_profile}}"
+    }
+  ],
+  "secrets": [],
+  "config": [
+    {
+      "name": "awslabs-cloudwatch",
+      "description": "Configure AWS credentials for CloudWatch access",
+      "type": "object",
+      "properties": {
+        "aws_region": {
+          "type": "string"
+        },
+        "aws_profile": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

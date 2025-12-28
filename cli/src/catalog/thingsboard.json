@@ -1,0 +1,103 @@
+{
+  "name": "thingsboard",
+  "title": "ThingsBoard",
+  "description": "Connect your AI workflows to the ThingsBoard IoT Platform through this MCP server.  Enables LLMs to query device telemetry, manage IoT entities (devices, assets, customers), and analyze sensor data - all through natural language.  Perfect for building AI-powered IoT monitoring, predictive maintenance, and automated device management workflows. Supports both ThingsBoard Community Edition and Professional Edition.",
+  "tools": [
+    "findByFrom",
+    "findByFromWithRelationType",
+    "findByTo",
+    "findByToWithRelationType",
+    "findInfoByFrom",
+    "findInfoByTo",
+    "getAdminSettings",
+    "getAlarmById",
+    "getAlarmInfoById",
+    "getAlarmTypes",
+    "getAlarms",
+    "getAllAlarms",
+    "getAllCustomerUsers",
+    "getAssetById",
+    "getAssetsByEntityGroupId",
+    "getAssetsByIds",
+    "getAttributeKeys",
+    "getAttributeKeysByScope",
+    "getAttributes",
+    "getAttributesByScope",
+    "getCustomerAssets",
+    "getCustomerById",
+    "getCustomerDevices",
+    "getCustomerUsers",
+    "getCustomers",
+    "getCustomersByEntityGroupId",
+    "getDeviceById",
+    "getDeviceCredentialsByDeviceId",
+    "getDevicesByEntityGroupId",
+    "getDevicesByIds",
+    "getEntityGroupById",
+    "getEntityGroupByOwnerAndNameAndType",
+    "getEntityGroupsByIds",
+    "getEntityGroupsByOwnerAndType",
+    "getEntityGroupsByType",
+    "getEntityGroupsForEntity",
+    "getHighestAlarmSeverity",
+    "getLatestTimeseries",
+    "getRelation",
+    "getSecuritySettings",
+    "getSystemInfo",
+    "getTenantAdmins",
+    "getTenantAsset",
+    "getTenantAssets",
+    "getTenantCustomer",
+    "getTenantDevice",
+    "getTenantDevices",
+    "getTimeseries",
+    "getTimeseriesKeys",
+    "getUsageInfo",
+    "getUserAssets",
+    "getUserById",
+    "getUserCustomers",
+    "getUserDevices",
+    "getUsers",
+    "getUsersByEntityGroupId",
+    "getUsersForAssign",
+    "saveDeviceAttributes",
+    "saveEntityAttributesV1",
+    "saveEntityAttributesV2",
+    "saveEntityTelemetry",
+    "saveEntityTelemetryWithTTL"
+  ],
+  "env": [
+    {
+      "name": "THINGSBOARD_URL",
+      "value": "{{thingsboard.url}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "thingsboard.username",
+      "env": "THINGSBOARD_USERNAME",
+      "example": ""
+    },
+    {
+      "name": "thingsboard.password",
+      "env": "THINGSBOARD_PASSWORD",
+      "example": ""
+    }
+  ],
+  "config": [
+    {
+      "name": "thingsboard",
+      "description": "Configure the connection to ThingsBoard",
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string",
+          "description": "URL of your ThingsBoard Platform instance"
+        }
+      },
+      "required": [
+        "url"
+      ]
+    }
+  ]
+}

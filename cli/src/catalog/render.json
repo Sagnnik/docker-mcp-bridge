@@ -1,0 +1,38 @@
+{
+  "name": "render",
+  "title": "Render",
+  "description": "Interact with your Render resources via LLMs.",
+  "tools": [
+    "create_key_value",
+    "create_postgres",
+    "create_static_site",
+    "create_web_service",
+    "get_deploy",
+    "get_key_value",
+    "get_metrics",
+    "get_postgres",
+    "get_selected_workspace",
+    "get_service",
+    "list_deploys",
+    "list_key_value",
+    "list_log_label_values",
+    "list_logs",
+    "list_postgres_instances",
+    "list_services",
+    "list_workspaces",
+    "query_render_postgres",
+    "select_workspace",
+    "update_environment_variables",
+    "update_static_site",
+    "update_web_service"
+  ],
+  "env": [],
+  "secrets": [
+    {
+      "name": "render.api_key",
+      "env": "RENDER_API_KEY",
+      "example": "DUMMY"
+    }
+  ],
+  "config": []
+}

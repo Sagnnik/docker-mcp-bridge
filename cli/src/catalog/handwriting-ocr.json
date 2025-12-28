@@ -1,0 +1,19 @@
+{
+  "name": "handwriting-ocr",
+  "title": "Handwriting OCR",
+  "description": "Model Context Protocol (MCP) Server for Handwriting OCR.",
+  "tools": [
+    "check_status",
+    "get_text",
+    "upload_document"
+  ],
+  "env": [],
+  "secrets": [
+    {
+      "name": "handwriting-ocr.api_token",
+      "env": "API_TOKEN",
+      "example": "your-api-token"
+    }
+  ],
+  "config": []
+}

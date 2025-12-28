@@ -1,0 +1,15 @@
+{
+  "name": "manifold",
+  "title": "Manifold",
+  "description": "Tools for accessing the Manifold Markets online prediction market platform.",
+  "tools": [
+    "search-markets",
+    "get-market",
+    "get-user",
+    "get-bets",
+    "search-users"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": []
+}

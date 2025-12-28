@@ -1,0 +1,33 @@
+{
+  "name": "pinecone",
+  "title": "Pinecone Assistant",
+  "description": "Pinecone Assistant MCP server.",
+  "tools": [
+    "assistant_context"
+  ],
+  "env": [
+    {
+      "name": "PINECONE_ASSISTANT_HOST",
+      "value": "{{pinecone.assistant_host}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "pinecone.api_key",
+      "env": "PINECONE_API_KEY",
+      "example": "<YOUR_PINECONE_API_KEY_HERE>"
+    }
+  ],
+  "config": [
+    {
+      "name": "pinecone",
+      "description": "Configure the connection to Pinecone Assistant",
+      "type": "object",
+      "properties": {
+        "assistant_host": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

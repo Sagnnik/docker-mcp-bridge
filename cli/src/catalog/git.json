@@ -1,0 +1,39 @@
+{
+  "name": "git",
+  "title": "Git (Reference)",
+  "description": "Git repository interaction and automation.",
+  "tools": [
+    "git_add",
+    "git_checkout",
+    "git_commit",
+    "git_create_branch",
+    "git_diff",
+    "git_diff_staged",
+    "git_diff_unstaged",
+    "git_init",
+    "git_log",
+    "git_reset",
+    "git_show",
+    "git_status"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": [
+    {
+      "name": "git",
+      "description": "The MCP server is allowed to access these paths",
+      "type": "object",
+      "properties": {
+        "paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "paths"
+      ]
+    }
+  ]
+}

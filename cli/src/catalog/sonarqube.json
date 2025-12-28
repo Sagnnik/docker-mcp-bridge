@@ -1,0 +1,66 @@
+{
+  "name": "sonarqube",
+  "title": "SonarQube",
+  "description": "Interact with SonarQube Cloud, Server and Community build over the web API. Analyze code to identify quality and security issues.",
+  "tools": [
+    "analyze_code_snippet",
+    "analyze_file_list",
+    "toggle_automatic_analysis",
+    "search_sonar_issues_in_projects",
+    "change_sonar_issue_status",
+    "search_my_sonarqube_projects",
+    "list_quality_gates",
+    "get_project_quality_gate_status",
+    "show_rule",
+    "list_rule_repositories",
+    "list_languages",
+    "get_component_measures",
+    "search_metrics",
+    "get_raw_source",
+    "get_scm_info",
+    "get_system_health",
+    "get_system_status",
+    "get_system_logs",
+    "ping_system",
+    "get_system_info",
+    "create_webhook",
+    "list_webhooks",
+    "list_portfolios",
+    "list_enterprises",
+    "search_dependency_risks"
+  ],
+  "env": [
+    {
+      "name": "SONARQUBE_URL",
+      "value": "{{sonarqube.url}}"
+    },
+    {
+      "name": "SONARQUBE_ORG",
+      "value": "{{sonarqube.org}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "sonarqube.token",
+      "env": "SONARQUBE_TOKEN",
+      "example": "YOUR_SONARQUBE_USER_TOKEN"
+    }
+  ],
+  "config": [
+    {
+      "name": "sonarqube",
+      "description": "Configure the connection to SonarQube",
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string",
+          "description": "URL of the SonarQube instance, to provide only for SonarQube Server or Community Build"
+        },
+        "org": {
+          "type": "string",
+          "description": "Organization key for SonarQube Cloud, not required for SonarQube Server or Community Build"
+        }
+      }
+    }
+  ]
+}

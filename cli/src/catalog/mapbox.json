@@ -1,0 +1,26 @@
+{
+  "name": "mapbox",
+  "title": "Mapbox",
+  "description": "Transform any AI agent into a geospatially-aware system with Mapbox APIs. Provides geocoding, POI search, routing, travel time matrices, isochrones, and static map generation.",
+  "tools": [
+    "category_list_tool",
+    "category_search_tool",
+    "directions_tool",
+    "isochrone_tool",
+    "matrix_tool",
+    "resource_reader_tool",
+    "reverse_geocode_tool",
+    "search_and_geocode_tool",
+    "static_map_image_tool",
+    "version_tool"
+  ],
+  "env": [],
+  "secrets": [
+    {
+      "name": "mapbox.access_token",
+      "env": "MAPBOX_ACCESS_TOKEN",
+      "example": "YOUR_API_KEY_HERE"
+    }
+  ],
+  "config": []
+}

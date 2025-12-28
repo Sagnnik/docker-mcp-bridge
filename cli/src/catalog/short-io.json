@@ -1,0 +1,15 @@
+{
+  "name": "short-io",
+  "title": "Short.io",
+  "description": "Access to Short.io's link shortener and analytics tools.",
+  "tools": [],
+  "env": [],
+  "secrets": [
+    {
+      "name": "short-io.api_key",
+      "env": "SHORT_IO_API_KEY",
+      "example": "<YOUR_API_KEY>"
+    }
+  ],
+  "config": []
+}

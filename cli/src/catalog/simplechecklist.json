@@ -1,0 +1,30 @@
+{
+  "name": "simplechecklist",
+  "title": "SimpleCheckList",
+  "description": "Advanced SimpleCheckList with MCP server and SQLite database for comprehensive task management.  Features: \u2022 Complete project and task management system \u2022 Hierarchical organization (Projects \u2192 Groups \u2192 Task Lists \u2192 Tasks \u2192 Subtasks) \u2022 SQLite database for data persistence \u2022 RESTful API with comprehensive endpoints \u2022 MCP protocol compliance for AI assistant integration \u2022 Docker-optimized deployment with stability improvements  **v1.0.1 Update**: Enhanced Docker stability with improved container lifecycle management. Default mode optimized for containerized deployment with reliable startup and shutdown processes.  Perfect for AI assistants managing complex project workflows and task hierarchies.",
+  "tools": [
+    "list_projects",
+    "create_project",
+    "get_project",
+    "update_project",
+    "delete_project",
+    "list_groups",
+    "create_group",
+    "list_task_lists",
+    "create_task_list",
+    "list_tasks",
+    "create_task",
+    "toggle_task_completion",
+    "update_task",
+    "delete_task",
+    "list_subtasks",
+    "create_subtask",
+    "toggle_subtask_completion",
+    "delete_subtask",
+    "get_project_stats",
+    "get_all_tasks"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": []
+}

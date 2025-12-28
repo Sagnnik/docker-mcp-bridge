@@ -1,0 +1,25 @@
+{
+  "name": "ast-grep",
+  "title": "ast-grep",
+  "description": "ast-grep is a fast and polyglot tool for code structural search, lint, rewriting at large scale.",
+  "tools": [
+    "ast-grep"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": [
+    {
+      "name": "ast-grep",
+      "description": "The MCP server is allowed to access this directory",
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "path"
+      ]
+    }
+  ]
+}

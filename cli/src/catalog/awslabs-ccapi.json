@@ -1,0 +1,60 @@
+{
+  "name": "awslabs-ccapi",
+  "title": "AWS Cloud Control API",
+  "description": "Direct resource management with security scanning.",
+  "tools": [
+    "check_environment_variables",
+    "create_resource",
+    "create_template",
+    "delete_resource",
+    "explain",
+    "generate_infrastructure_code",
+    "get_aws_account_info",
+    "get_aws_session_info",
+    "get_resource",
+    "get_resource_request_status",
+    "get_resource_schema_information",
+    "list_resources",
+    "run_checkov",
+    "update_resource"
+  ],
+  "env": [
+    {
+      "name": "AWS_REGION",
+      "value": "{{awslabs-ccapi.aws_region}}"
+    },
+    {
+      "name": "AWS_PROFILE",
+      "value": "{{awslabs-ccapi.aws_profile}}"
+    },
+    {
+      "name": "AWS_ACCESS_KEY_ID",
+      "value": "{{awslabs-ccapi.aws_access_key_id}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "awslabs-ccapi.aws_secret_access_key",
+      "env": "AWS_SECRET_ACCESS_KEY",
+      "example": "your-aws-secret-access-key"
+    }
+  ],
+  "config": [
+    {
+      "name": "awslabs-ccapi",
+      "description": "Configure AWS credentials for Cloud Control API access",
+      "type": "object",
+      "properties": {
+        "aws_region": {
+          "type": "string"
+        },
+        "aws_profile": {
+          "type": "string"
+        },
+        "aws_access_key_id": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

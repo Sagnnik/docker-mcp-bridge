@@ -1,0 +1,12 @@
+{
+  "name": "openbnb-airbnb",
+  "title": "Airbnb Search",
+  "description": "MCP Server for searching Airbnb and get listing details.",
+  "tools": [
+    "airbnb_listing_details",
+    "airbnb_search"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": []
+}

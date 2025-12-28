@@ -1,0 +1,37 @@
+{
+  "name": "mcp-discord",
+  "title": "Discord",
+  "description": "Interact with the Discord platform.",
+  "tools": [
+    "discord_add_multiple_reactions",
+    "discord_add_reaction",
+    "discord_create_forum_post",
+    "discord_create_text_channel",
+    "discord_create_webhook",
+    "discord_delete_channel",
+    "discord_delete_forum_post",
+    "discord_delete_message",
+    "discord_delete_webhook",
+    "discord_edit_webhook",
+    "discord_get_forum_channels",
+    "discord_get_forum_post",
+    "discord_get_server_info",
+    "discord_login",
+    "discord_read_messages",
+    "discord_remove_reaction",
+    "discord_reply_to_forum",
+    "discord_send",
+    "discord_send_webhook_message",
+    "test"
+  ],
+  "env": [],
+  "secrets": [
+    {
+      "name": "discord.token",
+      "env": "DISCORD_TOKEN",
+      "example": "YOUR_DISCORD_TOKEN",
+      "description": "You can obtain a token from the [Discord Developer Portal](https://discord.com/developers/applications)"
+    }
+  ],
+  "config": []
+}

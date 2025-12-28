@@ -1,0 +1,19 @@
+{
+  "name": "veyrax",
+  "title": "VeyraX",
+  "description": "VeyraX MCP is the only connection you need to access all your tools in any MCP-compatible environment.",
+  "tools": [
+    "get_flow",
+    "get_tools",
+    "tool_call"
+  ],
+  "env": [],
+  "secrets": [
+    {
+      "name": "veyrax.api_key",
+      "env": "VEYRAX_API_KEY",
+      "example": "your-veyrax-api-key-here"
+    }
+  ],
+  "config": []
+}

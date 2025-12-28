@@ -1,0 +1,35 @@
+{
+  "name": "neon",
+  "title": "Neon",
+  "description": "MCP server for interacting with Neon Management API and databases.",
+  "tools": [
+    "__node_version",
+    "complete_database_migration",
+    "complete_query_tuning",
+    "create_branch",
+    "create_project",
+    "delete_branch",
+    "delete_project",
+    "describe_branch",
+    "describe_project",
+    "describe_table_schema",
+    "explain_sql_statement",
+    "get_connection_string",
+    "get_database_tables",
+    "list_projects",
+    "prepare_database_migration",
+    "prepare_query_tuning",
+    "provision_neon_auth",
+    "run_sql",
+    "run_sql_transaction"
+  ],
+  "env": [],
+  "secrets": [
+    {
+      "name": "neon.api_key",
+      "env": "NEON_API_KEY",
+      "example": "YOUR_API_KEY_HERE"
+    }
+  ],
+  "config": []
+}

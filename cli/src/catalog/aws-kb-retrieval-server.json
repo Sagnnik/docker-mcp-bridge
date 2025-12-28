@@ -1,0 +1,36 @@
+{
+  "name": "aws-kb-retrieval-server",
+  "title": "AWS KB Retrieval (Archived)",
+  "description": "An MCP server implementation for retrieving information from the AWS Knowledge Base using the Bedrock Agent Runtime.",
+  "tools": [
+    "retrieve_from_aws_kb"
+  ],
+  "env": [
+    {
+      "name": "AWS_ACCESS_KEY_ID",
+      "value": "{{aws-kb-retrieval-server.access_key_id}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "aws.secret_access_key",
+      "env": "AWS_SECRET_ACCESS_KEY",
+      "example": "YOUR_SECRET_ACCESS_KEY_HERE"
+    }
+  ],
+  "config": [
+    {
+      "name": "aws-kb-retrieval-server",
+      "description": "Configure the connection to AWS",
+      "type": "object",
+      "properties": {
+        "access_key_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "access_key_id"
+      ]
+    }
+  ]
+}

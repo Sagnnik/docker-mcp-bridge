@@ -1,0 +1,29 @@
+{
+  "name": "npm-sentinel",
+  "title": "NPM Sentinel",
+  "description": "MCP server that enables intelligent NPM package analysis powered by AI.",
+  "tools": [
+    "npmAlternatives",
+    "npmChangelogAnalysis",
+    "npmCompare",
+    "npmDeprecated",
+    "npmDeps",
+    "npmLatest",
+    "npmLicenseCompatibility",
+    "npmMaintainers",
+    "npmMaintenance",
+    "npmPackageReadme",
+    "npmQuality",
+    "npmRepoStats",
+    "npmScore",
+    "npmSearch",
+    "npmSize",
+    "npmTrends",
+    "npmTypes",
+    "npmVersions",
+    "npmVulnerabilities"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": []
+}

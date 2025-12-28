@@ -1,0 +1,27 @@
+{
+  "name": "aws-diagram",
+  "title": "AWS Diagram",
+  "description": "Seamlessly create diagrams using the Python diagrams package DSL. This server allows you to generate AWS diagrams, sequence diagrams, flow diagrams, and class diagrams using Python code.",
+  "tools": [
+    "generate_diagram",
+    "get_diagram_examples",
+    "list_icons"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": [
+    {
+      "name": "aws-diagram",
+      "description": "Configure the output directory for generated diagram images",
+      "type": "object",
+      "properties": {
+        "output_dir": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "output_dir"
+      ]
+    }
+  ]
+}

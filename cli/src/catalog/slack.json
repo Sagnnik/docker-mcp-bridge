@@ -1,0 +1,50 @@
+{
+  "name": "slack",
+  "title": "Slack (Archived)",
+  "description": "Interact with Slack Workspaces over the Slack API.",
+  "tools": [
+    "slack_add_reaction",
+    "slack_get_channel_history",
+    "slack_get_thread_replies",
+    "slack_get_user_profile",
+    "slack_get_users",
+    "slack_list_channels",
+    "slack_post_message",
+    "slack_reply_to_thread"
+  ],
+  "env": [
+    {
+      "name": "SLACK_TEAM_ID",
+      "value": "{{slack.team_id}}"
+    },
+    {
+      "name": "SLACK_CHANNEL_IDS",
+      "value": "{{slack.channel_ids}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "slack.bot_token",
+      "env": "SLACK_BOT_TOKEN",
+      "example": "xoxb-your-bot-token"
+    }
+  ],
+  "config": [
+    {
+      "name": "slack",
+      "description": "Configure the connection to Slack",
+      "type": "object",
+      "properties": {
+        "team_id": {
+          "type": "string"
+        },
+        "channel_ids": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "team_id"
+      ]
+    }
+  ]
+}

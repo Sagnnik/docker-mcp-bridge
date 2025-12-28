@@ -1,0 +1,72 @@
+{
+  "name": "couchbase",
+  "title": "Couchbase",
+  "description": "Couchbase is a distributed document database with a powerful search engine and in-built operational and analytical capabilities.",
+  "tools": [
+    "delete_document_by_id",
+    "get_buckets_in_cluster",
+    "get_cluster_health_and_services",
+    "get_collections_in_scope",
+    "get_document_by_id",
+    "get_index_advisor_recommendations",
+    "get_schema_for_collection",
+    "get_scopes_and_collections_in_bucket",
+    "get_scopes_in_bucket",
+    "get_server_configuration_status",
+    "list_indexes",
+    "run_sql_plus_plus_query",
+    "test_cluster_connection",
+    "upsert_document_by_id"
+  ],
+  "env": [
+    {
+      "name": "CB_CONNECTION_STRING",
+      "value": "{{couchbase.cb_connection_string}}"
+    },
+    {
+      "name": "CB_USERNAME",
+      "value": "{{couchbase.cb_username}}"
+    },
+    {
+      "name": "CB_BUCKET_NAME",
+      "value": "{{couchbase.cb_bucket_name}}"
+    },
+    {
+      "name": "CB_MCP_READ_ONLY_QUERY_MODE",
+      "value": "{{couchbase.cb_mcp_read_only_query_mode}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "couchbase.cb_password",
+      "env": "CB_PASSWORD",
+      "example": "<CB_PASSWORD>",
+      "description": "Password for the Couchbase cluster with access to the bucket."
+    }
+  ],
+  "config": [
+    {
+      "name": "couchbase",
+      "description": "Configure the connection to Couchbase",
+      "type": "object",
+      "properties": {
+        "cb_connection_string": {
+          "type": "string",
+          "description": "Connection string for the Couchbase cluster."
+        },
+        "cb_username": {
+          "type": "string",
+          "description": "Username for the Couchbase cluster with access to the bucket."
+        },
+        "cb_bucket_name": {
+          "type": "string",
+          "description": "Bucket in the Couchbase cluster to use for the MCP server."
+        },
+        "cb_mcp_read_only_query_mode": {
+          "type": "string",
+          "description": "Setting to \"true\" (default) enables read-only query mode while running SQL++ queries."
+        }
+      }
+    }
+  ]
+}

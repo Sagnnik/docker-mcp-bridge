@@ -1,0 +1,33 @@
+{
+  "name": "husqvarna-automower",
+  "title": "Husqvarna Automower",
+  "description": "MCP Server for huqsvarna automower.",
+  "tools": [
+    "Husqvarna Automowers Status"
+  ],
+  "env": [
+    {
+      "name": "HUSQVARNA_CLIENT_ID",
+      "value": "{{husqvarna-automower.client_id}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "husqvarna.client.secret",
+      "env": "HUSQVARNA_CLIENT_SECRET",
+      "example": "YOUR_CLIENT_SECRET_HERE"
+    }
+  ],
+  "config": [
+    {
+      "name": "husqvarna-automower",
+      "description": "Configure the connection to Husqvarna Automower",
+      "type": "object",
+      "properties": {
+        "client_id": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

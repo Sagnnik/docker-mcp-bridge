@@ -1,0 +1,46 @@
+{
+  "name": "awslabs-cloudwatch-appsignals",
+  "title": "Amazon CloudWatch Application Signals",
+  "description": "Application performance monitoring and insights.",
+  "tools": [
+    "analyze_canary_failures",
+    "audit_service_operations",
+    "audit_services",
+    "audit_slos",
+    "get_service_detail",
+    "get_slo",
+    "list_monitored_services",
+    "list_service_operations",
+    "list_slis",
+    "list_slos",
+    "query_sampled_traces",
+    "query_service_metrics",
+    "search_transaction_spans"
+  ],
+  "env": [
+    {
+      "name": "AWS_REGION",
+      "value": "{{awslabs-cloudwatch-appsignals.aws_region}}"
+    },
+    {
+      "name": "AWS_PROFILE",
+      "value": "{{awslabs-cloudwatch-appsignals.aws_profile}}"
+    }
+  ],
+  "secrets": [],
+  "config": [
+    {
+      "name": "awslabs-cloudwatch-appsignals",
+      "description": "Configure AWS credentials for CloudWatch Application Signals access",
+      "type": "object",
+      "properties": {
+        "aws_region": {
+          "type": "string"
+        },
+        "aws_profile": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

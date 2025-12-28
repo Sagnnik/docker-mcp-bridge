@@ -1,0 +1,37 @@
+{
+  "name": "webflow",
+  "title": "Webflow",
+  "description": "Model Context Protocol (MCP) server for the Webflow Data API.",
+  "tools": [
+    "collection_fields_create_option",
+    "collection_fields_create_reference",
+    "collection_fields_create_static",
+    "collection_fields_update",
+    "collections_create",
+    "collections_get",
+    "collections_items_create_item",
+    "collections_items_create_item_live",
+    "collections_items_list_items",
+    "collections_items_publish_items",
+    "collections_items_update_items",
+    "collections_items_update_items_live",
+    "collections_list",
+    "pages_get_content",
+    "pages_get_metadata",
+    "pages_list",
+    "pages_update_page_settings",
+    "pages_update_static_content",
+    "sites_get",
+    "sites_list",
+    "sites_publish"
+  ],
+  "env": [],
+  "secrets": [
+    {
+      "name": "webflow.token",
+      "env": "WEBFLOW_TOKEN",
+      "example": "your_api_token"
+    }
+  ],
+  "config": []
+}

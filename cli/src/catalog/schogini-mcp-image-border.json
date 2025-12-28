@@ -1,0 +1,13 @@
+{
+  "name": "schogini-mcp-image-border",
+  "title": "Schogini Image Border",
+  "description": "This adds a border to an image and returns base64 encoded image.",
+  "tools": [
+    "add-two-numbers",
+    "image-border",
+    "image-meta"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": []
+}

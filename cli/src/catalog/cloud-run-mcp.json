@@ -1,0 +1,35 @@
+{
+  "name": "cloud-run-mcp",
+  "title": "Cloud Run",
+  "description": "MCP server to deploy apps to Cloud Run.",
+  "tools": [
+    "create_project",
+    "deploy_container_image",
+    "deploy_file_contents",
+    "deploy_local_folder",
+    "get_service",
+    "get_service_log",
+    "list_projects",
+    "list_services"
+  ],
+  "env": [
+    {
+      "name": "GOOGLE_APPLICATION_CREDENTIALS",
+      "value": "/app/.config/gcloud/application_default_credentials.json"
+    }
+  ],
+  "secrets": [],
+  "config": [
+    {
+      "name": "cloud-run-mcp",
+      "description": "Configure the connection to Google Cloud Run",
+      "type": "object",
+      "properties": {
+        "credentials_path": {
+          "type": "string",
+          "description": "path to application-default credentials (eg $HOME/.config/gcloud/application_default_credentials.json )"
+        }
+      }
+    }
+  ]
+}

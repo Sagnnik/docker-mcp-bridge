@@ -1,0 +1,17 @@
+{
+  "name": "sentry",
+  "title": "Sentry (Archived)",
+  "description": "A Model Context Protocol server for retrieving and analyzing issues from Sentry.io. This server provides tools to inspect error reports, stacktraces, and other debugging information from your Sentry account.",
+  "tools": [
+    "get_sentry_issue"
+  ],
+  "env": [],
+  "secrets": [
+    {
+      "name": "sentry.auth_token",
+      "env": "SENTRY_AUTH_TOKEN",
+      "example": "YOUR_SENTRY_TOKEN"
+    }
+  ],
+  "config": []
+}

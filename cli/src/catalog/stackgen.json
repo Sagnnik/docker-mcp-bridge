@@ -1,0 +1,40 @@
+{
+  "name": "stackgen",
+  "title": "StackGen",
+  "description": "AI-powered DevOps assistant for managing cloud infrastructure and applications.",
+  "tools": [
+    "destroy_deployment",
+    "detect-drift",
+    "download-iac",
+    "provision_appstack"
+  ],
+  "env": [
+    {
+      "name": "STACKGEN_URL",
+      "value": "{{stackgen.url}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "stackgen.api_key",
+      "env": "STACKGEN_TOKEN",
+      "example": "stackgen_abc123def456ghi789jkl012mno345pqr678stu901vwx"
+    }
+  ],
+  "config": [
+    {
+      "name": "stackgen",
+      "description": "Configure the connection to StackGen server",
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string",
+          "description": "URL of your StackGen instance"
+        }
+      },
+      "required": [
+        "url"
+      ]
+    }
+  ]
+}

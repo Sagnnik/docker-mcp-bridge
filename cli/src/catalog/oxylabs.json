@@ -1,0 +1,39 @@
+{
+  "name": "oxylabs",
+  "title": "Oxylabs",
+  "description": "A Model Context Protocol (MCP) server that enables AI assistants like Claude to seamlessly access web data through Oxylabs' powerful web scraping technology.",
+  "tools": [
+    "amazon_product_scraper",
+    "amazon_search_scraper",
+    "google_search_scraper",
+    "universal_scraper"
+  ],
+  "env": [
+    {
+      "name": "OXYLABS_USERNAME",
+      "value": "{{oxylabs.username}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "oxylabs.password",
+      "env": "OXYLABS_PASSWORD",
+      "example": "YOUR_PASSWORD_HERE"
+    }
+  ],
+  "config": [
+    {
+      "name": "oxylabs",
+      "description": "Configure the connection to Oxylabs Scraper",
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "username"
+      ]
+    }
+  ]
+}

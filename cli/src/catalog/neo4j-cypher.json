@@ -1,0 +1,130 @@
+{
+  "name": "neo4j-cypher",
+  "title": "Neo4j Cypher",
+  "description": "Interact with Neo4j using Cypher graph queries.",
+  "tools": [
+    "get_neo4j_schema",
+    "read_neo4j_cypher",
+    "write_neo4j_cypher"
+  ],
+  "env": [
+    {
+      "name": "NEO4J_URL",
+      "value": "{{neo4j-cypher.url}}"
+    },
+    {
+      "name": "NEO4J_USERNAME",
+      "value": "{{neo4j-cypher.username}}"
+    },
+    {
+      "name": "NEO4J_DATABASE",
+      "value": "{{neo4j-cypher.database}}"
+    },
+    {
+      "name": "NEO4J_NAMESPACE",
+      "value": "{{neo4j-cypher.namespace}}"
+    },
+    {
+      "name": "NEO4J_TRANSPORT",
+      "value": "{{neo4j-cypher.transport}}"
+    },
+    {
+      "name": "NEO4J_MCP_SERVER_HOST",
+      "value": "{{neo4j-cypher.server_host}}"
+    },
+    {
+      "name": "NEO4J_MCP_SERVER_PORT",
+      "value": "{{neo4j-cypher.server_port}}"
+    },
+    {
+      "name": "NEO4J_MCP_SERVER_PATH",
+      "value": "{{neo4j-cypher.server_path}}"
+    },
+    {
+      "name": "NEO4J_MCP_SERVER_ALLOW_ORIGINS",
+      "value": "{{neo4j-cypher.server_allow_origins}}"
+    },
+    {
+      "name": "NEO4J_MCP_SERVER_ALLOWED_HOSTS",
+      "value": "{{neo4j-cypher.server_allowed_hosts}}"
+    },
+    {
+      "name": "NEO4J_READ_TIMEOUT",
+      "value": "{{neo4j-cypher.read_timeout}}"
+    },
+    {
+      "name": "NEO4J_RESPONSE_TOKEN_LIMIT",
+      "value": "{{neo4j-cypher.response_token_limit}}"
+    },
+    {
+      "name": "NEO4J_READ_ONLY",
+      "value": "{{neo4j-cypher.read_only}}"
+    },
+    {
+      "name": "NEO4J_SCHEMA_SAMPLE_SIZE",
+      "value": "{{neo4j-cypher.schema_sample_size}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "neo4j-cypher.password",
+      "env": "NEO4J_PASSWORD",
+      "example": "password"
+    }
+  ],
+  "config": [
+    {
+      "name": "neo4j-cypher",
+      "description": "Configure the connection to Neo4j",
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string"
+        },
+        "username": {
+          "type": "string"
+        },
+        "database": {
+          "type": "string"
+        },
+        "read_timeout": {
+          "type": "string"
+        },
+        "response_token_limit": {
+          "type": "string"
+        },
+        "namespace": {
+          "type": "string"
+        },
+        "transport": {
+          "type": "string"
+        },
+        "server_host": {
+          "type": "string"
+        },
+        "server_port": {
+          "type": "string"
+        },
+        "server_path": {
+          "type": "string"
+        },
+        "server_allow_origins": {
+          "type": "string"
+        },
+        "server_allowed_hosts": {
+          "type": "string"
+        },
+        "read_only": {
+          "type": "boolean"
+        },
+        "schema_sample_size": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "url",
+        "username"
+      ]
+    }
+  ]
+}

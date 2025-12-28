@@ -1,0 +1,13 @@
+{
+  "name": "google-flights",
+  "title": "Google Flights",
+  "description": "Interact with Google Flights data to search for one-way, round-trip, and date range flight options between airports.",
+  "tools": [
+    "find_all_flights_in_range",
+    "get_flights_on_date",
+    "get_round_trip_flights"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": []
+}

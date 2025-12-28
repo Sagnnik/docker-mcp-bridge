@@ -1,0 +1,17 @@
+{
+  "name": "triplewhale",
+  "title": "Triplewhale",
+  "description": "Triplewhale MCP Server.",
+  "tools": [
+    "moby"
+  ],
+  "env": [],
+  "secrets": [
+    {
+      "name": "triplewhale.api_key",
+      "env": "TRIPLEWHALE_API_KEY",
+      "example": "your-triplewhale-api-key-here"
+    }
+  ],
+  "config": []
+}

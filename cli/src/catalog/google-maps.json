@@ -1,0 +1,23 @@
+{
+  "name": "google-maps",
+  "title": "Google Maps (Archived)",
+  "description": "Tools for interacting with the Google Maps API.",
+  "tools": [
+    "maps_directions",
+    "maps_distance_matrix",
+    "maps_elevation",
+    "maps_geocode",
+    "maps_place_details",
+    "maps_reverse_geocode",
+    "maps_search_places"
+  ],
+  "env": [],
+  "secrets": [
+    {
+      "name": "google-maps.api_key",
+      "env": "GOOGLE_MAPS_API_KEY",
+      "example": "<YOUR_API_KEY>"
+    }
+  ],
+  "config": []
+}

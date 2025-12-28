@@ -1,0 +1,53 @@
+{
+  "name": "redis-cloud",
+  "title": "Redis Cloud",
+  "description": "MCP Server for Redis Cloud's API, allowing you to manage your Redis Cloud resources using natural language.",
+  "tools": [
+    "create-essential-database",
+    "create-essential-subscription",
+    "create-pro-database",
+    "create-pro-subscription",
+    "delete-essential-subscription",
+    "get-current-account",
+    "get-current-payment-methods",
+    "get-database-modules",
+    "get-essential-databases",
+    "get-essential-subscription-by-id",
+    "get-essential-subscriptions",
+    "get-essentials-plans",
+    "get-pro-databases",
+    "get-pro-plans-regions",
+    "get-pro-subscription",
+    "get-pro-subscriptions",
+    "get-task-by-id",
+    "get-tasks"
+  ],
+  "env": [
+    {
+      "name": "API_KEY",
+      "value": "{{redis-cloud.api_key}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "redis-cloud.secret_key",
+      "env": "SECRET_KEY",
+      "example": "<redis_cloud_api_secret_key>"
+    }
+  ],
+  "config": [
+    {
+      "name": "redis-cloud",
+      "description": "Configure the connection to Redis Cloud",
+      "type": "object",
+      "properties": {
+        "api_key": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "api_key"
+      ]
+    }
+  ]
+}

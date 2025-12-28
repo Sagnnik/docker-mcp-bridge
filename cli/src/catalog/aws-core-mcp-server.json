@@ -1,0 +1,11 @@
+{
+  "name": "aws-core-mcp-server",
+  "title": "AWS Core",
+  "description": "Starting point for using the awslabs MCP servers.",
+  "tools": [
+    "prompt_understanding"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": []
+}

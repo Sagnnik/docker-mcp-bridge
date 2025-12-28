@@ -1,0 +1,20 @@
+{
+  "name": "tavily",
+  "title": "Tavily",
+  "description": "The Tavily MCP server provides seamless interaction with the tavily-search and tavily-extract tools, real-time web search capabilities through the tavily-search tool and Intelligent data extraction from web pages via the tavily-extract tool.",
+  "tools": [
+    "tavily-crawl",
+    "tavily-extract",
+    "tavily-map",
+    "tavily-search"
+  ],
+  "env": [],
+  "secrets": [
+    {
+      "name": "tavily.api_token",
+      "env": "TAVILY_API_KEY",
+      "example": "your-tavily-apikey-here"
+    }
+  ],
+  "config": []
+}

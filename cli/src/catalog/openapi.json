@@ -1,0 +1,31 @@
+{
+  "name": "openapi",
+  "title": "OpenAPI Toolkit",
+  "description": "Fetch, validate, and generate code or curl from any OpenAPI or Swagger spec - all from a single URL.",
+  "tools": [
+    "create_csharp_snippet",
+    "generate_curl_command",
+    "get_known_responses",
+    "get_list_of_operations",
+    "validate_document"
+  ],
+  "env": [
+    {
+      "name": "MODE",
+      "value": "{{openapi.mode}}"
+    }
+  ],
+  "secrets": [],
+  "config": [
+    {
+      "name": "openapi",
+      "description": "Configure the connection to OpenAPI Toolkit for MCP",
+      "type": "object",
+      "properties": {
+        "mode": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "name": "terraform",
+  "title": "Hashicorp Terraform",
+  "description": "The Terraform MCP Server provides seamless integration with Terraform ecosystem, enabling advanced automation and interaction capabilities for Infrastructure as Code (IaC) development.",
+  "tools": [
+    "get_latest_module_version",
+    "get_latest_provider_version",
+    "get_module_details",
+    "get_policy_details",
+    "get_provider_capabilities",
+    "get_provider_details",
+    "search_modules",
+    "search_policies",
+    "search_providers"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": []
+}

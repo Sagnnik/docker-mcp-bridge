@@ -1,0 +1,48 @@
+{
+  "name": "astra-db",
+  "title": "Astra DB",
+  "description": "An MCP server for Astra DB workloads.",
+  "tools": [
+    "BulkCreateRecords",
+    "BulkDeleteRecords",
+    "BulkUpdateRecords",
+    "CreateCollection",
+    "CreateRecord",
+    "DeleteCollection",
+    "DeleteRecord",
+    "EstimateDocumentCount",
+    "FindRecord",
+    "GetCollections",
+    "GetRecord",
+    "HelpAddToClient",
+    "ListRecords",
+    "OpenBrowser",
+    "UpdateCollection",
+    "UpdateRecord"
+  ],
+  "env": [
+    {
+      "name": "ASTRA_DB_API_ENDPOINT",
+      "value": "{{astra-db.endpoint}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "astra-db.application_token",
+      "env": "ASTRA_DB_APPLICATION_TOKEN",
+      "example": "your_astra_db_token"
+    }
+  ],
+  "config": [
+    {
+      "name": "astra-db",
+      "description": "Configure the connection to Astra DB",
+      "type": "object",
+      "properties": {
+        "endpoint": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

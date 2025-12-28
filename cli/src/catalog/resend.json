@@ -1,0 +1,46 @@
+{
+  "name": "resend",
+  "title": "Resend",
+  "description": "Send emails directly from Cursor with this email sending MCP server.",
+  "tools": [
+    "send-email"
+  ],
+  "env": [
+    {
+      "name": "REPLY_TO_EMAIL_ADDRESSES",
+      "value": "{{resend.reply_to}}"
+    },
+    {
+      "name": "SENDER_EMAIL_ADDRESS",
+      "value": "{{resend.sender}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "resend.api_key",
+      "env": "RESEND_API_KEY",
+      "example": "YOUR_RESEND_API_KEY"
+    }
+  ],
+  "config": [
+    {
+      "name": "resend",
+      "description": "Configure sender and reply email addresses",
+      "type": "object",
+      "properties": {
+        "reply_to": {
+          "type": "string",
+          "description": "comma separated list of reply to email addresses"
+        },
+        "sender": {
+          "type": "string",
+          "description": "sender email address"
+        }
+      },
+      "required": [
+        "reply_to",
+        "sender"
+      ]
+    }
+  ]
+}

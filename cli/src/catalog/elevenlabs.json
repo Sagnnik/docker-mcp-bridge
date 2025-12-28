@@ -1,0 +1,54 @@
+{
+  "name": "elevenlabs",
+  "title": "ElevenLabs",
+  "description": "Official ElevenLabs Model Context Protocol (MCP) server that enables interaction with powerful Text to Speech and audio processing APIs.",
+  "tools": [
+    "add_knowledge_base_to_agent",
+    "check_subscription",
+    "compose_music",
+    "create_agent",
+    "create_composition_plan",
+    "create_voice_from_preview",
+    "get_agent",
+    "get_conversation",
+    "get_voice",
+    "isolate_audio",
+    "list_agents",
+    "list_conversations",
+    "list_models",
+    "list_phone_numbers",
+    "make_outbound_call",
+    "play_audio",
+    "search_voice_library",
+    "search_voices",
+    "speech_to_speech",
+    "speech_to_text",
+    "text_to_sound_effects",
+    "text_to_speech",
+    "text_to_voice",
+    "voice_clone"
+  ],
+  "env": [],
+  "secrets": [
+    {
+      "name": "elevenlabs.api_key",
+      "env": "ELEVENLABS_API_KEY",
+      "example": "<ELEVENLABS_API_KEY>"
+    }
+  ],
+  "config": [
+    {
+      "name": "elevenlabs",
+      "description": "Configure the connection to ElevenLabs. Elevenlabs.data is the path to the data directory where the audio files will be stored.",
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "data"
+      ]
+    }
+  ]
+}

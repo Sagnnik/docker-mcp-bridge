@@ -1,0 +1,22 @@
+{
+  "name": "omi",
+  "title": "Omi",
+  "description": "A Model Context Protocol server for Omi interaction and automation. This server provides tools to read, search, and manipulate Memories and Conversations.",
+  "tools": [
+    "create_memory",
+    "delete_memory",
+    "edit_memory",
+    "get_conversation_by_id",
+    "get_conversations",
+    "get_memories"
+  ],
+  "env": [],
+  "secrets": [
+    {
+      "name": "omi.api_key",
+      "env": "OMI_API_KEY",
+      "example": "<OMI_API_KEY>"
+    }
+  ],
+  "config": []
+}

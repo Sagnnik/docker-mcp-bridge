@@ -1,0 +1,17 @@
+{
+  "name": "pref-editor",
+  "title": "Pref Editor",
+  "description": "Pref Editor is a tool for viewing and editing Android app preferences during development.",
+  "tools": [
+    "add_preference",
+    "change_preference",
+    "delete_preference",
+    "devices",
+    "list_apps",
+    "list_files",
+    "read_preferences"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": []
+}

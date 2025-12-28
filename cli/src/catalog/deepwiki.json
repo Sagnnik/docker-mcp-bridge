@@ -1,0 +1,13 @@
+{
+  "name": "deepwiki",
+  "title": "DeepWiki",
+  "description": "Tools for fetching and asking questions about GitHub repositories.",
+  "tools": [
+    "read_wiki_structure",
+    "read_wiki_contents",
+    "ask_question"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": []
+}

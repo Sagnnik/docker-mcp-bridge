@@ -1,0 +1,12 @@
+{
+  "name": "time",
+  "title": "Time (Reference)",
+  "description": "Time and timezone conversion capabilities.",
+  "tools": [
+    "convert_time",
+    "get_current_time"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": []
+}

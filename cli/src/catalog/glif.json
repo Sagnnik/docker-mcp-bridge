@@ -1,0 +1,49 @@
+{
+  "name": "glif",
+  "title": "glif.app",
+  "description": "Easily run glif.app AI workflows inside your LLM: image generators, memes, selfies, and more. Glif supports all major multimedia AI models inside one app.",
+  "tools": [
+    "glif_info",
+    "list_featured_glifs",
+    "list_saved_glif_tools",
+    "my_glif_user_info",
+    "my_glifs",
+    "remove_all_glif_tools",
+    "remove_glif_tool",
+    "run_glif",
+    "save_glif_as_tool",
+    "search_glifs"
+  ],
+  "env": [
+    {
+      "name": "GLIF_IDS",
+      "value": "{{glif.ids}}"
+    },
+    {
+      "name": "IGNORE_SAVED_GLIFS",
+      "value": "{{glif.ignored_saved}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "glif.api_token",
+      "env": "GLIF_API_TOKEN",
+      "example": "your-token-here"
+    }
+  ],
+  "config": [
+    {
+      "name": "glif",
+      "description": "Configure the connection to glif.app",
+      "type": "object",
+      "properties": {
+        "ids": {
+          "type": "string"
+        },
+        "ignored_saved": {
+          "type": "boolean"
+        }
+      }
+    }
+  ]
+}

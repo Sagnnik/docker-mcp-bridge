@@ -1,0 +1,19 @@
+{
+  "name": "memory",
+  "title": "Memory (Reference)",
+  "description": "Knowledge graph-based persistent memory system.",
+  "tools": [
+    "add_observations",
+    "create_entities",
+    "create_relations",
+    "delete_entities",
+    "delete_observations",
+    "delete_relations",
+    "open_nodes",
+    "read_graph",
+    "search_nodes"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": []
+}

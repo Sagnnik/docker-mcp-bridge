@@ -1,0 +1,17 @@
+{
+  "name": "scrapezy",
+  "title": "Scrapezy",
+  "description": "A Model Context Protocol server for Scrapezy that enables AI models to extract structured data from websites.",
+  "tools": [
+    "extract-structured-data"
+  ],
+  "env": [],
+  "secrets": [
+    {
+      "name": "scrapezy.auth_token",
+      "env": "SCRAPEZY_API_KEY",
+      "example": "your_api_key"
+    }
+  ],
+  "config": []
+}

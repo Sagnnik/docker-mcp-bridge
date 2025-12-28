@@ -1,0 +1,74 @@
+{
+  "name": "aws-iot-sitewise",
+  "title": "AWS IoT SiteWise",
+  "description": "Industrial IoT asset management.",
+  "tools": [
+    "batch_get_asset_property_aggregates",
+    "batch_get_asset_property_value",
+    "batch_get_asset_property_value_hist",
+    "convert_multiple_timestamps",
+    "convert_unix_timestamp",
+    "create_bulk_import_schema",
+    "create_timestamp_range",
+    "describe_action",
+    "describe_asset",
+    "describe_asset_model",
+    "describe_bulk_import_job",
+    "describe_computation_model",
+    "describe_computation_model_execution_summary",
+    "describe_default_encryption_config",
+    "describe_execution",
+    "describe_gateway",
+    "describe_gateway_capability_config",
+    "describe_logging_options",
+    "describe_storage_configuration",
+    "describe_time_series",
+    "execute_query",
+    "get_asset_property_aggregates",
+    "get_asset_property_value",
+    "get_asset_property_value_history",
+    "get_current_timestamp",
+    "get_interpl_asset_property_values",
+    "get_metadata_transfer_job",
+    "get_sitewise_server_mode",
+    "list_actions",
+    "list_asset_model_properties",
+    "list_asset_models",
+    "list_assets",
+    "list_associated_assets",
+    "list_bulk_import_jobs",
+    "list_computation_model_data_binding_usages",
+    "list_computation_model_resolve_to_resources",
+    "list_computation_models",
+    "list_executions",
+    "list_gateways",
+    "list_metadata_transfer_jobs",
+    "list_time_series"
+  ],
+  "env": [
+    {
+      "name": "AWS_REGION",
+      "value": "{{aws-iot-sitewise.aws_region}}"
+    },
+    {
+      "name": "AWS_PROFILE",
+      "value": "{{aws-iot-sitewise.aws_profile}}"
+    }
+  ],
+  "secrets": [],
+  "config": [
+    {
+      "name": "aws-iot-sitewise",
+      "description": "Configure AWS credentials for IoT SiteWise access",
+      "type": "object",
+      "properties": {
+        "aws_region": {
+          "type": "string"
+        },
+        "aws_profile": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

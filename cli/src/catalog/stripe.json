@@ -1,0 +1,38 @@
+{
+  "name": "stripe",
+  "title": "Stripe",
+  "description": "Interact with Stripe services over the Stripe API.",
+  "tools": [
+    "cancel_subscription",
+    "create_coupon",
+    "create_customer",
+    "create_invoice",
+    "create_invoice_item",
+    "create_payment_link",
+    "create_price",
+    "create_product",
+    "create_refund",
+    "finalize_invoice",
+    "list_coupons",
+    "list_customers",
+    "list_disputes",
+    "list_invoices",
+    "list_payment_intents",
+    "list_prices",
+    "list_products",
+    "list_subscriptions",
+    "retrieve_balance",
+    "search_stripe_documentation",
+    "update_dispute",
+    "update_subscription"
+  ],
+  "env": [],
+  "secrets": [
+    {
+      "name": "stripe.secret_key",
+      "env": "STRIPE_SECRET_KEY",
+      "example": "sk_STRIPE_SECRET_KEY"
+    }
+  ],
+  "config": []
+}

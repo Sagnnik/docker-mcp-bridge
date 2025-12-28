@@ -1,0 +1,15 @@
+{
+  "name": "close",
+  "title": "Close",
+  "description": "Streamline sales processes with integrated calling, email, SMS, and automated workflows for small and scaling businesses.",
+  "tools": [],
+  "env": [],
+  "secrets": [
+    {
+      "name": "close.api_key",
+      "env": "CLOSE_API_KEY",
+      "example": "<YOUR_API_KEY>"
+    }
+  ],
+  "config": []
+}

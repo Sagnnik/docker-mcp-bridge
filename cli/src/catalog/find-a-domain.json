@@ -1,0 +1,12 @@
+{
+  "name": "find-a-domain",
+  "title": "Find-A-Domain",
+  "description": "Tools for finding domain names.",
+  "tools": [
+    "check_domain",
+    "list_tlds"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": []
+}

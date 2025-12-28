@@ -1,0 +1,75 @@
+{
+  "name": "awslabs-iam",
+  "title": "AWS IAM",
+  "description": "IAM user, role, group, and policy management.",
+  "tools": [
+    "add_user_to_group",
+    "attach_group_policy",
+    "attach_user_policy",
+    "create_access_key",
+    "create_group",
+    "create_role",
+    "create_user",
+    "delete_access_key",
+    "delete_group",
+    "delete_role_policy",
+    "delete_user",
+    "delete_user_policy",
+    "detach_group_policy",
+    "detach_user_policy",
+    "get_group",
+    "get_managed_policy_document",
+    "get_role_policy",
+    "get_user",
+    "get_user_policy",
+    "list_groups",
+    "list_policies",
+    "list_role_policies",
+    "list_roles",
+    "list_user_policies",
+    "list_users",
+    "put_role_policy",
+    "put_user_policy",
+    "remove_user_from_group",
+    "simulate_principal_policy"
+  ],
+  "env": [
+    {
+      "name": "AWS_REGION",
+      "value": "{{awslabs-iam.aws_region}}"
+    },
+    {
+      "name": "AWS_PROFILE",
+      "value": "{{awslabs-iam.aws_profile}}"
+    },
+    {
+      "name": "AWS_ACCESS_KEY_ID",
+      "value": "{{awslabs-iam.aws_access_key_id}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "awslabs-iam.aws_secret_access_key",
+      "env": "AWS_SECRET_ACCESS_KEY",
+      "example": "your-aws-secret-access-key"
+    }
+  ],
+  "config": [
+    {
+      "name": "awslabs-iam",
+      "description": "Configure AWS credentials for IAM access",
+      "type": "object",
+      "properties": {
+        "aws_region": {
+          "type": "string"
+        },
+        "aws_profile": {
+          "type": "string"
+        },
+        "aws_access_key_id": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

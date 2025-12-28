@@ -1,0 +1,20 @@
+{
+  "name": "gyazo",
+  "title": "Gyazo",
+  "description": "Official Model Context Protocol server for Gyazo.",
+  "tools": [
+    "gyazo_image",
+    "gyazo_latest_image",
+    "gyazo_search",
+    "gyazo_upload"
+  ],
+  "env": [],
+  "secrets": [
+    {
+      "name": "gyazo.access_token",
+      "env": "GYAZO_ACCESS_TOKEN",
+      "example": "your-access-token-here"
+    }
+  ],
+  "config": []
+}

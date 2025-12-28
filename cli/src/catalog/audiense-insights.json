@@ -1,0 +1,48 @@
+{
+  "name": "audiense-insights",
+  "title": "Audiense Insights",
+  "description": "Audiense Insights MCP Server is a server based on the Model Context Protocol (MCP) that allows Claude and other MCP-compatible clients to interact with your Audiense Insights account.",
+  "tools": [
+    "compare-audience-influencers",
+    "get-audience-content",
+    "get-audience-insights",
+    "get-baselines",
+    "get-categories",
+    "get-report-info",
+    "get-reports",
+    "report-summary"
+  ],
+  "env": [
+    {
+      "name": "AUDIENSE_CLIENT_ID",
+      "value": "{{audiense-insights.client_id}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "audiense-insights.client_secret",
+      "env": "AUDIENSE_CLIENT_SECRET",
+      "example": "your_client_secret_here"
+    },
+    {
+      "name": "audiense-insights.twitter_bearer_token",
+      "env": "TWITTER_BEARER_TOKEN",
+      "example": "your_token_here"
+    }
+  ],
+  "config": [
+    {
+      "name": "audiense-insights",
+      "description": "Configure the connection to Audiense Insights",
+      "type": "object",
+      "properties": {
+        "client_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "client_id"
+      ]
+    }
+  ]
+}

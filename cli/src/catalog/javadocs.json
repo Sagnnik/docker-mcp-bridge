@@ -1,0 +1,13 @@
+{
+  "name": "javadocs",
+  "title": "Javadocs",
+  "description": "Access to Java, Kotlin, and Scala library documentation.",
+  "tools": [
+    "get_latest_version",
+    "get_javadoc_content_list",
+    "get_javadoc_symbol_contents"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": []
+}

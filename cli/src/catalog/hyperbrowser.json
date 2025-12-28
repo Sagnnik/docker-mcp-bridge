@@ -1,0 +1,26 @@
+{
+  "name": "hyperbrowser",
+  "title": "Hyperbrowser",
+  "description": "A MCP server implementation for hyperbrowser.",
+  "tools": [
+    "browser_use_agent",
+    "claude_computer_use_agent",
+    "crawl_webpages",
+    "create_profile",
+    "delete_profile",
+    "extract_structured_data",
+    "list_profiles",
+    "openai_computer_use_agent",
+    "scrape_webpage",
+    "search_with_bing"
+  ],
+  "env": [],
+  "secrets": [
+    {
+      "name": "hyperbrowser.api_key",
+      "env": "HYPERBROWSER_API_KEY",
+      "example": "<app or user token>"
+    }
+  ],
+  "config": []
+}

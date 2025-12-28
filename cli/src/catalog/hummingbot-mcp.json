@@ -1,0 +1,61 @@
+{
+  "name": "hummingbot-mcp",
+  "title": "Hummingbot: Trading Agent",
+  "description": "Hummingbot MCP is an open-source toolset that lets you control and monitor your Hummingbot trading bots through AI-powered commands and automation.",
+  "tools": [
+    "configure_api_servers",
+    "deploy_bot_with_controllers",
+    "explore_controllers",
+    "explore_gateway_clmm_pools",
+    "get_active_bots_status",
+    "get_bot_logs",
+    "get_candles",
+    "get_funding_rate",
+    "get_order_book",
+    "get_portfolio_overview",
+    "get_prices",
+    "manage_bot_execution",
+    "manage_gateway_clmm_positions",
+    "manage_gateway_config",
+    "manage_gateway_container",
+    "manage_gateway_swaps",
+    "modify_controllers",
+    "place_order",
+    "search_history",
+    "set_account_position_mode_and_leverage",
+    "setup_connector"
+  ],
+  "env": [
+    {
+      "name": "HUMMINGBOT_API_URL",
+      "value": "{{hummingbot-mcp.api_url}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "hummingbot-mcp.username",
+      "env": "HUMMINGBOT_API_USERNAME",
+      "example": "admin"
+    },
+    {
+      "name": "hummingbot-mcp.password",
+      "env": "HUMMINGBOT_API_PASSWORD",
+      "example": "password"
+    }
+  ],
+  "config": [
+    {
+      "name": "hummingbot-mcp",
+      "description": "Configure the MCP connection to the Hummingbot API",
+      "type": "object",
+      "properties": {
+        "api_url": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "api_url"
+      ]
+    }
+  ]
+}

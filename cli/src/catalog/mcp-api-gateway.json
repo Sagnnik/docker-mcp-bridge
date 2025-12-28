@@ -1,0 +1,42 @@
+{
+  "name": "mcp-api-gateway",
+  "title": "API Gateway",
+  "description": "A universal MCP (Model Context Protocol) server to integrate any API with Claude Desktop using only Docker configurations.",
+  "tools": [
+    "execute_api",
+    "get_api_info"
+  ],
+  "env": [
+    {
+      "name": "API_1_NAME",
+      "value": "{{mcp-api-gateway.api_1_name}}"
+    },
+    {
+      "name": "API_1_SWAGGER_URL",
+      "value": "{{mcp-api-gateway.api_1_swagger_url}}"
+    },
+    {
+      "name": "API_1_HEADER_AUTHORIZATION",
+      "value": "{{mcp-api-gateway.api_1_header_authorization}}"
+    }
+  ],
+  "secrets": [],
+  "config": [
+    {
+      "name": "mcp-api-gateway",
+      "description": "Configure the connection to mcp-api-gateway",
+      "type": "object",
+      "properties": {
+        "api_1_name": {
+          "type": "string"
+        },
+        "api_1_swagger_url": {
+          "type": "string"
+        },
+        "api_1_header_authorization": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

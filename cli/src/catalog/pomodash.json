@@ -1,0 +1,35 @@
+{
+  "name": "pomodash",
+  "title": "PomoDash",
+  "description": "Connect your AI assistant to PomoDash for seamless task and project management.",
+  "tools": [
+    "create_category",
+    "create_note",
+    "create_note_for_project",
+    "create_note_for_task",
+    "create_task",
+    "create_task_for_project",
+    "delete_note",
+    "delete_task",
+    "list_categories",
+    "list_note_references",
+    "list_notes",
+    "list_tasks",
+    "update_note",
+    "update_task"
+  ],
+  "env": [
+    {
+      "name": "POMODASH_API_URL",
+      "value": "https://mcp.pomodash.mindsnapz.de"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "pomodash.api_key",
+      "env": "POMODASH_API_KEY",
+      "example": "pmk_abc123your_real_key_here"
+    }
+  ],
+  "config": []
+}

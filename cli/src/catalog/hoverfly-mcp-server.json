@@ -1,0 +1,36 @@
+{
+  "name": "hoverfly-mcp-server",
+  "title": "Hoverfly",
+  "description": "A Model Context Protocol (MCP) server that exposes Hoverfly as a programmable tool for AI assistants like Cursor, Claude, GitHub Copilot, and others supporting MCP. It enables dynamic mocking of third-party APIs to unblock development, automate testing, and simulate unavailable services during integration.",
+  "tools": [
+    "add_hoverfly_mock",
+    "clear_hoverfly_mocks",
+    "download_hoverfly_simulation",
+    "fetch_hoverfly_version",
+    "get_hoverfly_debug_logs",
+    "get_hoverfly_documentation",
+    "get_hoverfly_status",
+    "list_hoverfly_mocks",
+    "show_hoverfly_endpoints_info",
+    "start_hoverfly_web_server",
+    "stop_hoverfly_server",
+    "suggest_hoverfly_matchers"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": [
+    {
+      "name": "hoverfly-mcp-server",
+      "description": "The MCP server is allowed to access this path for storing simulation files",
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "data"
+      ]
+    }
+  ]
+}

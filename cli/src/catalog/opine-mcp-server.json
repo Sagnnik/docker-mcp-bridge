@@ -1,0 +1,21 @@
+{
+  "name": "opine-mcp-server",
+  "title": "Opine",
+  "description": "A Model Context Protocol (MCP) server for querying deals and evaluations from the Opine CRM API.",
+  "tools": [
+    "get_deal",
+    "get_salesforce_deal",
+    "list_deals",
+    "list_evaluations",
+    "list_tickets"
+  ],
+  "env": [],
+  "secrets": [
+    {
+      "name": "opine-mcp-server.OPINE_API_KEY",
+      "env": "OPINE_API_KEY",
+      "example": "<OPINE_API_KEY>"
+    }
+  ],
+  "config": []
+}

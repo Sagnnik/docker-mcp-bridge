@@ -1,0 +1,55 @@
+{
+  "name": "aws-healthomics",
+  "title": "AWS HealthOmics",
+  "description": "Generate, run, debug lifescience workflows.",
+  "tools": [
+    "AnalyzeAHORunPerformance",
+    "CreateAHOWorkflow",
+    "CreateAHOWorkflowVersion",
+    "DiagnoseAHORunFailure",
+    "GetAHORun",
+    "GetAHORunEngineLogs",
+    "GetAHORunLogs",
+    "GetAHORunManifestLogs",
+    "GetAHORunTask",
+    "GetAHOSupportedRegions",
+    "GetAHOTaskLogs",
+    "GetAHOWorkflow",
+    "GetSupportedFileTypes",
+    "LintAHOWorkflowBundle",
+    "LintAHOWorkflowDefinition",
+    "ListAHORunTasks",
+    "ListAHORuns",
+    "ListAHOWorkflowVersions",
+    "ListAHOWorkflows",
+    "PackageAHOWorkflow",
+    "SearchGenomicsFiles",
+    "StartAHORun"
+  ],
+  "env": [
+    {
+      "name": "AWS_REGION",
+      "value": "{{aws-healthomics.aws_region}}"
+    },
+    {
+      "name": "AWS_PROFILE",
+      "value": "{{aws-healthomics.aws_profile}}"
+    }
+  ],
+  "secrets": [],
+  "config": [
+    {
+      "name": "aws-healthomics",
+      "description": "Configure AWS credentials for HealthOmics access",
+      "type": "object",
+      "properties": {
+        "aws_region": {
+          "type": "string"
+        },
+        "aws_profile": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

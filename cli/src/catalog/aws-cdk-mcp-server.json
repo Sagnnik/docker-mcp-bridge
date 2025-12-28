@@ -1,0 +1,17 @@
+{
+  "name": "aws-cdk-mcp-server",
+  "title": "AWS CDK",
+  "description": "AWS Cloud Development Kit (CDK) best practices, infrastructure as code patterns, and security compliance with CDK Nag.",
+  "tools": [
+    "CDKGeneralGuidance",
+    "CheckCDKNagSuppressions",
+    "ExplainCDKNagRule",
+    "GenerateBedrockAgentSchema",
+    "GetAwsSolutionsConstructPattern",
+    "LambdaLayerDocumentationProvider",
+    "SearchGenAICDKConstructs"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": []
+}

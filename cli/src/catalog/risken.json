@@ -1,0 +1,36 @@
+{
+  "name": "risken",
+  "title": "RISKEN",
+  "description": "RISKEN's official MCP Server.",
+  "tools": [
+    "archive_finding",
+    "get_project",
+    "search_alert",
+    "search_finding"
+  ],
+  "env": [
+    {
+      "name": "RISKEN_URL",
+      "value": "{{risken.url}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "risken.access_key",
+      "env": "RISKEN_ACCESS_TOKEN",
+      "example": "your_access_token"
+    }
+  ],
+  "config": [
+    {
+      "name": "risken",
+      "description": "Configure the connection to Risken",
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

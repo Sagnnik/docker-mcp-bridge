@@ -1,0 +1,13 @@
+{
+  "name": "openzeppelin-stellar",
+  "title": "OpenZeppelin Stellar Contracts",
+  "description": "Access to OpenZeppelin Stellar Contracts.",
+  "tools": [
+    "stellar-fungible",
+    "stellar-stablecoin",
+    "stellar-non-fungible"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": []
+}

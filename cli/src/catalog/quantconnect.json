@@ -1,0 +1,104 @@
+{
+  "name": "quantconnect",
+  "title": "QuantConnect",
+  "description": "The QuantConnect MCP Server is a bridge for AIs (such as Claude and OpenAI o3 Pro) to interact with our cloud platform. When equipped with our MCP, the AI can perform tasks on your behalf through our API such as updating projects, writing strategies, backtesting, and deploying strategies to production live-trading.",
+  "tools": [
+    "abort_optimization",
+    "authorize_connection",
+    "broadcast_live_command",
+    "check_initialization_errors",
+    "check_syntax",
+    "complete_code",
+    "create_backtest",
+    "create_compile",
+    "create_file",
+    "create_live_algorithm",
+    "create_live_command",
+    "create_optimization",
+    "create_project",
+    "create_project_collaborator",
+    "delete_backtest",
+    "delete_file",
+    "delete_object",
+    "delete_optimization",
+    "delete_project",
+    "delete_project_collaborator",
+    "enhance_error_message",
+    "estimate_optimization_time",
+    "liquidate_live_algorithm",
+    "list_backtests",
+    "list_live_algorithms",
+    "list_object_store_files",
+    "list_optimizations",
+    "list_projects",
+    "lock_project_with_collaborators",
+    "patch_file",
+    "read_account",
+    "read_backtest",
+    "read_backtest_chart",
+    "read_backtest_insights",
+    "read_backtest_orders",
+    "read_compile",
+    "read_file",
+    "read_latest_mcp_server_version",
+    "read_lean_versions",
+    "read_live_algorithm",
+    "read_live_chart",
+    "read_live_insights",
+    "read_live_logs",
+    "read_live_orders",
+    "read_live_portfolio",
+    "read_mcp_server_version",
+    "read_object_properties",
+    "read_object_store_file_download_url",
+    "read_object_store_file_job_id",
+    "read_optimization",
+    "read_project",
+    "read_project_collaborators",
+    "read_project_nodes",
+    "search_quantconnect",
+    "stop_live_algorithm",
+    "update_backtest",
+    "update_code_to_pep8",
+    "update_file_contents",
+    "update_file_name",
+    "update_optimization",
+    "update_project",
+    "update_project_collaborator",
+    "update_project_nodes",
+    "upload_object"
+  ],
+  "env": [
+    {
+      "name": "QUANTCONNECT_USER_ID",
+      "value": "{{quantconnect.quantconnectuserid}}"
+    },
+    {
+      "name": "QUANTCONNECT_API_TOKEN",
+      "value": "{{quantconnect.quantconnectapitoken}}"
+    },
+    {
+      "name": "AGENT_NAME",
+      "value": "MCP Server"
+    }
+  ],
+  "secrets": [],
+  "config": [
+    {
+      "name": "quantconnect",
+      "description": "Configure the connection to QuantConnect MCP Server",
+      "type": "object",
+      "properties": {
+        "quantconnectuserid": {
+          "type": "string"
+        },
+        "quantconnectapitoken": {
+          "type": "string"
+        },
+        "agentname": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

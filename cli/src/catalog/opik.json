@@ -1,0 +1,52 @@
+{
+  "name": "opik",
+  "title": "Opik",
+  "description": "Model Context Protocol (MCP) implementation for Opik enabling seamless IDE integration and unified access to prompts, projects, traces, and metrics.",
+  "tools": [
+    "add-trace-feedback",
+    "create-project",
+    "create-prompt",
+    "get-prompt-version",
+    "get-prompts",
+    "get-trace-by-id",
+    "get-trace-stats",
+    "get-trace-threads",
+    "list-projects",
+    "list-traces",
+    "opik-integration-docs",
+    "save-prompt-version",
+    "search-traces"
+  ],
+  "env": [
+    {
+      "name": "OPIK_API_BASE_URL",
+      "value": "{{opik.api_base_url}}"
+    },
+    {
+      "name": "OPIK_WORKSPACE_NAME",
+      "value": "{{opik.workspace_name}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "opik.api_key",
+      "env": "OPIK_API_KEY",
+      "example": "your_api_key"
+    }
+  ],
+  "config": [
+    {
+      "name": "opik",
+      "description": "Configure the connection to Opik",
+      "type": "object",
+      "properties": {
+        "api_base_url": {
+          "type": "string"
+        },
+        "workspace_name": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

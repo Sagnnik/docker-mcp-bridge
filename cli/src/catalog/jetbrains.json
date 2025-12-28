@@ -1,0 +1,56 @@
+{
+  "name": "jetbrains",
+  "title": "JetBrains",
+  "description": "A model context protocol server to work with JetBrains IDEs: IntelliJ, PyCharm, WebStorm, etc. Also, works with Android Studio.",
+  "tools": [
+    "create_new_file_with_text",
+    "execute_action_by_id",
+    "execute_terminal_command",
+    "find_commit_by_message",
+    "find_files_by_name_substring",
+    "get_all_open_file_paths",
+    "get_all_open_file_texts",
+    "get_debugger_breakpoints",
+    "get_file_text_by_path",
+    "get_open_in_editor_file_path",
+    "get_open_in_editor_file_text",
+    "get_progress_indicators",
+    "get_project_dependencies",
+    "get_project_modules",
+    "get_project_vcs_status",
+    "get_run_configurations",
+    "get_selected_in_editor_text",
+    "get_terminal_text",
+    "list_available_actions",
+    "list_directory_tree_in_folder",
+    "list_files_in_folder",
+    "open_file_in_editor",
+    "replace_current_file_text",
+    "replace_file_text_by_path",
+    "replace_selected_text",
+    "replace_specific_text",
+    "run_configuration",
+    "search_in_files_content",
+    "toggle_debugger_breakpoint",
+    "wait"
+  ],
+  "env": [
+    {
+      "name": "IDE_PORT",
+      "value": "{{jetbrains.port}}"
+    }
+  ],
+  "secrets": [],
+  "config": [
+    {
+      "name": "jetbrains",
+      "description": "Configure the connection to the IDE",
+      "type": "object",
+      "properties": {
+        "port": {
+          "type": "integer"
+        }
+      }
+    }
+  ]
+}

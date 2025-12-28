@@ -1,0 +1,41 @@
+{
+  "name": "dockerhub",
+  "title": "Docker Hub",
+  "description": "Docker Hub official MCP server.",
+  "tools": [
+    "checkRepository",
+    "checkRepositoryTag",
+    "createRepository",
+    "dockerHardenedImages",
+    "getPersonalNamespace",
+    "getRepositoryInfo",
+    "getRepositoryTag",
+    "listAllNamespacesMemberOf",
+    "listNamespaces",
+    "listRepositoriesByNamespace",
+    "listRepositoryTags",
+    "search",
+    "updateRepositoryInfo"
+  ],
+  "env": [],
+  "secrets": [
+    {
+      "name": "dockerhub.pat_token",
+      "env": "HUB_PAT_TOKEN",
+      "example": "your_hub_pat_token",
+      "description": "Instructions for creating a personal access token can be found [in the Docker Docs](https://docs.docker.com/security/access-tokens/)"
+    }
+  ],
+  "config": [
+    {
+      "name": "dockerhub",
+      "description": "Configure connection to Docker Hub",
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

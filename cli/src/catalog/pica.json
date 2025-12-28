@@ -1,0 +1,37 @@
+{
+  "name": "pica",
+  "title": "Pica",
+  "description": "Provides access to Pica's integrations, actions, execution, and code generation capabilities.",
+  "tools": [
+    "execute_pica_action",
+    "get_pica_action_knowledge",
+    "list_pica_integrations",
+    "search_pica_platform_actions"
+  ],
+  "env": [
+    {
+      "name": "PICA_BASE_URL",
+      "value": "{{pica.base_url}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "pica.api_key",
+      "env": "PICA_SECRET",
+      "example": "sk_live_example_key_replace_with_your_actual_pica_secret"
+    }
+  ],
+  "config": [
+    {
+      "name": "pica",
+      "description": "Configure the connection to Pica MCP server",
+      "type": "object",
+      "properties": {
+        "base_url": {
+          "type": "string",
+          "description": "The Pica API base URL"
+        }
+      }
+    }
+  ]
+}

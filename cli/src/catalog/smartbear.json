@@ -1,0 +1,121 @@
+{
+  "name": "smartbear",
+  "title": "SmartBear",
+  "description": "MCP server for AI access to SmartBear tools, including BugSnag, Reflect, API Hub, PactFlow.",
+  "tools": [
+    "bugsnag_get_build",
+    "bugsnag_get_current_project",
+    "bugsnag_get_error",
+    "bugsnag_get_event_details",
+    "bugsnag_get_release",
+    "bugsnag_list_project_errors",
+    "bugsnag_list_project_event_filters",
+    "bugsnag_list_projects",
+    "bugsnag_list_releases",
+    "bugsnag_update_error",
+    "contract-testing_can_i_deploy",
+    "contract-testing_check_pactflow_ai_entitlements",
+    "contract-testing_generate_pact_tests",
+    "contract-testing_get_provider_states",
+    "contract-testing_matrix",
+    "contract-testing_review_pact_tests",
+    "reflect_cancel_suite_execution",
+    "reflect_execute_suite",
+    "reflect_get_suite_execution_status",
+    "reflect_get_test_status",
+    "reflect_list_suite_executions",
+    "reflect_list_suites",
+    "reflect_list_tests",
+    "reflect_run_test",
+    "swagger_create_api_from_template",
+    "swagger_create_or_update_api",
+    "swagger_create_portal",
+    "swagger_create_portal_product",
+    "swagger_create_table_of_contents",
+    "swagger_delete_document",
+    "swagger_delete_portal",
+    "swagger_delete_portal_product",
+    "swagger_delete_table_of_contents",
+    "swagger_get_api_definition",
+    "swagger_get_document",
+    "swagger_get_portal",
+    "swagger_get_portal_product",
+    "swagger_list_organizations",
+    "swagger_list_portal_product_sections",
+    "swagger_list_portal_products",
+    "swagger_list_portals",
+    "swagger_list_table_of_contents",
+    "swagger_publish_portal_product",
+    "swagger_scan_api_standardization",
+    "swagger_search_apis_and_domains",
+    "swagger_update_document",
+    "swagger_update_portal",
+    "swagger_update_portal_product"
+  ],
+  "env": [
+    {
+      "name": "BUGSNAG_PROJECT_API_KEY",
+      "value": "{{smartbear.bugsnag_api_key}}"
+    },
+    {
+      "name": "BUGSNAG_ENDPOINT",
+      "value": "{{smartbear.bugsnag_endpoint}}"
+    },
+    {
+      "name": "PACT_BROKER_BASE_URL",
+      "value": "{{smartbear.pact_broker_base_url}}"
+    },
+    {
+      "name": "PACT_BROKER_USERNAME",
+      "value": "{{smartbear.pact_broker_username}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "smartbear.bugsnag_auth_token",
+      "env": "BUGSNAG_AUTH_TOKEN",
+      "example": "<your-bugsnag-auth-token>"
+    },
+    {
+      "name": "smartbear.reflect_api_token",
+      "env": "REFLECT_API_TOKEN",
+      "example": "<your-reflect-api-token>"
+    },
+    {
+      "name": "smartbear.api_hub_api_key",
+      "env": "API_HUB_API_KEY",
+      "example": "<your-api-hub-api-key>"
+    },
+    {
+      "name": "smartbear.pact_broker_token",
+      "env": "PACT_BROKER_TOKEN",
+      "example": "<your-pact-broker-token>"
+    },
+    {
+      "name": "smartbear.pact_broker_password",
+      "env": "PACT_BROKER_PASSWORD",
+      "example": "<your-pact-broker-password>"
+    }
+  ],
+  "config": [
+    {
+      "name": "smartbear",
+      "description": "Configure the connection to SmartBear services",
+      "type": "object",
+      "properties": {
+        "bugsnag_api_key": {
+          "type": "string"
+        },
+        "bugsnag_endpoint": {
+          "type": "string"
+        },
+        "pact_broker_base_url": {
+          "type": "string"
+        },
+        "pact_broker_username": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

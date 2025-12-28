@@ -1,0 +1,38 @@
+{
+  "name": "camunda",
+  "title": "Camunda BPM Process Engine",
+  "description": "Tools to interact with the Camunda 7 Community Edition Engine using the Model Context Protocol (MCP). Whether you're automating workflows, querying process instances, or integrating with external systems, Camunda MCP Server is your agentic solution for seamless interaction with Camunda.",
+  "tools": [
+    "complete_user_task",
+    "count_incidents",
+    "count_instances",
+    "count_user_tasks",
+    "count_variables",
+    "list_definitions",
+    "list_incidents",
+    "list_instances",
+    "list_user_tasks",
+    "list_variables",
+    "resolve_incident",
+    "send_message"
+  ],
+  "env": [
+    {
+      "name": "CAMUNDA_HOST",
+      "value": "{{camunda.camundahost}}"
+    }
+  ],
+  "secrets": [],
+  "config": [
+    {
+      "name": "camunda",
+      "description": "Configure the connection to Camunda BPM process engine MCP Server",
+      "type": "object",
+      "properties": {
+        "camundahost": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

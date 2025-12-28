@@ -1,0 +1,27 @@
+{
+  "name": "root",
+  "title": "Root.io Vulnerability Remediation",
+  "description": "MCP server that provides container image vulnerability scanning and remediation capabilities through Root.io.",
+  "tools": [
+    "create_registry_integration",
+    "get_image_remediation",
+    "get_remediation_continuity_summary",
+    "get_remediation_details_by_scan_id",
+    "get_remediation_status",
+    "get_user_info",
+    "list_remediation_continuity_summaries",
+    "list_unique_fqins",
+    "ping",
+    "registries_credentials_list",
+    "trigger_remediation"
+  ],
+  "env": [],
+  "secrets": [
+    {
+      "name": "root.api_access_token",
+      "env": "API_ACCESS_TOKEN",
+      "example": "sk_your_access_token"
+    }
+  ],
+  "config": []
+}

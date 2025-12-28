@@ -1,0 +1,31 @@
+{
+  "name": "awslabs-cloudtrail",
+  "title": "AWS CloudTrail",
+  "description": "AWS CloudTrail audit logging and monitoring.",
+  "tools": [
+    "get_query_results",
+    "get_query_status",
+    "lake_query",
+    "list_event_data_stores",
+    "lookup_events"
+  ],
+  "env": [
+    {
+      "name": "AWS_PROFILE",
+      "value": "{{awslabs-cloudtrail.aws_profile}}"
+    }
+  ],
+  "secrets": [],
+  "config": [
+    {
+      "name": "awslabs-cloudtrail",
+      "description": "Configure AWS credentials for CloudTrail access",
+      "type": "object",
+      "properties": {
+        "aws_profile": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

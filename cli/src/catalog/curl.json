@@ -1,0 +1,11 @@
+{
+  "name": "curl",
+  "title": "Curl",
+  "description": "Standard curl tool.",
+  "tools": [
+    "curl"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": []
+}

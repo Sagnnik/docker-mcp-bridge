@@ -1,0 +1,15 @@
+{
+  "name": "amazon-bedrock-agentcore",
+  "title": "AWS Bedrock AgentCore",
+  "description": "Documentation on AgentCore platform services.",
+  "tools": [
+    "fetch_agentcore_doc",
+    "manage_agentcore_gateway",
+    "manage_agentcore_memory",
+    "manage_agentcore_runtime",
+    "search_agentcore_docs"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": []
+}

@@ -1,0 +1,32 @@
+{
+  "name": "stackhawk",
+  "title": "StackHawk",
+  "description": "A Model Context Protocol (MCP) server for integrating with StackHawk's security scanning platform. Provides security analytics, YAML configuration management, sensitive data/threat surface analysis, and anti-hallucination tools for LLMs.",
+  "tools": [
+    "check_repository_attack_surface",
+    "check_repository_sensitive_data",
+    "create_stackhawk_config",
+    "generate_security_dashboard",
+    "get_app_findings_for_triage",
+    "get_organization_info",
+    "get_sensitive_data_summary",
+    "get_stackhawk_scan_instructions",
+    "get_stackhawk_schema",
+    "list_application_repository_connections",
+    "list_applications",
+    "run_stackhawk_scan",
+    "search_vulnerabilities",
+    "setup_stackhawk_for_project",
+    "validate_field_exists",
+    "validate_stackhawk_config"
+  ],
+  "env": [],
+  "secrets": [
+    {
+      "name": "stackhawk.api_key",
+      "env": "STACKHAWK_API_KEY",
+      "example": "<STACKHAWK_API_KEY>"
+    }
+  ],
+  "config": []
+}

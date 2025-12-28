@@ -1,0 +1,19 @@
+{
+  "name": "hugging-face",
+  "title": "Hugging Face",
+  "description": "Tools for interacting with Hugging Face models, datasets, research papers, and more.",
+  "tools": [
+    "hf_whoami",
+    "space_search",
+    "model_search",
+    "paper_search",
+    "dataset_search",
+    "hub_repo_details",
+    "hf_doc_search",
+    "hf_doc_fetch",
+    "gr1_z_image_turbo_generate"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": []
+}

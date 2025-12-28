@@ -1,0 +1,13 @@
+{
+  "name": "youtube_transcript",
+  "title": "YouTube Transcripts",
+  "description": "Retrieves transcripts for given YouTube video URLs.",
+  "tools": [
+    "get_timed_transcript",
+    "get_transcript",
+    "get_video_info"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": []
+}

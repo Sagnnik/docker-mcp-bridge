@@ -1,0 +1,60 @@
+{
+  "name": "aws-pricing",
+  "title": "AWS Pricing",
+  "description": "AWS service pricing and cost estimates.",
+  "tools": [
+    "analyze_cdk_project",
+    "analyze_terraform_project",
+    "generate_cost_report",
+    "get_bedrock_patterns",
+    "get_price_list_urls",
+    "get_pricing",
+    "get_pricing_attribute_values",
+    "get_pricing_service_attributes",
+    "get_pricing_service_codes"
+  ],
+  "env": [
+    {
+      "name": "AWS_REGION",
+      "value": "{{aws-pricing.aws_region}}"
+    },
+    {
+      "name": "AWS_PROFILE",
+      "value": "{{aws-pricing.aws_profile}}"
+    },
+    {
+      "name": "AWS_ACCESS_KEY_ID",
+      "value": "{{aws-pricing.aws_access_key_id}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "aws-pricing.aws_secret_access_key",
+      "env": "AWS_SECRET_ACCESS_KEY",
+      "example": "your-aws-secret-access-key"
+    },
+    {
+      "name": "aws-pricing.aws_session_token",
+      "env": "AWS_SESSION_TOKEN",
+      "example": "your-aws-session-token"
+    }
+  ],
+  "config": [
+    {
+      "name": "aws-pricing",
+      "description": "Configure AWS credentials for pricing access",
+      "type": "object",
+      "properties": {
+        "aws_region": {
+          "type": "string"
+        },
+        "aws_profile": {
+          "type": "string"
+        },
+        "aws_access_key_id": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

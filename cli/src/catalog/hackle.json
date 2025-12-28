@@ -1,0 +1,35 @@
+{
+  "name": "hackle",
+  "title": "Hackle",
+  "description": "Model Context Protocol server for Hackle.",
+  "tools": [
+    "active-user-series",
+    "analytics-chart-detail",
+    "analytics-chart-list",
+    "data-report-detail",
+    "data-report-list",
+    "experiment-detail",
+    "experiment-list",
+    "in-app-message-detail",
+    "in-app-message-list",
+    "push-message-detail",
+    "push-message-list",
+    "remote-config-create",
+    "remote-config-detail",
+    "remote-config-list",
+    "remote-config-update",
+    "remote-config-update-description",
+    "remote-config-update-user-identifier-criteria",
+    "retention-series",
+    "stickiness-series"
+  ],
+  "env": [],
+  "secrets": [
+    {
+      "name": "hackle.api_key",
+      "env": "API_KEY",
+      "example": "YOUR_API_KEY"
+    }
+  ],
+  "config": []
+}

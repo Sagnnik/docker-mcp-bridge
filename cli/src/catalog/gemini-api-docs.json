@@ -1,0 +1,13 @@
+{
+  "name": "gemini-api-docs",
+  "title": "Gemini API Docs",
+  "description": "Provides tools to search and retrieve Google Gemini API documentation.",
+  "tools": [
+    "get_capability_page",
+    "get_current_model",
+    "search_documentation"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": []
+}

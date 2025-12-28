@@ -1,0 +1,15 @@
+{
+  "name": "polar-signals",
+  "title": "Polar Signals",
+  "description": "MCP server for Polar Signals Cloud continuous profiling platform, enabling AI assistants to analyze CPU performance, memory usage, and identify optimization opportunities in production systems.",
+  "tools": [],
+  "env": [],
+  "secrets": [
+    {
+      "name": "polar-signals.api_key",
+      "env": "POLAR_SIGNALS_API_KEY",
+      "example": "<YOUR_API_KEY>"
+    }
+  ],
+  "config": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "wayfound",
+  "title": "Wayfound",
+  "description": "Wayfound\u2019s MCP server allows business users to govern, supervise, and improve AI Agents.",
+  "tools": [
+    "list_agents",
+    "get_agent_details",
+    "get_manager_analysis_for_agent",
+    "get_improvement_suggestions_for_agents"
+  ],
+  "env": [],
+  "secrets": [
+    {
+      "name": "wayfound.mcp_api_key",
+      "env": "MCP_API_KEY",
+      "example": "<MCP_API_KEY>"
+    }
+  ],
+  "config": []
+}

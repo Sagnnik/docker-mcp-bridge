@@ -1,0 +1,32 @@
+{
+  "name": "singlestore",
+  "title": "Singlestore",
+  "description": "MCP server for interacting with SingleStore Management API and services.",
+  "tools": [
+    "create_job_from_notebook",
+    "create_notebook_file",
+    "create_starter_workspace",
+    "delete_job",
+    "get_job",
+    "get_user_info",
+    "list_regions",
+    "list_sharedtier_regions",
+    "list_starter_workspaces",
+    "organization_info",
+    "resume_workspace",
+    "run_sql",
+    "terminate_starter_workspace",
+    "upload_notebook_file",
+    "workspace_groups_info",
+    "workspaces_info"
+  ],
+  "env": [],
+  "secrets": [
+    {
+      "name": "singlestore.mcp_api_key",
+      "env": "MCP_API_KEY",
+      "example": "<MCP_API_KEY>"
+    }
+  ],
+  "config": []
+}

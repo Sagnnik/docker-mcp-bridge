@@ -1,0 +1,14 @@
+{
+  "name": "openmesh",
+  "title": "OpenMesh",
+  "description": "Discover and connect to a curated marketplace of MCP servers for extending AI agent capabilities.",
+  "tools": [
+    "discover_service",
+    "call_service",
+    "report_experience",
+    "get_alternative"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": []
+}

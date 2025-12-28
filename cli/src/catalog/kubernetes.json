@@ -1,0 +1,47 @@
+{
+  "name": "kubernetes",
+  "title": "Kubernetes",
+  "description": "Connect to a Kubernetes cluster and manage it.",
+  "tools": [
+    "cleanup",
+    "exec_in_pod",
+    "explain_resource",
+    "install_helm_chart",
+    "kubectl_apply",
+    "kubectl_context",
+    "kubectl_create",
+    "kubectl_delete",
+    "kubectl_describe",
+    "kubectl_generic",
+    "kubectl_get",
+    "kubectl_logs",
+    "kubectl_patch",
+    "kubectl_rollout",
+    "kubectl_scale",
+    "list_api_resources",
+    "node_management",
+    "ping",
+    "port_forward",
+    "stop_port_forward",
+    "uninstall_helm_chart",
+    "upgrade_helm_chart"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": [
+    {
+      "name": "kubernetes",
+      "description": "Configure the location of the host Kubernetes file",
+      "type": "object",
+      "properties": {
+        "config_path": {
+          "type": "string",
+          "description": "the path to the host .kube/config"
+        }
+      },
+      "required": [
+        "config_path"
+      ]
+    }
+  ]
+}

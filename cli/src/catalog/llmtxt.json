@@ -1,0 +1,12 @@
+{
+  "name": "llmtxt",
+  "title": "LLM Text",
+  "description": "Discovers and retrieves llms.txt from websites.",
+  "tools": [
+    "get_domain_llms_txt_as_docs",
+    "git"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": []
+}

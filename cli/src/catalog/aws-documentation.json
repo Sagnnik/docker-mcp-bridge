@@ -1,0 +1,13 @@
+{
+  "name": "aws-documentation",
+  "title": "AWS Documentation",
+  "description": "Tools to access AWS documentation, search for content, and get recommendations.",
+  "tools": [
+    "read_documentation",
+    "recommend",
+    "search_documentation"
+  ],
+  "env": [],
+  "secrets": [],
+  "config": []
+}

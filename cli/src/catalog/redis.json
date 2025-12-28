@@ -1,0 +1,140 @@
+{
+  "name": "redis",
+  "title": "Redis",
+  "description": "Access to Redis database operations.",
+  "tools": [
+    "client_list",
+    "create_vector_index_hash",
+    "dbsize",
+    "delete",
+    "expire",
+    "get",
+    "get_index_info",
+    "get_indexed_keys_number",
+    "get_indexes",
+    "get_vector_from_hash",
+    "hdel",
+    "hexists",
+    "hget",
+    "hgetall",
+    "hset",
+    "info",
+    "json_del",
+    "json_get",
+    "json_set",
+    "llen",
+    "lpop",
+    "lpush",
+    "lrange",
+    "publish",
+    "rename",
+    "rpop",
+    "rpush",
+    "sadd",
+    "scan_all_keys",
+    "scan_keys",
+    "search_redis_documents",
+    "set",
+    "set_vector_in_hash",
+    "smembers",
+    "srem",
+    "subscribe",
+    "type",
+    "unsubscribe",
+    "vector_search_hash",
+    "xadd",
+    "xdel",
+    "xrange",
+    "zadd",
+    "zrange",
+    "zrem"
+  ],
+  "env": [
+    {
+      "name": "REDIS_HOST",
+      "value": "{{redis.host}}"
+    },
+    {
+      "name": "REDIS_PORT",
+      "value": "{{redis.port}}"
+    },
+    {
+      "name": "REDIS_USERNAME",
+      "value": "{{redis.username}}"
+    },
+    {
+      "name": "REDIS_SSL",
+      "value": "{{redis.ssl}}"
+    },
+    {
+      "name": "REDIS_CA_PATH",
+      "value": "{{redis.ca_path}}"
+    },
+    {
+      "name": "REDIS_SSL_KEYFILE",
+      "value": "{{redis.ssl_keyfile}}"
+    },
+    {
+      "name": "REDIS_SSL_CERTFILE",
+      "value": "{{redis.ssl_certfile}}"
+    },
+    {
+      "name": "REDIS_CERT_REQS",
+      "value": "{{redis.cert_reqs}}"
+    },
+    {
+      "name": "REDIS_CA_CERTS",
+      "value": "{{redis.ca_certs}}"
+    },
+    {
+      "name": "REDIS_CLUSTER_MODE",
+      "value": "{{redis.cluster_mode}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "redis.password",
+      "env": "REDIS_PWD",
+      "example": ""
+    }
+  ],
+  "config": [
+    {
+      "name": "redis",
+      "description": "Configure the connection to Redis",
+      "type": "object",
+      "properties": {
+        "host": {
+          "type": "string"
+        },
+        "port": {
+          "type": "integer"
+        },
+        "username": {
+          "type": "string"
+        },
+        "ssl": {
+          "type": "boolean"
+        },
+        "ca_path": {
+          "type": "string"
+        },
+        "ssl_keyfile": {
+          "type": "string"
+        },
+        "ssl_certfile": {
+          "type": "string"
+        },
+        "cert_reqs": {
+          "type": "string"
+        },
+        "ca_certs": {
+          "type": "string"
+        },
+        "cluster_mode": {
+          "type": "boolean"
+        }
+      }
+    }
+  ]
+}

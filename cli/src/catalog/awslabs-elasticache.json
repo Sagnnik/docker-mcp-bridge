@@ -1,0 +1,72 @@
+{
+  "name": "awslabs-elasticache",
+  "title": "Amazon ElastiCache",
+  "description": "ElastiCache control plane operations.",
+  "tools": [
+    "batch-apply-update-action",
+    "batch-stop-update-action",
+    "complete-migration",
+    "connect-jump-host-cache-cluster",
+    "connect-jump-host-replication-group",
+    "connect-jump-host-serverless-cache",
+    "create-cache-cluster",
+    "create-jump-host-cache-cluster",
+    "create-jump-host-replication-group",
+    "create-jump-host-serverless-cache",
+    "create-log-group",
+    "create-replication-group",
+    "create-serverless-cache",
+    "delete-cache-cluster",
+    "delete-replication-group",
+    "delete-serverless-cache",
+    "describe-cache-clusters",
+    "describe-cache-engine-versions",
+    "describe-engine-default-parameters",
+    "describe-events",
+    "describe-log-groups",
+    "describe-log-streams",
+    "describe-replication-groups",
+    "describe-serverless-caches",
+    "describe-service-updates",
+    "filter-log-events",
+    "get-cost-and-usage",
+    "get-log-events",
+    "get-metric-statistics",
+    "get-ssh-tunnel-command-cache-cluster",
+    "get-ssh-tunnel-command-replication-group",
+    "get-ssh-tunnel-command-serverless-cache",
+    "list-delivery-streams",
+    "modify-cache-cluster",
+    "modify-replication-group",
+    "modify-replication-group-shard-configuration",
+    "modify-serverless-cache",
+    "start-migration",
+    "test-migration"
+  ],
+  "env": [
+    {
+      "name": "AWS_REGION",
+      "value": "{{awslabs-elasticache.aws_region}}"
+    },
+    {
+      "name": "AWS_PROFILE",
+      "value": "{{awslabs-elasticache.aws_profile}}"
+    }
+  ],
+  "secrets": [],
+  "config": [
+    {
+      "name": "awslabs-elasticache",
+      "description": "Configure AWS credentials for ElastiCache access",
+      "type": "object",
+      "properties": {
+        "aws_region": {
+          "type": "string"
+        },
+        "aws_profile": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

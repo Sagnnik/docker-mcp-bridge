@@ -1,0 +1,51 @@
+{
+  "name": "maestro-mcp-server",
+  "title": "Maestro",
+  "description": "A Model Context Protocol (MCP) server exposing Bitcoin blockchain data through the Maestro API platform. Provides tools to explore blocks, transactions, addresses, inscriptions, runes, and other metaprotocol data.",
+  "tools": [
+    "get_address_activity",
+    "get_address_balance",
+    "get_address_balance_historical",
+    "get_address_brc20",
+    "get_address_brc20_transfer_inscriptions",
+    "get_address_inscriptions",
+    "get_address_inscription_activity",
+    "get_address_runes",
+    "get_address_rune_activity",
+    "get_address_rune_utxos",
+    "get_address_statistics",
+    "get_address_txs",
+    "get_address_utxos",
+    "get_mempool_address_balance",
+    "get_mempool_address_runes",
+    "list_brc20_assets",
+    "get_brc20_info",
+    "list_supported_dexs",
+    "get_dex_ohlc",
+    "get_btc_price_by_timestamp",
+    "get_rune_price_by_timestamp",
+    "rpc_chain_info",
+    "rpc_mempool_info",
+    "rpc_mempool_transactions",
+    "rpc_block_miner_info",
+    "rpc_block_volume",
+    "event_healthcheck",
+    "event_list_logs",
+    "event_get_log",
+    "event_list_triggers",
+    "event_create_trigger",
+    "event_get_trigger",
+    "event_update_trigger",
+    "event_delete_trigger",
+    "event_list_trigger_condition_options"
+  ],
+  "env": [],
+  "secrets": [
+    {
+      "name": "maestro-mcp-server.API_KEY_API_KEY",
+      "env": "API_KEY_API_KEY",
+      "example": "your-maestro-api-key"
+    }
+  ],
+  "config": []
+}

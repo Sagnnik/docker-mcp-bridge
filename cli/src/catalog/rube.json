@@ -1,0 +1,15 @@
+{
+  "name": "rube",
+  "title": "Rube",
+  "description": "Access to Rube's catalog of remote MCP servers.",
+  "tools": [],
+  "env": [],
+  "secrets": [
+    {
+      "name": "rube.api_key",
+      "env": "RUBE_API_KEY",
+      "example": "<YOUR_API_KEY>"
+    }
+  ],
+  "config": []
+}

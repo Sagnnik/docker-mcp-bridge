@@ -1,0 +1,81 @@
+{
+  "name": "firecrawl",
+  "title": "Firecrawl",
+  "description": "\ud83d\udd25 Official Firecrawl MCP Server - Adds powerful web scraping and search to Cursor, Claude and any other LLM clients.",
+  "tools": [
+    "firecrawl_check_crawl_status",
+    "firecrawl_crawl",
+    "firecrawl_extract",
+    "firecrawl_map",
+    "firecrawl_scrape",
+    "firecrawl_search"
+  ],
+  "env": [
+    {
+      "name": "FIRECRAWL_API_URL",
+      "value": "{{firecrawl.url}}"
+    },
+    {
+      "name": "FIRECRAWL_RETRY_MAX_ATTEMPTS",
+      "value": "{{firecrawl.retry_max}}"
+    },
+    {
+      "name": "FIRECRAWL_RETRY_INITIAL_DELAY",
+      "value": "{{firecrawl.retry_delay}}"
+    },
+    {
+      "name": "FIRECRAWL_RETRY_MAX_DELAY",
+      "value": "{{firecrawl.retry_max_delay}}"
+    },
+    {
+      "name": "FIRECRAWL_RETRY_BACKOFF_FACTOR",
+      "value": "{{firecrawl.retry_backoff_factor}}"
+    },
+    {
+      "name": "FIRECRAWL_CREDIT_WARNING_THRESHOLD",
+      "value": "{{firecrawl.credit_warning_threshold}}"
+    },
+    {
+      "name": "FIRECRAWL_CREDIT_CRITICAL_THRESHOLD",
+      "value": "{{firecrawl.credit_critical_threshold}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "firecrawl.api_key",
+      "env": "FIRECRAWL_API_KEY",
+      "example": "YOUR-API-KEY",
+      "description": "If you don't have an account, create one and get a key from [here](https://www.firecrawl.dev/app/api-keys)"
+    }
+  ],
+  "config": [
+    {
+      "name": "firecrawl",
+      "description": "Configure the connection to Firecrawl",
+      "type": "object",
+      "properties": {
+        "credit_critical_threshold": {
+          "type": "integer"
+        },
+        "credit_warning_threshold": {
+          "type": "integer"
+        },
+        "retry_backoff_factor": {
+          "type": "integer"
+        },
+        "retry_delay": {
+          "type": "integer"
+        },
+        "retry_max": {
+          "type": "integer"
+        },
+        "retry_max_delay": {
+          "type": "integer"
+        },
+        "url": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

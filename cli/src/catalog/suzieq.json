@@ -1,0 +1,34 @@
+{
+  "name": "suzieq",
+  "title": "Suzieq",
+  "description": "MCP Server to interact with a SuzieQ network observability instance via its REST API.",
+  "tools": [
+    "run_suzieq_show",
+    "run_suzieq_summarize"
+  ],
+  "env": [
+    {
+      "name": "SUZIEQ_API_ENDPOINT",
+      "value": "{{suzieq.api_endpoint}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "suzieq.api_key",
+      "env": "SUZIEQ_API_KEY",
+      "example": "none"
+    }
+  ],
+  "config": [
+    {
+      "name": "suzieq",
+      "description": "Configure the connection to SuzieQ",
+      "type": "object",
+      "properties": {
+        "api_endpoint": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

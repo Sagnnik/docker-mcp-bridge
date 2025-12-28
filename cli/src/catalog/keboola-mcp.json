@@ -1,0 +1,65 @@
+{
+  "name": "keboola-mcp",
+  "title": "Keboola",
+  "description": "Keboola MCP Server is an open-source bridge between your Keboola project and modern AI tools.",
+  "tools": [
+    "add_config_row",
+    "create_config",
+    "create_flow",
+    "create_oauth_url",
+    "create_sql_transformation",
+    "docs_query",
+    "find_component_id",
+    "get_bucket",
+    "get_component",
+    "get_config",
+    "get_config_examples",
+    "get_flow",
+    "get_flow_schema",
+    "get_job",
+    "get_project_info",
+    "get_sql_dialect",
+    "get_table",
+    "list_buckets",
+    "list_configs",
+    "list_flows",
+    "list_jobs",
+    "list_tables",
+    "list_transformations",
+    "query_data",
+    "run_job",
+    "search",
+    "update_bucket_description",
+    "update_column_description",
+    "update_config",
+    "update_config_row",
+    "update_flow",
+    "update_sql_transformation",
+    "update_table_description"
+  ],
+  "env": [
+    {
+      "name": "KBC_WORKSPACE_SCHEMA",
+      "value": "{{keboola-mcp.kbc_workspace_schema}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "keboola-mcp.kbc_storage_token",
+      "env": "KBC_STORAGE_TOKEN",
+      "example": "your_keboola_storage_token"
+    }
+  ],
+  "config": [
+    {
+      "name": "keboola-mcp",
+      "description": "Configure the connection to your Keboola project",
+      "type": "object",
+      "properties": {
+        "kbc_workspace_schema": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

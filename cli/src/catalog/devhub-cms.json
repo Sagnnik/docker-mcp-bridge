@@ -1,0 +1,50 @@
+{
+  "name": "devhub-cms",
+  "title": "DevHub CMS",
+  "description": "DevHub CMS LLM integration through the Model Context Protocol.",
+  "tools": [
+    "create_blog_post",
+    "get_blog_post",
+    "get_businesses",
+    "get_hours_of_operation",
+    "get_locations",
+    "get_nearest_location",
+    "site_from_url",
+    "update_blog_post",
+    "update_hours",
+    "upload_image"
+  ],
+  "env": [
+    {
+      "name": "DEVHUB_BASE_URL",
+      "value": "{{devhub-cms.url}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "devhub-cms.api_key",
+      "env": "DEVHUB_API_KEY",
+      "example": "YOUR_KEY_HERE"
+    },
+    {
+      "name": "devhub-cms.api_secret",
+      "env": "DEVHUB_API_SECRET",
+      "example": "YOUR_SECRET_HERE"
+    }
+  ],
+  "config": [
+    {
+      "name": "devhub-cms",
+      "description": "Configure the connection to DevHub CMS",
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "url"
+      ]
+    }
+  ]
+}

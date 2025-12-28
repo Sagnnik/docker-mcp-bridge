@@ -1,0 +1,51 @@
+{
+  "name": "multiversx-mx",
+  "title": "MultiversX",
+  "description": "MCP Server for MultiversX.",
+  "tools": [
+    "create-sft-nft-mesdt-tokens",
+    "create-wallet",
+    "get-balance-of-address",
+    "get-network",
+    "get-tokens-of-address",
+    "get-wallet-address",
+    "issue-fungible-token",
+    "issue-meta-esdt-collection",
+    "issue-nft-collection",
+    "issue-semi-fungible-collection",
+    "send-egld",
+    "send-egld-to-multiple-receivers",
+    "send-fungible-tokens",
+    "send-sft-nft-meta-tokens"
+  ],
+  "env": [
+    {
+      "name": "MVX_NETWORK",
+      "value": "{{multiversx-mx.network}}"
+    },
+    {
+      "name": "MVX_WALLET",
+      "value": "{{multiversx-mx.wallet}}"
+    }
+  ],
+  "secrets": [],
+  "config": [
+    {
+      "name": "multiversx-mx",
+      "description": "Configure the connection to MultiversX blockchain",
+      "type": "object",
+      "properties": {
+        "network": {
+          "type": "string"
+        },
+        "wallet": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "network",
+        "wallet"
+      ]
+    }
+  ]
+}

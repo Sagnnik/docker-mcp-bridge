@@ -1,0 +1,88 @@
+{
+  "name": "kafka-schema-reg-mcp",
+  "title": "Kafka Schema Registry",
+  "description": "Comprehensive MCP server for Kafka Schema Registry operations. Features multi-registry support, schema contexts, migration tools, OAuth authentication, and 57+ tools for complete schema management. Supports SLIM_MODE for optimal performance.",
+  "tools": [
+    "check_compatibility",
+    "count_contexts",
+    "count_schema_versions",
+    "count_schemas",
+    "create_context",
+    "export_schema",
+    "export_subject",
+    "generate_resource_templates",
+    "get_default_registry",
+    "get_global_config",
+    "get_mcp_compliance_status_tool",
+    "get_mode",
+    "get_registry_info",
+    "get_schema",
+    "get_schema_by_id",
+    "get_schema_versions",
+    "get_subject_config",
+    "get_subject_mode",
+    "get_subjects_by_schema_id",
+    "list_available_resources",
+    "list_contexts",
+    "list_registries",
+    "list_subjects",
+    "ping",
+    "register_schema",
+    "set_default_registry",
+    "suggest_resource_for_tool",
+    "test_all_registries",
+    "test_registry_connection"
+  ],
+  "env": [
+    {
+      "name": "SCHEMA_REGISTRY_URL",
+      "value": "{{kafka-schema-reg-mcp.registry_url}}"
+    },
+    {
+      "name": "SLIM_MODE",
+      "value": "{{kafka-schema-reg-mcp.slim_mode}}"
+    },
+    {
+      "name": "VIEWONLY",
+      "value": "{{kafka-schema-reg-mcp.viewonly}}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "kafka-schema-reg-mcp.registry_user",
+      "env": "SCHEMA_REGISTRY_USER",
+      "example": "<REGISTRY_USERNAME>",
+      "description": "Optional: Schema Registry username for authentication"
+    },
+    {
+      "name": "kafka-schema-reg-mcp.registry_password",
+      "env": "SCHEMA_REGISTRY_PASSWORD",
+      "example": "<REGISTRY_PASSWORD>",
+      "description": "Optional: Schema Registry password for authentication"
+    }
+  ],
+  "config": [
+    {
+      "name": "kafka-schema-reg-mcp",
+      "description": "Configure connection to Kafka Schema Registry",
+      "type": "object",
+      "properties": {
+        "registry_url": {
+          "type": "string",
+          "description": "Schema Registry URL"
+        },
+        "slim_mode": {
+          "type": "string",
+          "description": "Enable SLIM_MODE for better performance"
+        },
+        "viewonly": {
+          "type": "string",
+          "description": "Enable read-only mode"
+        }
+      },
+      "required": [
+        "registry_url"
+      ]
+    }
+  ]
+}
