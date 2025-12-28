@@ -144,7 +144,13 @@ The system is designed as a central hub that manages tool discovery, dynamic reg
     ```
     Now, edit `api/.env` with your API keys.
 
-3.  **Launch the services:**
+3. **Expand the MCP catalog**
+    Run the command:
+    ```bash
+    python ./api/utils/catalog_yml_to_json.py
+    ```
+
+4.  **Launch the services:**
     This single command builds the images and starts the API server, Redis, and any other defined services.
     ```bash
     docker-compose up --build -d
