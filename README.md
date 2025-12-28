@@ -144,7 +144,7 @@ The system is designed as a central hub that manages tool discovery, dynamic reg
     ```
     Now, edit `api/.env` with your API keys.
 
-3. **Expand the MCP catalog**
+3. **Expand the MCP catalog**  
     Run the command:
     ```bash
     python ./api/utils/catalog_yml_to_json.py
