@@ -103,8 +103,6 @@ async def dynamic_mcp_test():
         tools = await mcp.list_tools(client)
         print("\n===Printing initial tools output===\n")
         print(tools)
-        exit(0)
-        
 
         create_result = await mcp.create_dynamic_code_tool(
             client=client,

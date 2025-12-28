@@ -1,5 +1,6 @@
 import questionary
 import json
+from typing import List
 from src.mcp_host import MCPGatewayClient
 from src.provider import LLMProviderFactory
 from src.prompts import MCP_BRIDGE_MESSAGES
@@ -13,7 +14,6 @@ from rich import box
 TOOL_CHANGE_TRIGGERS = {"mcp-add", "code-mode"}
 
 async def confirm_action(title: str, text: str = "") -> bool:
-    """Confirm action using questionary"""
     message = f"{title}: {text}" if text else title
     return await questionary.confirm(message, default=False).ask_async()
 
@@ -49,21 +49,27 @@ async def cli_chat_llm(
     model: str,
     mode: str = "dynamic",
     max_iterations: int=10,
-    verbose: bool = False
+    verbose: bool = False,
+    conversation_history: List[dict] = None
 ):
     
     provider = LLMProviderFactory.get_provider(provider_name)
     tools = await client.list_tools()
-    messages = [
-        {
-            "role": "system",
-            "content": MCP_BRIDGE_MESSAGES.get(mode)
-        },
-        {
-            "role": "user",
-            "content": user_message
-        }
-    ]
+    
+    # Use provided conversation history or create new
+    if conversation_history:
+        messages = conversation_history.copy()
+    else:
+        messages = [
+            {
+                "role": "system",
+                "content": MCP_BRIDGE_MESSAGES.get(mode)
+            },
+            {
+                "role": "user",
+                "content": user_message
+            }
+        ]
 
     for iteration in range(max_iterations):
         verbose_lines = []
@@ -139,6 +145,13 @@ async def cli_chat_llm(
                             console.print(f"    [dim]↳ {additional_info}[/dim]")
                             if verbose:
                                 verbose_lines.append(additional_info)
+                            
+                            messages.append({
+                                "tool_call_id": tool_call_id,
+                                "role": "tool",
+                                "name": tool_name,
+                                "content": additional_info or "No servers found for the query."
+                            })
                             continue
 
                         final_server_name = final_server['name']
@@ -224,7 +237,7 @@ async def cli_chat_llm(
                     elif tool_name == "mcp-exec":
                         exec_tool_name = tool_args.get('name')
                         exec_arguments = tool_args.get('arguments', {})
-                        script = exec_arguments.get('script', '')
+                        script = exec_arguments.get('script', '') or exec_arguments.get('code', '')
 
                         if verbose:
                             verbose_lines.append(

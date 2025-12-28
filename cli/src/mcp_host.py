@@ -27,13 +27,29 @@ class MCPGatewayClient:
     
     async def initialize(self):
         """Initialize MCP session"""
-        response = await self._request("initialize", {
-            "protocolVersion": self.MCP_VERSION,
-            "capabilities": {},
-            "clientInfo": {"name": "mcp-gateway", "version": "1.0"}
-        })
+        payload = {
+            "jsonrpc": "2.0",
+            "id": self._next_id,
+            "method": "initialize",
+            "params": {
+                "protocolVersion": self.MCP_VERSION,
+                "capabilities": {},
+                "clientInfo": {"name": "mcp-gateway", "version": "1.0"}
+            }
+        }
+        self._next_id += 1
         
-        session_id = response.headers.get("Mcp-Session-Id")
+        response = await self._client.post(
+            self.MCP_URL,
+            json=payload,
+            headers={
+                "Mcp-Protocol-Version": self.MCP_VERSION,
+                "Accept": "application/json, text/event-stream"
+            }
+        )
+        response.raise_for_status()
+        
+        session_id = response.headers.get("Mcp-Session-Id") or response.headers.get("mcp-session-id")
         self.state.set_session_id(session_id)
         
         # Send initialized notification
@@ -162,10 +178,11 @@ class MCPGatewayClient:
     
     async def exec_code_tool(self, tool_name: str, script: str) -> dict:
         """Execute a code-mode tool"""
-        return await self.call_tool("mcp-exec", {
+        result = await self.call_tool("mcp-exec", {
             "name": tool_name,
             "arguments": {"script": script}
         })
+        return result
     
     # Internal helpers
     

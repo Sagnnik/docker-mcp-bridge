@@ -1,0 +1,16 @@
+services:
+  mcp-gateway:
+    image: docker/mcp-gateway:latest
+    container_name: mcp-gateway
+    ports:
+      - "8811:8811"
+    use_api_socket: true
+    command:
+      - --transport=streaming
+      - --port=8811
+      - --verbose=true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    env_file:
+      - .env
+    restart: unless-stopped

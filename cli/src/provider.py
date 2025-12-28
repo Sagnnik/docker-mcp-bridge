@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from openai import AsyncOpenAI
 from typing import Dict, List, Optional, Any, AsyncGenerator
 import os
-from cli.src.prompts import LLM_TOOL_SCHEMAS
+from src.prompts import LLM_TOOL_SCHEMAS
 from dotenv import load_dotenv
 load_dotenv()
     
@@ -46,10 +46,6 @@ def should_expose(name:str, mode:str):
 class LLMProvider(ABC):
     @abstractmethod
     async def generate(self, messages: List[Dict], model:str, tools: Optional[List[Dict]]):
-        pass
-
-    @abstractmethod
-    async def generate_stream(self, messages: List[Dict], model:str, tools: Optional[List[Dict]], mode: str) -> AsyncGenerator:
         pass
 
     @abstractmethod

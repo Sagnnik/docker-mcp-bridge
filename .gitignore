@@ -11,4 +11,4 @@ wheels/
 .env
 test/
 api/catalog/
-cli/catalog/
+cli/src/catalog/

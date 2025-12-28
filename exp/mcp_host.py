@@ -190,8 +190,8 @@ class MCPGatewayClient:
         try:
             result = await self.call_tool(client=client, name="mcp-find", arguments={"query": query, "limit":limit})
             result = json.loads(result['content'][0]['text'])
-            # return result['servers']
-            return result
+            return result['servers']
+            # return result
         except Exception as e:
             print(f"Error finding MCP servers: {e}")
             return []
@@ -232,9 +232,8 @@ class MCPGatewayClient:
             print(f"Remove result: {result}")  # Debug line
             
             if result.get('content'):
-                if server_name in self.active_servers:
-                    self.active_servers.remove(server_name)
-                    print(f"Removed {server_name} from active_servers")  # Debug line
+                self.active_servers.remove(server_name)
+                print(f"Removed {server_name} from active_servers")  # Debug line
                 
                 tools = await self.list_tools(client=client)
                 print(f"Active servers after removal: {self.active_servers}")  # Debug line

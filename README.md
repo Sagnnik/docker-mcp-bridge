@@ -473,17 +473,18 @@ All configuration is managed via environment variables in `api/.env`. Key variab
 -   `OPENAI_API_KEY`: Your API key for OpenAI.
 -   `OPENROUTER_API_KEY`: Your API key for OpenRouter.
 
-## Upcoming Updates
+## 🚧 Upcoming Updates
 1. Support for other llm providers
-	- Ollama and Anthropic are next on the list
+	  - Ollama and Anthropic are next on the list
 2. Custom span for langfuse
 3. Support for custom mcp catalog and setting up custom mcp servers
 4. Resource manager with monitoring (issue: GLM 4.7 just ran for 10+ mins for crawling arxiv mcp)
-	- Something to prevent infinite/recursive agent loops with hard stop
-	- CPU and memory quota
-	- Disk quota
-	- Network monitoring
+	  - Something to prevent infinite/recursive agent loops with hard stop
+	  - CPU and memory quota
+	  - Disk quota
+	  - Network monitoring
 5. Token and context management
+    - Context manager for long running agent loop only
 <details>
 <summary> Extra </summary>
 
@@ -514,14 +515,22 @@ performance:
 
 ## 🙌 Contributing
 
-Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+This project is still under active development, and I’m sure everyone will have their own ideas to improve it. **All contributions are welcome and greatly appreciated.**
 
-1.  Fork the Project
-2.  Run `uv sync` 
-3.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-4.  Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-5.  Push to the Branch (`git push origin feature/AmazingFeature`)
-6.  Open a Pull Request
+1. **Fork the project**
+2. **Install dependencies**
+    - Run `uv sync` for the full workspace
+    - Or, for an individual workspace:
+      ```bash
+      uv sync --package <api|cli>
+      ```
+3.  **Explore the codebase.**
+    - If you’re not sure where to start, check out the `exp/` folder — it contains early experiments and prototypes that are easier to dive into.
+    - Also look into the my Upcoming updates if you have any ideas to improve upon then you are welcome to add
+4.  **Create a new branch**, make your changes, then commit and push them.
+5.  **Open a pull request**, and I’ll review it as soon as I can.
+
+Whether it’s a bug fix, documentation improvement, performance tweak, or a new idea — every contribution helps move the project forward 🚀
 
 ## 📄 License
 

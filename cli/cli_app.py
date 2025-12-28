@@ -25,7 +25,7 @@ from dataclasses import dataclass, asdict
 @dataclass
 class ChatConfig:
     provider_name: str = "openai"
-    model: str = "gpt-4o-mini"
+    model: str = "gpt-5-mini"
     mode: str = "dynamic"
     max_iterations: int = 10
     verbose: bool = True
@@ -36,6 +36,7 @@ console = Console()
 
 message_history = []
 history_index = -1
+conversation_messages = []
 
 # ============= Print Helpers =============
 
@@ -64,8 +65,6 @@ def print_welcome():
 
     console.print("  [green]/help[/green]     Show available commands")
     console.print("  [green]/config[/green]   Configure provider & model")
-    console.print("  [green]/add[/green]      Search and add MCP servers")
-    console.print("  [green]/list[/green]     Show active servers and tools")
     console.print("  [green]!<cmd>[/green]    Execute shell commands")
     console.print("  [green]/exit[/green]     Quit the CLI\n")
 
@@ -114,6 +113,7 @@ def print_help():
 [bold]/find <query>[/bold]     - Search for specific servers
 [bold]/list[/bold]             - Show active servers and tools
 [bold]/remove[/bold]           - Remove a server
+[bold]/clear[/bold]            - Clear conversation history
 [bold]!<command>[/bold]        - Execute shell commands (e.g., !ls, !pwd)
 [bold]/help[/bold]             - Show this help
 [bold]/exit[/bold]             - Exit the CLI
@@ -123,6 +123,7 @@ def print_help():
   Use arrow keys to navigate command history
   Tab completion for commands
   Execute shell commands with ! prefix
+  Conversation context is maintained across messages
 
 [bold cyan]Examples:[/bold cyan]
 
@@ -260,7 +261,7 @@ async def handle_config():
 
     provider = await questionary.select(
         "Select provider",
-        choices=["openai", "anthropic", "google", "ollama"],
+        choices=["openai", "openrouter"],
         default=CHAT_CONFIG.provider_name
     ).ask_async()
 
@@ -271,7 +272,7 @@ async def handle_config():
 
     mode = await questionary.select(
         "Mode",
-        choices=["default", "dynamic", "code-mode"],
+        choices=["default", "dynamic", "code"],
         default=CHAT_CONFIG.mode
     ).ask_async()
 
@@ -443,6 +444,8 @@ async def handle_add_selected(client: MCPGatewayClient, server: dict):
 
 async def handle_list(client: MCPGatewayClient):
     """List servers and tools"""
+    global conversation_messages
+    
     console.print("\n[bold cyan]📊 Current Status[/bold cyan]\n")
     
     # Get active servers from state
@@ -484,44 +487,141 @@ async def handle_list(client: MCPGatewayClient):
     else:
         console.print("[dim]No tools available yet[/dim]")
     
+    # Conversation stats
+    console.print()
+    msg_count = len([m for m in conversation_messages if m['role'] in ['user', 'assistant']])
+    if msg_count > 0:
+        console.print(f"[bold cyan]Conversation:[/bold cyan] {msg_count} messages")
+    
     console.print()
 
+
+async def handle_clear():
+    """Clear conversation history"""
+    global conversation_messages
+    
+    if not conversation_messages:
+        print_info("Conversation is already empty")
+        return
+    
+    msg_count = len([m for m in conversation_messages if m['role'] in ['user', 'assistant']])
+    
+    if await confirm_action("Clear Conversation", f"Clear {msg_count} messages?"):
+        conversation_messages = []
+        print_success("Conversation history cleared")
+
 async def handle_remove(client: MCPGatewayClient):
-    """Remove server"""
+    """Remove server - allows force removal even if not in active state"""
     # Get active servers from state
     active_servers = [
         name for name, data in client.state.servers.items() 
         if data['status'] == 'active'
     ]
     
-    if not active_servers:
-        print_error("No active servers to remove")
-        return
+    # Get all servers from catalog as fallback
+    all_catalog_servers = list(client.catalog.servers.keys()) if client.catalog else []
     
-    # Create list for selection
-    server_list = [{'name': s, 'description': ''} for s in active_servers]
-    server = await select_from_list(server_list, "Select Server to Remove")
+    if not active_servers and not all_catalog_servers:
+        print_error("No servers available to remove")
+        console.print("\n[dim]Tip: You can also type a server name directly if you know it[/dim]")
+        
+        # Allow manual entry
+        manual = await questionary.confirm("Enter server name manually?").ask_async()
+        if manual:
+            server_name = Prompt.ask("Server name")
+            if not server_name.strip():
+                print_info("Cancelled")
+                return
+        else:
+            return
+    else:
+        # Show active servers first, then catalog servers
+        combined_servers = []
+        seen = set()
+        
+        # Add active servers
+        for name in active_servers:
+            combined_servers.append({
+                'name': name, 
+                'description': '(Active)',
+                'status': 'active'
+            })
+            seen.add(name)
+        
+        # Add catalog servers not in active list
+        for name in all_catalog_servers:
+            if name not in seen:
+                combined_servers.append({
+                    'name': name,
+                    'description': '(From catalog)',
+                    'status': 'catalog'
+                })
+        
+        if not combined_servers:
+            # Fallback to manual entry
+            console.print("[yellow]No servers found in state or catalog[/yellow]")
+            manual = await questionary.confirm("Enter server name manually?").ask_async()
+            if manual:
+                server_name = Prompt.ask("Server name")
+                if not server_name.strip():
+                    print_info("Cancelled")
+                    return
+            else:
+                return
+        else:
+            # Add manual entry option
+            combined_servers.append({
+                'name': '__manual__',
+                'description': '(Enter server name manually)',
+                'status': 'manual'
+            })
+            
+            server = await select_from_list(combined_servers, "Select Server to Remove")
+            
+            if not server:
+                print_info("Cancelled")
+                return
+            
+            if server['name'] == '__manual__':
+                server_name = Prompt.ask("Server name")
+                if not server_name.strip():
+                    print_info("Cancelled")
+                    return
+            else:
+                server_name = server['name']
     
-    if not server:
-        print_info("Cancelled")
-        return
+    # Confirm removal
+    status_hint = ""
+    if server_name in active_servers:
+        status_hint = " (currently active)"
+    elif server_name in all_catalog_servers:
+        status_hint = " (from catalog)"
+    else:
+        status_hint = " (may not exist)"
     
-    server_name = server['name']
+    console.print(f"\n[bold]Server to remove:[/bold] {server_name}{status_hint}")
     
     if not await confirm_action("Confirm Removal", f"Remove '{server_name}'?\nAll its tools will be removed."):
         print_info("Cancelled")
         return
     
-    with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}")) as progress:
-        task = progress.add_task("Removing...", total=None)
-        result = await client.remove_server(server_name)
-    
-    if result:
-        print_success(f"Removed '{server_name}'")
-    else:
-        print_error(f"Failed to remove '{server_name}'")
+    # Attempt removal
+    try:
+        with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}")) as progress:
+            task = progress.add_task("Removing...", total=None)
+            result = await client.remove_server(server_name)
+        
+        if result:
+            print_success(f"Removed '{server_name}'")
+        else:
+            print_error(f"Failed to remove '{server_name}'")
+    except Exception as e:
+        console.print(f"[yellow]⚠️  Error during removal: {str(e)}[/yellow]")
+        console.print("[dim]Server may have been partially removed or may not have existed[/dim]")
 
 async def handle_chat(client: MCPGatewayClient, message: str):
+    global conversation_messages
+    
     console.print(
         Panel(
             message,
@@ -532,6 +632,18 @@ async def handle_chat(client: MCPGatewayClient, message: str):
         )
     )
     try:
+        # Add user message to conversation history
+        user_message = {"role": "user", "content": message}
+        
+        # If this is the first message, initialize with system prompt
+        if not conversation_messages:
+            from src.prompts import MCP_BRIDGE_MESSAGES
+            conversation_messages = [
+                {"role": "system", "content": MCP_BRIDGE_MESSAGES.get(CHAT_CONFIG.mode)}
+            ]
+        
+        conversation_messages.append(user_message)
+        
         result = await cli_chat_llm(
             console,
             client=client,
@@ -540,7 +652,8 @@ async def handle_chat(client: MCPGatewayClient, message: str):
             model=CHAT_CONFIG.model,
             mode=CHAT_CONFIG.mode,
             max_iterations=CHAT_CONFIG.max_iterations,
-            verbose=CHAT_CONFIG.verbose
+            verbose=CHAT_CONFIG.verbose,
+            conversation_history=conversation_messages  # Pass full history
         )
 
         if result.get('content'):
@@ -548,6 +661,11 @@ async def handle_chat(client: MCPGatewayClient, message: str):
 
         if result.get('active_servers'):
             console.print(f"\n[dim]Active: {', '.join(result['active_servers'])}[/dim]")
+        
+        # Update conversation history with the result
+        if result.get('messages'):
+            # Replace with updated messages from the agent loop
+            conversation_messages = result['messages']
 
     except Exception as e:
         print_error(f"Error: {str(e)}")
@@ -620,6 +738,9 @@ async def chat_loop():
                     
                     elif cmd == '/config':
                         await handle_config()
+                    
+                    elif cmd == '/clear':
+                        await handle_clear()
                     
                     else:
                         print_error(f"Unknown command: {cmd}")
