@@ -140,11 +140,11 @@ The system is designed as a central hub that manages tool discovery, dynamic reg
 2.  **Configure the environment:**
     Copy the example `.env` file. This is where you'll put your secrets.
     ```bash
-    cp api/.env.example api/.env
+    cp .env.example .env
     ```
     Now, edit `api/.env` with your API keys.
 
-3. **Expand the MCP catalog**  
+3. **Expand the MCP catalog:**
     Run the command:
     ```bash
     python ./api/utils/catalog_yml_to_json.py
@@ -156,6 +156,8 @@ The system is designed as a central hub that manages tool discovery, dynamic reg
     docker-compose up --build -d
     ```
     The API will be available at `http://localhost:8000`. You can view logs with `docker-compose logs -f`.
+
+**Note:** If you want to self-host langfuse look into their official [repo](https://github.com/langfuse/langfuse)
 
 ---
 
@@ -440,15 +442,16 @@ curl -X POST http://localhost:8000/mcp/remove \
 
 ## 🔧 The CLI
 
-A command-line interface (`cli/`) is included primarily for testing, debugging, and direct interaction with the MCP Bridge. It's a great way to experiment with the system's capabilities.
+A command-line interface (`cli/`) is included primarily for testing, debugging, and direct interaction with the MCP Bridge. It's a great way to experiment with the system's capabilities. 
+
+**Note**: Multi-turn conversation is still little glitchy.
 
 ```bash
 # Install & Run the CLI chat
 git clone https://github.com/Sagnnik/docker-mcp-bridge.git
-cd docker-mcp-bridge
+cd docker-mcp-bridge/cli
 uv sync
-docker compose -f docker-compose.cli.yaml up -d
-cd cli
+docker compose up -d
 uv run cli_chat.py
 ```
 
